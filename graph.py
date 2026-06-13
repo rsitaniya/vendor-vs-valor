@@ -1,11 +1,12 @@
 """The LangGraph pipeline skeleton (spec §2).
 
-Four work nodes + three human gates. The gates are *isolated in their own nodes*
-that do nothing but ``interrupt()`` — so on resume only the cheap gate node
-re-enters, never the expensive work node (the §2 footgun). Work-node bodies are
-additionally idempotent via the schema_stage hash guard.
+Work nodes + three human gates. The gates are *isolated in their own nodes* that
+do nothing but ``interrupt()`` — so on resume only the cheap gate node re-enters,
+never the expensive work node (the §2 footgun). Work-node bodies are additionally
+idempotent via the schema_stage hash guard.
 
-Work-node bodies are stubs here; slices 4–7 fill them with schema_stage calls.
+Research runs BUILD and BUY as parallel branches, then joins to assemble the
+combined verify report before gate 2.
 """
 
 from __future__ import annotations
@@ -61,14 +62,33 @@ def intake_node(state: GraphState, config) -> dict:
     return {}
 
 
-def research_node(state: GraphState, config) -> dict:
+def research_build_node(state: GraphState, config) -> dict:
     deps = _deps(config)
     if deps is None:
         return {}
     from stages.research import run_research
 
     run_research("BUILD", state["run_dir"], provider=deps.provider, model=deps.model)
+    return {}
+
+
+def research_buy_node(state: GraphState, config) -> dict:
+    deps = _deps(config)
+    if deps is None:
+        return {}
+    from stages.research import run_research
+
     run_research("BUY", state["run_dir"], provider=deps.provider, model=deps.model)
+    return {}
+
+
+def research_join_node(state: GraphState, config) -> dict:
+    deps = _deps(config)
+    if deps is None:
+        return {}
+    from stages.research import merge_verify_reports
+
+    merge_verify_reports(state["run_dir"])
     return {}
 
 
@@ -102,10 +122,12 @@ gate2_node = _gate(2, "research", "build-research.md / buy-research.md",
 gate3_node = _gate(3, "synthesis", "strategy.md",
                    "Review the strategy; edit the soft steer to re-synthesize, or approve.")
 
-_TOPOLOGY = [
+_NODES = [
     ("intake", intake_node),
     ("gate1", gate1_node),
-    ("research", research_node),
+    ("research_build", research_build_node),
+    ("research_buy", research_buy_node),
+    ("research_join", research_join_node),
     ("gate2", gate2_node),
     ("synthesis", synthesis_node),
     ("gate3", gate3_node),
@@ -116,12 +138,18 @@ _TOPOLOGY = [
 def build_graph(checkpointer=None):
     """Compile the pipeline. Defaults to an in-memory checkpointer (tests)."""
     graph = StateGraph(GraphState)
-    for node_name, fn in _TOPOLOGY:
+    for node_name, fn in _NODES:
         graph.add_node(node_name, fn)
-    graph.add_edge(START, _TOPOLOGY[0][0])
-    for (a, _), (b, _) in zip(_TOPOLOGY, _TOPOLOGY[1:]):
-        graph.add_edge(a, b)
-    graph.add_edge(_TOPOLOGY[-1][0], END)
+    graph.add_edge(START, "intake")
+    graph.add_edge("intake", "gate1")
+    graph.add_edge("gate1", "research_build")
+    graph.add_edge("gate1", "research_buy")
+    graph.add_edge(["research_build", "research_buy"], "research_join")
+    graph.add_edge("research_join", "gate2")
+    graph.add_edge("gate2", "synthesis")
+    graph.add_edge("synthesis", "gate3")
+    graph.add_edge("gate3", "report")
+    graph.add_edge("report", END)
     return graph.compile(checkpointer=checkpointer or InMemorySaver())
 
 

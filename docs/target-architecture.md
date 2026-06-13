@@ -96,9 +96,9 @@ Graph: DecisionRun  (LangGraph; durable checkpointer backend)
 
 ---
 
-## B4. Research at scale — replaces the MVP's sequential tracks
+## B4. Research at scale — extends the MVP's parallel tracks
 
-**MVP shortcut:** BUILD then BUY, sequentially, one web_search agent each; source content cached per run.
+**MVP shortcut:** BUILD and BUY already run concurrently, but each track is still one web_search agent with a per-run source cache.
 
 **Production:**
 - **True parallel fan-out.** The two tracks run concurrently; within a track, sub-questions (vendor A, vendor B, OSS option C, cost model, compliance posture) fan out as parallel workers, each with an isolated context window — the deep-research "sub-agent isolation" pattern, preventing context-poisoning across unrelated sub-topics. (The MVP's two evidence pools become many parallel sub-pools that compose into the same two substrates.)
@@ -191,7 +191,7 @@ The MVP proves the engine is *consistent and grounded*; the Target proves it is 
 | Capability | MVP | Target | Migration trigger |
 |---|---|---|---|
 | Orchestration | LangGraph + SQLite checkpointer | LangGraph + durable checkpointer (Postgres) | first multi-day run / first lost run |
-| Concurrency | sequential | parallel fan-out | research latency hurts UX |
+| Concurrency | BUILD/BUY parallel branches | deeper parallel fan-out within each track | research latency hurts UX |
 | Grounding | post-hoc verify | structural + hard gate | first misattributed claim reaches a human |
 | Challenger | degradable pass | mandatory gate | recommendations go to real capital calls |
 | Confidence | deferred (none) | qualitative-plus-signal | reviewers ask "how sure are we?" |

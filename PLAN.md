@@ -1,7 +1,7 @@
 # PLAN.md — Portfolio Decision Engine (MVP build plan)
 
 **Status:** awaiting approval. No code until PLAN.md is approved (per CLAUDE.md).
-**Source of truth:** `mvp-hld-and-build-spec.md` (primary), `design-v2.md` (why), `target-architecture.md` (context only — do NOT build Target features).
+**Source of truth:** `docs/mvp-hld-and-build-spec.md` (primary), `docs/design-v2.md` (why), `docs/target-architecture.md` (context only — do NOT build Target features).
 
 This plan maps 1:1 to the spec's §8 build order and CLAUDE.md's build-order/checkpoints. Each slice is a vertical, runnable, checkable increment. I stop at the marked checkpoints; between them I proceed.
 
@@ -93,7 +93,7 @@ Repo layout per design §9.5 (`/skills`, `/agents`, `/rubric`, `/eval`, `/runs`,
 ### Slice 5 — Stage 2 research (parameterized track) + verify/filter — §8.5 → **CHECKPOINT 4 (STOP)**
 - One parameterized `research_agent(track)`; `/agents/research_build.md` + `/agents/research_buy.md` scoping prompts (the schedule risk — I pre-write/test these). Covers the §5.2 BUILD/BUY checklists.
 - Search-to-discover → fetch-full-content → cache → `assert_claim` per claim → `verify` (re-reads cache) → `filter`. Emits `build-research.{md,json}` then `buy-research.{md,json}` + `verify-report.json`. `.md` generated from filtered json.
-- Run **BUILD then BUY** sequentially; gate-2 `interrupt()` surfaces both docs + verify report.
+- Run **BUILD and BUY in parallel** as separate LangGraph branches; a join node assembles `verify-report.json`; gate-2 `interrupt()` surfaces both docs + verify report.
 **Acceptance (CP4):** a live research run on the intake need produces real cited claims, each with a resolvable cached source; verify independently labels them; filter drops UNSUPPORTED and flags PARTIAL/stale/conflict. **I show you real cited output with live citations, then stop.** (This is the schedule-risk checkpoint.)
 
 ### Slice 6 — Stage 3 synthesis + challenger → `strategy.{md,json}` — §8.6 → **CHECKPOINT 5 (STOP)**
@@ -128,7 +128,7 @@ Never leave the core pipeline (Slices 1–6 minus challenger) broken end-to-end.
 
 **Q1 — `locator` mechanism (load-bearing; determines `assert_claim` signature).** The `Claim` shows `locator: {type: char_span, start, end}` pointing into cached content, plus `display_quote` (<15 words). LLMs cannot reliably emit character offsets. **My proposed resolution:** the research author emits the verbatim `display_quote` + url; `assert_claim` **computes** the `char_span` deterministically by locating that quote in the cached content (exact match, then a fuzzy fallback); if it can't be located → reject the claim. `verify` then re-reads the cached content around that span and judges support **independently** (it does not trust `display_quote`). This keeps "verify reads the bytes, not the author's quote." **Confirm this interpretation, or tell me you want the LLM to emit offsets directly.**
 
-**Q2 — Gemini API access. [PARTIALLY RESOLVED]** You're adding the key to `.env`. Still need: any exact model-id preference? Defaults set to `gemini-2.5-flash` / `gemini-2.5-pro` in `.env.example` — confirm or override.
+**Q2 — Gemini API access. [RESOLVED]** Defaults set to `gemini-3.5-flash` / `gemini-3.1-pro-preview` in `.env.example` and code; override via env if needed.
 
 **Q3 — Search provider. [RESOLVED]** DuckDuckGo (`ddgs`), no key, per your call. (Demo-safety comes from the per-run source cache replaying offline, not from the search provider.)
 
@@ -136,6 +136,6 @@ Never leave the core pipeline (Slices 1–6 minus challenger) broken end-to-end.
 
 **Q5 — Git. [RESOLVED]** `git init` done; `old/` git-ignored (never committed). Will commit per slice with messages mapping to build-order items.
 
-**Q6 — Doc-path mismatch (FYI, non-blocking).** CLAUDE.md references docs under `/docs` named `design-and-decision-model.md`; actual docs are in repo root and the design doc is `design-v2.md`. I've mapped them by role. No action unless you want CLAUDE.md updated.
+**Q6 — Doc-path mismatch. [RESOLVED]** The three architecture/design docs now live under `/docs`: `docs/mvp-hld-and-build-spec.md`, `docs/design-v2.md`, and `docs/target-architecture.md`.
 
 **Q7 — Env tooling. [RESOLVED]** `uv` (synced; `pyproject.toml` + `uv.lock` in place).

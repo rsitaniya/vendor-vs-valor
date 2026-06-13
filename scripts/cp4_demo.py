@@ -12,7 +12,7 @@ import sys
 from engine.runstore import RunStore
 from llm import flash_model, get_provider
 from stages.intake import run_intake
-from stages.research import run_research
+from stages.research import merge_verify_reports, run_research
 
 NEED = (
     "We need a vector database to power semantic search over our product catalog. "
@@ -54,6 +54,7 @@ def main() -> int:
     print("\n[3/3] BUY research (live)...")
     buy = run_research("BUY", str(store.dir), provider=provider, model=model)
     _show_research(buy)
+    merge_verify_reports(str(store.dir))
 
     total = len(build.kept) + len(buy.kept)
     print(f"\nartifacts: {store.dir}/*.md, *-research.json, verify-report.json, sources/")

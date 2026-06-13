@@ -128,7 +128,7 @@
       "cost_tagged": false,
       "tracks": [],
       "mvp_status": "dormant",
-      "note": "Dormant in MVP (single-need; no Portfolio Memory). Survives as structure; activated by the Portfolio Memory Service in Target (target-architecture §B7). Research does not chase this dimension in the MVP."
+      "note": "Dormant in MVP (single-need; no Portfolio Memory). Survives as structure; activated by the Portfolio Memory Service in Target (docs/target-architecture.md §B7). Research does not chase this dimension in the MVP."
     },
     {
       "id": "m13",

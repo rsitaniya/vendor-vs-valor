@@ -15,7 +15,7 @@
 - Grounding is **post-hoc verify** (the `grounded_claim` skill), with the structural upgrade deferred. **`→ Target §B5`**.
 - A **challenger** pass produces the runner-up; **degradable** to single-pass synthesis if the clock runs out.
 - Reusable layer = **two skills** (`grounded_claim`, `schema_stage`) + **one config** (`paths.json`). No scoring kernel.
-- Orchestration: **LangGraph graph** — sequential nodes, `interrupt()` gates, checkpointer-backed resume; MVP uses an in-memory/SQLite checkpointer. **`→ Target §B3`**.
+- Orchestration: **LangGraph graph** — gated stage flow with parallel BUILD/BUY research branches, `interrupt()` gates, checkpointer-backed resume; MVP uses an in-memory/SQLite checkpointer. **`→ Target §B3`**.
 - Portfolio memory: **out of MVP** (stub interface only). **`→ Target §B7`**.
 - Report: **lightweight self-contained HTML** in MVP.
 
@@ -34,7 +34,7 @@
 6. `report.html` renders standalone (no server, no external assets) with dossiers, expandable cited evidence, and visually distinct **flags** (partial-evidence, stale-cost, conflicting-price).
 7. The whole run is **resumable**: the graph parks at each gate and resumes on signal; a node whose inputs are unchanged reuses its artifact; editing the profile re-runs only what depends on it.
 
-**Explicit non-goals for MVP:** no UI server, no auth, no application database (the SQLite checkpointer is LangGraph's, not a data store we model against), no true parallelism, no structural-grounding-at-emission, no portfolio-memory seed, no numeric scoring/confidence/sensitivity, no procurement actions.
+**Explicit non-goals for MVP:** no UI server, no auth, no application database (the SQLite checkpointer is LangGraph's, not a data store we model against), no intra-track fan-out beyond BUILD/BUY parallelism, no structural-grounding-at-emission, no portfolio-memory seed, no numeric scoring/confidence/sensitivity, no procurement actions.
 
 ---
 
@@ -54,7 +54,7 @@ A **LangGraph pipeline over a file-backed artifact store.** Each stage is a grap
         │ (Command(resume=…))
         ▼
 ┌─────────────────────────────────────────────────────────┐
-│ NODE: RESEARCH  (sequential in MVP; parallel → Target)   │
+│ NODE: RESEARCH  (BUILD and BUY run in parallel)           │
 │   research_agent(track=BUILD) → build-research.{md,json}  │
 │   research_agent(track=BUY)   → buy-research.{md,json}    │
 │   verify + filter (per track) ← grounded_claim skill      │
@@ -252,7 +252,7 @@ This guard is what makes node bodies **idempotent** — which is also exactly wh
 
 ### 5.2 Stage 2 — Research substrates → `*-research.{md,json}`
 
-**Type:** two invocations of one parameterized research agent (`track ∈ {BUILD, BUY}`), **sequential in MVP** (`→ Target §B4`), each followed by `verify` + `filter`. **Complexity: MEDIUM — the engine's center of gravity.** (The scoping prompts are the IP and are the build's schedule risk — see §7.)
+**Type:** two parallel invocations of one parameterized research agent (`track ∈ {BUILD, BUY}`), each followed by `verify` + `filter`; a join step assembles the combined `verify-report.json`. **Complexity: MEDIUM — the engine's center of gravity.** (The scoping prompts are the IP and are the build's schedule risk — see §7.)
 
 **BUILD substrate covers:** industry approaches/best-practices; benchmarks across approaches (OSS options, reference architectures); **live cost analysis** (eng-effort, infra, the maintenance/bloat curve — researched, dated); build risks (talent scarcity, overruns, tech-debt accretion).
 
@@ -321,7 +321,7 @@ The qualitative pivot *removed* work (no scoring/weights/validation machinery) a
 2. **`grounded_claim` skill** — `Claim`, `assert`/`verify`/`filter`, source cache. The trust core; test it in isolation. ~3–4h.
 3. **`schema_stage` skill** + LangGraph graph skeleton (nodes + edges + `interrupt()` gates + checkpointer) + the per-node input-hash guard. Knowing LangGraph already, this is wiring, not learning. ~2–3h.
 4. **Stage 1 intake** agent + `profile.json` validator (case-agnostic prompt is the work). ~2h.
-5. **Stage 2 research** agent (one parameterized track) + scoping prompts + wire `grounded_claim`; run BUILD then BUY. ~4–6h *(the long pole — pre-tested prompts shrink this)*.
+5. **Stage 2 research** agent (one parameterized track) + scoping prompts + wire `grounded_claim`; run BUILD and BUY in parallel. ~4–6h *(the long pole — pre-tested prompts shrink this)*
 6. **Stage 3 synthesis** (four-path lenses) **+ challenger**. ~3–4h.
 7. **Stage 4 HTML renderer.** ~2h.
 8. **Engine-regression harness** (good-to-have, degradable): skeleton/stability/leakage assertions on a golden fixture. ~1–2h.
