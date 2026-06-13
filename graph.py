@@ -11,6 +11,7 @@ Work-node bodies are stubs here; slices 4–7 fill them with schema_stage calls.
 from __future__ import annotations
 
 import sqlite3
+from dataclasses import dataclass
 from pathlib import Path
 from typing import TypedDict
 
@@ -19,30 +20,55 @@ from langgraph.checkpoint.sqlite import SqliteSaver
 from langgraph.graph import END, START, StateGraph
 from langgraph.types import interrupt
 
+from llm.provider import LLMProvider
+
 
 class GraphState(TypedDict, total=False):
     run_id: str
     run_dir: str
+    need: str
+    context: str
     gate1: str  # the operator's decision at each gate (recorded for audit)
     gate2: str
     gate3: str
 
 
-# --- work nodes (filled by slices 4–7; idempotent via schema_stage) ---
+@dataclass
+class RunDeps:
+    """Runtime dependencies injected via config['configurable']['deps'].
 
-def intake_node(state: GraphState) -> dict:
-    return {}  # TODO slice 4: schema_stage.run("intake", ...) -> profile.{md,json}
+    Absent => nodes no-op (topology/skeleton mode, used by graph tests).
+    """
+    provider: LLMProvider | None = None
+    model: str | None = None
 
 
-def research_node(state: GraphState) -> dict:
+def _deps(config) -> RunDeps | None:
+    return (config or {}).get("configurable", {}).get("deps")
+
+
+# --- work nodes (idempotent via schema_stage; no-op without deps) ---
+
+def intake_node(state: GraphState, config) -> dict:
+    deps = _deps(config)
+    if deps is None:
+        return {}
+    from stages.intake import run_intake
+
+    run_intake(state["need"], state["run_dir"], run_id=state.get("run_id"),
+               context=state.get("context", ""), provider=deps.provider, model=deps.model)
+    return {}
+
+
+def research_node(state: GraphState, config) -> dict:
     return {}  # TODO slice 5: research BUILD then BUY -> *-research.{md,json}
 
 
-def synthesis_node(state: GraphState) -> dict:
+def synthesis_node(state: GraphState, config) -> dict:
     return {}  # TODO slice 6: synthesize + challenger -> strategy.{md,json}
 
 
-def report_node(state: GraphState) -> dict:
+def report_node(state: GraphState, config) -> dict:
     return {}  # TODO slice 7: render report.html
 
 
