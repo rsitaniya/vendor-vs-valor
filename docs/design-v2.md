@@ -1,7 +1,7 @@
-# Portfolio Decision Engine — Buy vs. Build Research Engine
+# Vendor vs Valor
 ### Design & Decision Model (v2.0)
 
-> An advisory intelligence layer that turns "should we build this or buy it?" from a hallway conversation into a grounded, citation-backed recommendation — by first understanding intent, then researching build and buy paths autonomously, then reasoning over four strategic options and arguing against its own answer before it ships.
+> An advisory intelligence layer that turns capability sourcing from a hallway conversation into a grounded, citation-backed recommendation — by first understanding intent, then researching internal and vendor-led paths autonomously, then reasoning over four strategic options and arguing against its own answer before it ships.
 
 **Author:** Rohan
 **Context:** Designed for Emergence Software (permanent-capital B2B software holding company; "buy-to-build" model; multiple portfolio companies across data and infrastructure verticals).
@@ -18,11 +18,11 @@
 
 Emergence's entire edge is **leverage**: build one good thing, multiply it across N companies. Every portfolio company independently faces a stream of "build it or license it" calls — a vector DB, an eval harness, a billing system, a fraud model, a document parser. Today those calls are made locally, inconsistently, and without rigorous research. That is wasted capital and duplicated effort across the portfolio.
 
-This engine is the **research infrastructure** for those calls. A platform-team operator describes a need; the engine interviews them to build a structured **need-profile**, runs **two research tracks** (build economics and buy-market scan), reasons over **four strategic paths**, and produces an **advisory recommendation** — with a runner-up, the conditions under which the runner-up wins, the decisive factors, and the evidence behind every claim. Then, before it ships, a **challenger pass** tries to make the strongest cited case for a *different* path; whatever it surfaces becomes the runner-up. Every claim is cited and independently verified.
+This engine is the **research infrastructure** for those calls. A platform-team operator describes a need; the engine runs intake to build a structured **need-profile**, runs **two research tracks** (build economics and buy-market scan), reasons over **four strategic paths**, and produces an **advisory recommendation** — with a runner-up, the conditions under which the runner-up wins, the decisive factors, and the evidence behind every claim. Then, before it ships, a **challenger pass** tries to make the strongest cited case for a *different* path; whatever it surfaces becomes the runner-up. Every claim is cited and independently verified.
 
 It is deliberately **advisory, not autonomous-deciding**: research is autonomous, the decision stays human. That is the correct posture for capital-allocation decisions and it mirrors the governance-rails pattern — every model passes through a common gate — applied to capital instead of compliance.
 
-**Buy-vs-build verdict on the engine itself:** *buy-then-extend.* Generic deep-research agents are commoditized and open-source; the buy-vs-build **domain logic, dual-track scoping, four-path reasoning, citation grounding, and portfolio-reuse lens** are the IP. We stand on a research primitive and build the differentiating layer. (The engine, applied to itself, recommends exactly this.)
+**Vendor vs Valor verdict on the engine itself:** *buy-then-extend.* Generic deep-research agents are commoditized and open-source; the **domain logic, dual-track scoping, four-path reasoning, citation grounding, and portfolio-reuse lens** are the IP. We stand on a research primitive and build the differentiating layer. (The engine, applied to itself, recommends exactly this.)
 
 ---
 
@@ -46,14 +46,8 @@ Made locally and casually, these decisions:
 |---|---|
 | Hire consultants per decision | Doesn't compound; no institutional memory; slow; expensive per-call. |
 | Static framework (McKinsey/BETSOL-style checklist) | Humans still do 100% of the research; inconsistent depth; no citations; no portfolio lens. |
-| Generic deep-research agent | Researches anything, knows nothing about buy-vs-build structure, TCO, or reuse economics. |
+| Generic deep-research agent | Researches anything, knows nothing about capability-sourcing structure, TCO, or reuse economics. |
 | **This engine** | Encodes the decision logic once, runs the research autonomously, reasons consistently, remembers across the portfolio (Target), and cites every claim. |
-
-### 1.3 The strategic pitch (the one-liner for the interview)
-
-*"Emergence's thesis is leverage — one well-designed thing multiplied across the portfolio. The highest-leverage thing isn't any single product feature; it's the **decision layer** that governs how engineering capital gets allocated across the portfolio. I built the governance rails every AI model passed through at Amex. This is the same pattern applied to capital-allocation decisions: a common, rigorous, reusable gate that every build-vs-buy call passes through."*
-
----
 
 ## 2. Scope, users, and non-goals
 
@@ -77,7 +71,7 @@ Made locally and casually, these decisions:
 
 ### 2.4 Case-agnostic by design
 
-The engine encodes **no domain knowledge**. It does not "recognize HIPAA" or special-case any vertical. Intake elicits compliance regime, data sensitivity, and constraints as **general fields**; synthesis reasons over whatever those fields contain. A demonstration necessarily instantiates one example need at runtime — the way you demo a compiler by compiling one program — but the example is **runtime input, never design-time structure.** This is deliberate: a case baked into the design would reframe the engine from *infrastructure* into *a solution to one problem*, which is precisely the diminishment to avoid in front of a leverage-thesis audience. It also self-disciplines the design — every mechanism must justify itself in general terms, with no domain-specific cheats smuggled in.
+The engine encodes **no domain knowledge**. It does not "recognize HIPAA" or special-case any vertical. Intake elicits compliance regime, data sensitivity, and constraints as **general fields**; synthesis reasons over whatever those fields contain. A demonstration necessarily instantiates one example need at runtime — the way you demo a compiler by compiling one program — but the example is **runtime input, never design-time structure.** This is deliberate: a case baked into the design would reframe the engine from *infrastructure* into *a solution to one problem*. It also self-disciplines the design — every mechanism must justify itself in general terms, with no domain-specific cheats smuggled in.
 
 ---
 
@@ -85,7 +79,7 @@ The engine encodes **no domain knowledge**. It does not "recognize HIPAA" or spe
 
 This is the part no off-the-shelf tool has. Everything else is plumbing.
 
-### 3.1 Buy vs. build is a false binary — the engine evaluates **four paths**
+### 3.1 Vendor vs Valor evaluates **four paths**
 
 | Path | Definition | Emergence resonance |
 |---|---|---|
@@ -94,7 +88,7 @@ This is the part no off-the-shelf tool has. Everything else is plumbing.
 | **Buy-then-extend** | License a core platform with a strong API, build the differentiating layer on top. | The dominant modern playbook; usually the real answer. |
 | **Adopt-and-self-host** | Take open-source, run and harden it internally. | Cost/control middle path; trades license fees for ops burden. **Often the right answer under data-residency or sensitivity constraints** — self-hosting beats both a raw build and a vendor dependency when data cannot leave the perimeter. |
 
-**Why four, not five.** v1.0 included **acquire** (M&A). It is dropped — everywhere, including the Target. Acquire is the only "path" that isn't a recombination of build/buy evidence: assessing it needs valuation and diligence data that web research cannot responsibly produce, and acquisition is Emergence's *own* core function, not something its decision-engine should opine on. Keeping it would force either invented evidence or a hollow row. The honest line, if it comes up: *"Acquire is a real fifth option, but it's M&A diligence, not web-researchable, so it sits with the humans, not the engine."* That boundary — the engine knowing the edge of its own competence — reads as more sophisticated than a half-built fifth path, not less.
+**Why four, not five.** v1.0 included **acquire** (M&A). It is dropped — everywhere, including the Target. Acquire is the only "path" that isn't a recombination of build/buy evidence: assessing it needs valuation and diligence data that web research cannot responsibly produce, and acquisition is Emergence's *own* core function, not something its decision-engine should opine on. Keeping it would force either invented evidence or a hollow row. The boundary is intentional: the engine should know the edge of its own competence rather than produce a half-built fifth path.
 
 **Why four, not two.** A two-path engine looks naive to an M&A-native, modern-stack audience. Buy-then-extend is the playbook most decisions actually land on; adopt-and-self-host is the path that wins in regulated/sensitive contexts. Showing all four signals you understand the real decision surface.
 
@@ -156,7 +150,7 @@ The runner-up's **"wins when" conditions** preserve the *sensitivity* idea quali
    NODE 1             NODE 2                       NODE 3                  NODE 4
 ┌──────────────┐  ┌──────────────────────────┐  ┌──────────────────┐  ┌──────────────┐
 │  INTAKE      │  │   RESEARCH                │  │  SYNTHESIS       │  │   REPORT     │
-│  INTERVIEW   │─▶│  ┌────────┐  ┌─────────┐ │─▶│  + CHALLENGER    │─▶│              │
+│  INTAKE      │─▶│  ┌────────┐  ┌─────────┐ │─▶│  + CHALLENGER    │─▶│              │
 │              │  │  │ BUILD  │  │  BUY    │ │  │                  │  │              │
 │ → profile.md │  │  │ subst. │  │ subst.  │ │  │ → strategy.md    │  │ → report.html│
 │  (+ steer)   │  │  └────────┘  └─────────┘ │  │   (rec+runner-up)│  │              │
@@ -168,7 +162,7 @@ The runner-up's **"wins when" conditions** preserve the *sensitivity* idea quali
 
 Three human gates, implemented as LangGraph `interrupt()` points: confirm the profile before research, review research before synthesis, review strategy before it's final. The graph parks at each and resumes on signal. **Autonomous research, human judgment.**
 
-### 4.2 Stage 1 — Intake interview → `profile.md` + `profile.json`
+### 4.2 Stage 1 — Intake → `profile.md` + `profile.json`
 
 A conversational agent that elicits and structures: the **need** (capability, business context, problem); the **intent / core-value test** (near the moat or peripheral?); **resources** (eng headcount, skills, budget, runway); **constraints** (compliance regime, data sensitivity, existing stack, timeline hard-stops); **customization needs**; and the **soft qualitative steer** (what matters most, in the operator's words).
 
@@ -238,12 +232,12 @@ Stated so the human trusts the output.
 
 ---
 
-## 7. The "buy vs build" decision on the engine itself
+## 7. The Vendor vs Valor decision on the engine itself
 
 Applying the engine's own logic (the strongest demonstration that the framework works):
 
 - **Generic deep-research capability** → **adopt / buy.** Open-source deep-research agents and orchestration frameworks (LangGraph and its ecosystem) are mature, MCP-native, benchmarked, commoditized. Rebuilding this is wasted capital. *Verdict: adopt — LangGraph for orchestration, a hosted model API for inference.*
-- **Buy-vs-build domain logic, dual-track scoping, four-path reasoning, the `grounded_claim` discipline, the challenger, the portfolio-reuse lens** → **build.** This is the differentiating IP. No vendor has it. It generates a proprietary asset (portfolio decision memory) that compounds. *Verdict: build.*
+- **Domain logic, dual-track scoping, four-path reasoning, the `grounded_claim` discipline, the challenger, the portfolio-reuse lens** → **build.** This is the differentiating IP. No vendor has it. It generates a proprietary asset (portfolio decision memory) that compounds. *Verdict: build.*
 - **Net path: buy-then-extend** — adopt the orchestration + model primitives, build the differentiating layer on top. Exactly the path the engine is designed to surface, and the path modern stacks converge on. The narrative writes itself.
 
 ---
@@ -291,7 +285,7 @@ Two kinds of eval exist; only one is a component:
 
 ### 9.5 Suggested repo shape
 ```
-portfolio-decision-engine/
+vendor-vs-valor/
   README.md
   DESIGN.md                  ← this document
   /skills
@@ -341,17 +335,5 @@ Two independent choices: **orchestration substrate** and **model provider**. Bot
 The model sits behind a provider placeholder, so per-stage routing (e.g. a different model for the challenger to reduce self-agreement, or a stronger model for synthesis) is a config change — the seed of the Target's provider-routing layer (*Target Architecture* §B4).
 
 **The decision criterion, stated honestly:** minimize reversibility cost and let the framework own only the commodity. Both choices are reversible by construction (interfaces), so this is "decided, but not married" — the correct senior posture, and itself a small demonstration of the engine's own logic applied to its own construction.
-
----
-
-## 11. How this maps to the role (say this out loud in the interview)
-
-- **"Design shared AI infrastructure portfolio companies standardize on"** → this *is* that — a standardized, case-agnostic decision layer every company runs decisions through.
-- **"Own system-design reviews across the portfolio"** → the engine is the system that runs those reviews rigorously, consistently, and auditably.
-- **"Optimize for cost/latency"** → provider routing + caching + token budgeting (Target) — the APIM-Bot 60%-cost-reduction lineage.
-- **"Mentor portfolio engineers"** → the cited, verified, challenger-tested output *teaches* the decision discipline every time it runs.
-- **Amex governance differentiator** → the `grounded_claim` gate + the challenger + (Target) the audit trail are governance rails for *capital allocation* instead of *model risk*. Same pattern, the org level Emergence operates at.
-
----
 
 *End of Design & Decision Model. The MVP HLD & Build Specification is the buildable slice; the Target Architecture is the production arc every MVP shortcut grows into.*

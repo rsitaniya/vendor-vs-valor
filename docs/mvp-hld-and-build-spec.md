@@ -1,7 +1,7 @@
 # MVP High-Level Design & Build Specification
-### Portfolio Decision Engine (Buy-vs-Build Research Engine)
+### Vendor vs Valor
 
-**What this document is.** The **MVP**, described at **HLD altitude** with **targeted LLD** for the contracts whose precision is load-bearing. It is the buildable slice — what ships in a 1–2 day Claude Code-assisted build and runs live in the interview. The vision and rationale live in *Design & Decision Model*; the production-scale design lives in *Target Architecture*. Every shortcut here names the production answer it points to: **`→ Target §x`**.
+**What this document is.** The **MVP**, described at **HLD altitude** with **targeted LLD** for the contracts whose precision is load-bearing. It is the buildable slice — what ships in a 1–2 day Claude Code-assisted build and can run live as a demonstration. The vision and rationale live in *Design & Decision Model*; the production-scale design lives in *Target Architecture*. Every shortcut here names the production answer it points to: **`→ Target §x`**.
 
 **Substrate & model (decided):** **LangGraph** for orchestration — the pipeline is a graph, the three human gates are `interrupt()` points, and resumability is the checkpointer; this is chosen because it natively provides the gate + resume semantics this engine needs and because it makes the MVP→Target durability migration a checkpointer swap rather than a rewrite (**`→ Target §B3`**). **Gemini** (Flash as the workhorse, Pro available for synthesis where context/reasoning headroom helps) as the default model, **behind a provider interface** so a per-stage swap to Claude or GPT is a config change, not a refactor. Both are deliberately reversible choices. Model placeholders are used throughout so the provider is never hard-coded into a stage.
 
@@ -23,7 +23,7 @@
 
 ## 1. MVP goal & success criteria
 
-**Goal:** a command-line research engine that takes a capability need supplied at runtime, interviews the operator, autonomously researches build and buy paths with live verified citations, reasons over four strategic paths, argues against its own answer, and emits a cited `strategy.md` + a self-contained `report.html` — end to end, live, for *any* need the operator describes.
+**Goal:** a command-line research engine that takes a capability need supplied at runtime, runs structured intake with the operator, autonomously researches build and buy paths with live verified citations, reasons over four strategic paths, argues against its own answer, and emits a cited `strategy.md` + a self-contained `report.html` — end to end, live, for *any* need the operator describes.
 
 **Done = all true:**
 1. `intake` produces a schema-valid `profile.json` capturing need, constraints, and the operator's **soft qualitative steer** — for an arbitrary domain, with no hardcoded domain knowledge.
@@ -222,7 +222,7 @@ where current_hash(stage) = hash(
 ```
 This guard is what makes node bodies **idempotent** — which is also exactly what defuses the LangGraph "re-enter from the top on resume" footgun (§2): a node that re-executes after an interrupt recomputes the same hash, finds its artifact present, and no-ops instead of re-calling the LLM. **Consequences that fall out for free:** editing the profile's soft steer at gate 3 changes synthesis's input-hash → synthesis re-runs on resume, while research (unchanged inputs) is skipped — so **no special "rescore"/"redo" commands are needed**; the guard *is* the general rule. Per-track re-run works because each track's artifact is hashed independently.
 
-**Reproducibility boundary (state this in the room — it's a strength).** The skip guarantee covers everything *except live web results*, which are inherently non-deterministic. So the precise claim is: **"given the same cached evidence pool, the engine produces the same assessment"** — within-run reproducibility, guaranteed by the source cache. Cross-run freshness is *intentional* (you want current data), bounded by the staleness flags, not by the hash. **`→ Target §B6`** adds cross-run pinning via cached corpora.
+**Reproducibility boundary.** The skip guarantee covers everything *except live web results*, which are inherently non-deterministic. So the precise claim is: **"given the same cached evidence pool, the engine produces the same assessment"** — within-run reproducibility, guaranteed by the source cache. Cross-run freshness is *intentional* (you want current data), bounded by the staleness flags, not by the hash. **`→ Target §B6`** adds cross-run pinning via cached corpora.
 
 ---
 
@@ -232,7 +232,7 @@ This guard is what makes node bodies **idempotent** — which is also exactly wh
 
 **Type:** single LLM agent, conversational, schema-terminated. **Complexity: LOW–MEDIUM** (the case-agnostic generality is in the prompt).
 
-**Behavior:** a structured interview covering need, intent/core-value test, resources, constraints (compliance regime, data sensitivity, existing stack, timeline), customization needs, and the **soft qualitative steer** (what matters most, in the operator's words — *no numbers*). Because the engine is case-agnostic, the agent asks good follow-ups for a domain it knows nothing about in advance; it does **not** recognize or special-case any vertical.
+**Behavior:** a structured intake conversation covering need, intent/core-value test, resources, constraints (compliance regime, data sensitivity, existing stack, timeline), customization needs, and the **soft qualitative steer** (what matters most, in the operator's words — *no numbers*). Because the engine is case-agnostic, the agent asks good follow-ups for a domain it knows nothing about in advance; it does **not** recognize or special-case any vertical.
 
 **The contract it emits — `profile.json` (LLD; validated by code before Stage 2):**
 ```json
@@ -297,7 +297,7 @@ These files *are* the differentiator; the orchestration is commodity.
 
 - **`/rubric/metrics.json`** — the 14 research dimensions, each with the question it answers and the per-track "what to look for" list. The research checklist that makes coverage consistent.
 - **`/rubric/paths.json`** — the path→evidence-pool mapping (§3.3).
-- **`/agents/intake.md`** — interview prompt + `profile.json` schema + soft-steer capture. *Case-agnostic — no domain cues.*
+- **`/agents/intake.md`** — intake prompt + `profile.json` schema + soft-steer capture. *Case-agnostic — no domain cues.*
 - **`/agents/research_query_plan.md`** — Phase-A search planner (§5.2): profile + dimensions → `priority_dimensions` + diversified, profile-aware query set. Single planning pass, not intra-track fan-out.
 - **`/agents/research_build.md`** / **`/agents/research_buy.md`** — per-track scoping prompts (§5.2) + the `assert_claim` contract + citation-mandatory + atomicity + source-credibility-as-selection + dimension-prioritization instruction.
 - **`/agents/synthesis.md`** — four-path reasoning + decisive-factors + open-questions prompt.
@@ -307,7 +307,7 @@ These files *are* the differentiator; the orchestration is commodity.
 
 ---
 
-## 7. Failure modes & demo-safety (interview-day reality)
+## 7. Failure modes & demo-safety
 
 | Failure | MVP handling |
 |---|---|
@@ -319,7 +319,7 @@ These files *are* the differentiator; the orchestration is commodity.
 | Stale or conflicting pricing | `stale_cost` flag (>12mo) / `price_conflict` range with both sources (§3.1.3). |
 | Run interrupted | resume from the checkpointer's last checkpoint; the per-node input-hash guard reuses unchanged artifacts so no completed work repeats. |
 | Challenger underperforms / time-boxed | degrade to single-pass synthesis; runner-up still produced; structure unchanged. |
-| Live demo network risk | the source cache replays the whole run offline. **Pre-stage one clean run before the interview.** |
+| Live demo network risk | the source cache replays the whole run offline. **Pre-stage one clean run before the demo.** |
 
 ---
 
