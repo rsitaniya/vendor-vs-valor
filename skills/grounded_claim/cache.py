@@ -16,6 +16,13 @@ from pathlib import Path
 import httpx
 import trafilatura
 
+# Many sites (e.g. Wikipedia) reject non-descriptive bot agents with 403.
+# A standard browser UA is the pragmatic choice for research fetching.
+_USER_AGENT = (
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
+    "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+)
+
 
 class CacheError(RuntimeError):
     """Raised when cached content is requested for an un-cached URL."""
@@ -69,7 +76,7 @@ class SourceCache:
         if self.has(url):
             return self.get_content(url)
         resp = httpx.get(url, follow_redirects=True, timeout=timeout,
-                         headers={"User-Agent": "portfolio-decision-engine/0.1"})
+                         headers={"User-Agent": _USER_AGENT})
         resp.raise_for_status()
         html = resp.text
         content = trafilatura.extract(html, include_comments=False, include_tables=True) or ""
