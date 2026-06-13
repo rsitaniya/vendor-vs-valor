@@ -92,10 +92,12 @@ def test_synthesis_produces_strategy_with_recommendation_and_dossiers(run_dir):
     assert strat["recommendation"]["path"] == "buy_then_extend"
     assert len(strat["dossiers"]) == 4
     assert strat["runner_up"]["path"] == "adopt_self_host" and strat["runner_up"]["from_challenger"]
+    assert strat["challenger_status"] == "mounted"
     md = (run_dir / "strategy.md").read_text()
     assert "recommendation: Buy-then-extend" in md
     assert "**Recommendation:** buy_then_extend" in md
-    assert "Runner-up" in md and "Open questions" in md
+    assert "Challenger's counter-recommendation: Adopt & self-host" in md
+    assert "Open questions" in md
 
 
 def test_challenger_degrades_to_synthesis_runner_up(run_dir):
@@ -103,6 +105,58 @@ def test_challenger_degrades_to_synthesis_runner_up(run_dir):
     res = run_synthesis(run_dir, provider=SynthProvider(_synth_out(), challenger=None), model="m")
     assert res.strategy["runner_up"]["path"] == "build"
     assert res.strategy["challenger_ran"] is False
+    assert res.strategy["challenger_status"] == "degraded"
+    assert "generation failed" in res.strategy["challenger_note"]
+
+
+def test_challenger_concurrence_is_surfaced(run_dir):
+    # returning the recommended path is concurrence, not failure -> visible signal
+    concur = ChallengerOutput(runner_up_path="buy_then_extend", wins_when=["n/a"],
+                              case="No alternative beats it.", cited_claim_ids=["yapi"])
+    res = run_synthesis(run_dir, provider=SynthProvider(_synth_out(), concur), model="m")
+    assert res.strategy["challenger_status"] == "concurred"
+    assert res.strategy["runner_up"]["path"] == "build"  # falls back to synthesis' own
+    assert "Challenger concurred" in (run_dir / "strategy.md").read_text()
+
+
+def test_challenger_unknown_ids_degrade_visibly_not_silently(run_dir):
+    # a hallucinated id must NOT raise (challenger is degradable) but MUST be recorded
+    bad = ChallengerOutput(runner_up_path="build", wins_when=["if X"], case="c",
+                           cited_claim_ids=["ghost"])
+    res = run_synthesis(run_dir, provider=SynthProvider(_synth_out(), bad), model="m")
+    assert res.strategy["challenger_status"] == "degraded"
+    assert "unknown claim ids" in res.strategy["challenger_note"]
+    assert res.strategy["runner_up"]["from_challenger"] is False
+
+
+def test_challenger_out_of_pool_citation_degrades(run_dir):
+    # a build counter resting only on BUY evidence fails pool parity
+    bad = ChallengerOutput(runner_up_path="build", wins_when=["if X"], case="c",
+                           cited_claim_ids=["y1"])
+    res = run_synthesis(run_dir, provider=SynthProvider(_synth_out(), bad), model="m")
+    assert res.strategy["challenger_status"] == "degraded"
+    assert "outside the build" in res.strategy["challenger_note"]
+
+
+def test_challenger_buy_then_extend_counter_needs_api_claim(run_dir):
+    # recommend build so buy_then_extend is a real (different) counter, then starve the gate
+    synth = _synth_out(rec="build")
+    synth.runner_up_path = "buy"  # synthesis' own runner-up must differ from recommendation
+    bad = ChallengerOutput(runner_up_path="buy_then_extend", wins_when=["if X"], case="c",
+                           cited_claim_ids=["b1"])
+    res = run_synthesis(run_dir, provider=SynthProvider(synth, bad), model="m")
+    assert res.strategy["challenger_status"] == "degraded"
+    assert "API-surface" in res.strategy["challenger_note"]
+
+
+def test_challenger_convergence_with_synthesis_runner_up_is_noted(run_dir):
+    # challenger independently lands on synthesis' own second-best ("build")
+    same = ChallengerOutput(runner_up_path="build", wins_when=["if differentiation matters"],
+                            case="Build wins on differentiation.", cited_claim_ids=["b1"])
+    res = run_synthesis(run_dir, provider=SynthProvider(_synth_out(), same), model="m")
+    assert res.strategy["challenger_status"] == "mounted"
+    assert "converged" in res.strategy["challenger_note"]
+    assert "converged" in (run_dir / "strategy.md").read_text()
 
 
 def test_challenger_disabled_is_single_pass(run_dir):
