@@ -62,7 +62,7 @@ Made locally and casually, these decisions:
 
 ### 2.2 What it does
 - Elicits a structured need-profile through conversation, including a **soft qualitative steer** on what the operator cares about most.
-- Researches build-path and buy-path autonomously (sequential in the MVP, parallel at Target), with every claim cited and verified.
+- Researches build-path and buy-path autonomously in parallel, with every claim cited and verified.
 - Reasons over **four strategic paths** as analytical lenses over the research.
 - **Argues against its own recommendation** (challenger pass) to produce an adversarially-sourced runner-up.
 - Produces an advisory strategy: recommendation, runner-up, "wins when" conditions, decisive factors, per-path pros/cons/risks/reversibility, and explicit open questions.
@@ -160,8 +160,8 @@ The runner-up's **"wins when" conditions** preserve the *sensitivity* idea quali
 │              │  │  │ BUILD  │  │  BUY    │ │  │                  │  │              │
 │ → profile.md │  │  │ subst. │  │ subst.  │ │  │ → strategy.md    │  │ → report.html│
 │  (+ steer)   │  │  └────────┘  └─────────┘ │  │   (rec+runner-up)│  │              │
-│ interrupt()  │  │  seq. (MVP) → parallel    │  │ interrupt()      │  │              │
-│   gate-1     │  │  (Target) + verify claims │  │   gate-3         │  │              │
+│ interrupt()  │  │  parallel + verify claims │  │ interrupt()      │  │              │
+│   gate-1     │  │                           │  │   gate-3         │  │              │
 └──────────────┘  └─────────────┬────────────┘  └──────────────────┘  └──────────────┘
                        interrupt() gate-2
 ```
@@ -180,7 +180,7 @@ Because the engine is **case-agnostic**, intake carries the system's hardest pro
 
 Two independently-scoped research agents produce the two evidence pools (§3.2). Each emits a cited markdown doc plus a machine sidecar of **claims**. **Every non-trivial claim carries a resolvable source and is independently verified** (see §5). Uncited or unsupported claims are dropped or flagged, never asserted.
 
-> Build complexity: **MEDIUM.** This is the engine's center of gravity. A research primitive does the heavy lifting; the *scoping prompts* — what each track looks for — are the IP. MVP-critical (start sequential, parallelize if time allows).
+> Build complexity: **MEDIUM.** This is the engine's center of gravity. A research primitive does the heavy lifting; the *scoping prompts* — what each track looks for — are the IP. MVP-critical; BUILD and BUY run in parallel as separate LangGraph branches.
 
 ### 4.4 Stage 3 — Synthesis + challenger → `strategy.md`
 
@@ -265,14 +265,14 @@ The design is the full vision; the MVP is the credible slice you demo. (Detailed
 ### 9.1 MVP (must-haves for the demo)
 - **Stage 1 intake** → `profile.md` + soft steer (LOW–MEDIUM).
 - **The two skills** (`grounded_claim`, `schema_stage`) as real boundaries (MEDIUM) — the spine everything composes from.
-- **Stage 2 research**, both substrates, real web research, every claim cited **and verified** (MEDIUM) — start sequential, parallelize if time allows.
+- **Stage 2 research**, both substrates in parallel, real web research, every claim cited **and verified** (MEDIUM).
 - **Stage 3 synthesis + challenger** → `strategy.md`: four-path reasoning, recommendation, runner-up, decisive factors, open questions (MEDIUM; challenger degradable to single-pass).
 - **One end-to-end worked run**, live, on a runtime-supplied example need.
 
 ### 9.2 Fast-follow (if time remains)
 - **Stage 4 HTML report** with dossiers + live source links + flagged claims.
 - **Engine-regression harness** (§ below) — degradable to fully absent.
-- **True parallel execution** of the two research tracks.
+- **Deeper intra-track fan-out** of vendor/OSS/cost/compliance sub-questions.
 
 ### 9.3 Explicitly deferred (name them; don't build)
 - Portfolio memory as a real service/DB (stub interface only in MVP).

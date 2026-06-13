@@ -97,8 +97,7 @@ def _sources_block(cache: SourceCache, urls: list[str]) -> str:
 def _profile_block(profile: dict) -> str:
     need = profile["need"]
     return (f"PROFILE\ncapability: {need['capability']}\ncontext: {need['business_context']}\n"
-            f"problem: {need['problem']}\nsoft_steer: {profile.get('soft_steer', '')}\n"
-            f"customization_need: {profile.get('customization_need', '')}")
+            f"problem: {need['problem']}\ncustomization_need: {profile.get('customization_need', '')}")
 
 
 def _author(prompt, profile, track, dims, cache, urls, provider, model) -> list[ClaimDraft]:
@@ -131,11 +130,29 @@ def _render_md(track: str, kept: list[Claim], gaps: list[str]) -> str:
     return "\n".join(lines)
 
 
-def _merge_verify_report(store: RunStore, track: str, section: dict) -> None:
-    path = store.artifact_path("verify-report.json")
-    report = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
-    report[track] = section
-    path.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
+def _verify_report_name(track: str) -> str:
+    return "build-verify-report.json" if track == "BUILD" else "buy-verify-report.json"
+
+
+def _write_verify_report_section(store: RunStore, track: str, section: dict) -> str:
+    name = _verify_report_name(track)
+    store.artifact_path(name).write_text(json.dumps(section, indent=2, ensure_ascii=False),
+                                         encoding="utf-8")
+    return name
+
+
+def merge_verify_reports(run_dir: str) -> dict:
+    """Combine per-track verify reports after BUILD and BUY branches finish."""
+    store = RunStore(run_dir)
+    report: dict[str, dict] = {}
+    for track in ("BUILD", "BUY"):
+        path = store.artifact_path(_verify_report_name(track))
+        if path.exists():
+            report[track] = json.loads(path.read_text(encoding="utf-8"))
+    out = store.artifact_path("verify-report.json")
+    out.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
+    store.set_stage("research", status="done", artifacts=["verify-report.json"])
+    return report
 
 
 def run_research(
@@ -233,14 +250,14 @@ def run_research(
         "coverage_gaps": gaps,
     }, indent=2, ensure_ascii=False), encoding="utf-8")
     md_path.write_text(_render_md(track, filtered.kept, gaps), encoding="utf-8")
-    _merge_verify_report(store, track, {
+    verify_report_name = _write_verify_report_section(store, track, {
         "labeled": [{"id": c.id, "status": c.status.value} for c in verified],
         "dropped_unsupported": [{"id": c.id} for c in filtered.dropped],
         "assert_rejected": assert_rejected,
         "coverage_gaps": gaps,
     })
     store.set_stage(name, status="done", recorded_hash=current_hash,
-                    artifacts=[json_path.name, md_path.name, "verify-report.json"])
+                    artifacts=[json_path.name, md_path.name, verify_report_name])
 
     return ResearchResult(
         track=track, name=name, skipped=False, kept=filtered.kept, dropped=filtered.dropped,

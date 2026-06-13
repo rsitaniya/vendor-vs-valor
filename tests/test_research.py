@@ -8,7 +8,7 @@ import pytest
 
 from engine.runstore import RunStore
 from skills.grounded_claim import ClaimDraft, SourceCache, SourceDraft, VerificationJudgment
-from stages.research import ResearchClaims, run_research
+from stages.research import ResearchClaims, merge_verify_reports, run_research
 
 URL_A = "https://ex.com/a"
 URL_B = "https://ex.com/b"
@@ -71,7 +71,7 @@ def test_research_produces_verified_cited_claims(run_dir):
         assert claim["sources"][0]["url"] in (URL_A, URL_B)
         assert claim["sources"][0]["locator"]["end"] > 0
     assert (run_dir / "build-research.md").exists()
-    assert (run_dir / "verify-report.json").exists()
+    assert (run_dir / "build-verify-report.json").exists()
 
 
 def test_unsupported_claims_are_dropped(run_dir):
@@ -112,3 +112,13 @@ def test_editing_soft_steer_does_not_rerun_research(run_dir):
     (run_dir / "profile.json").write_text(json.dumps(profile))
     second = run_research("BUILD", run_dir, provider=prov, searcher=fake_searcher([URL_A]))
     assert second.skipped and prov.author_calls == 1
+
+
+def test_merge_verify_reports_combines_per_track_outputs(run_dir):
+    build_provider = FakeProvider([_draft(URL_A, "open source option")])
+    buy_provider = FakeProvider([_draft(URL_B, "$500 per month", dim="m5")])
+    run_research("BUILD", run_dir, provider=build_provider, searcher=fake_searcher([URL_A]))
+    run_research("BUY", run_dir, provider=buy_provider, searcher=fake_searcher([URL_B]))
+    report = merge_verify_reports(run_dir)
+    assert set(report) == {"BUILD", "BUY"}
+    assert (run_dir / "verify-report.json").exists()

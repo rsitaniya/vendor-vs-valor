@@ -22,7 +22,7 @@ def flash_model() -> str:
 
 def pro_model() -> str:
     """The headroom model id (synthesis)."""
-    return os.environ.get("GEMINI_MODEL_PRO", "gemini-3.5-pro")
+    return os.environ.get("GEMINI_MODEL_PRO", "gemini-3.1-pro-preview")
 
 
 def get_provider() -> LLMProvider:
