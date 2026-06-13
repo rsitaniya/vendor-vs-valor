@@ -99,7 +99,7 @@ Repo layout per design §9.5 (`/skills`, `/agents`, `/rubric`, `/eval`, `/runs`,
 ### Slice 6 — Stage 3 synthesis + challenger → `strategy.{md,json}` — §8.6 → **CHECKPOINT 5 (STOP)**
 - `/agents/synthesis.md`: four-path lenses over the two pools per `paths.json`; per-path dossier (pros/cons/risks/**reversibility**), recommendation + thesis, **decisive factors**, **open questions**. Each factual claim cites a verified `Claim`.
 - `/agents/challenger.md`: sees pools + recommendation, makes strongest **cited** counter-case → runner-up + "wins when". **Degradable** to single-pass (first thing to drop).
-- Deterministic `assemble` (code) validates every cited claim id, requires one dossier per canonical path, then writes `strategy.md` (truth) + `strategy.json` (section manifest + claim-ids). Gate-3 `interrupt()`; editing soft_steer re-runs synthesis only (hash guard), research skipped.
+- Deterministic `assemble` (code) validates every cited claim id, requires one dossier per canonical path, enforces the buy-then-extend API-surface gate, then writes `strategy.md` (truth) + `strategy.json` (section manifest + claim-ids). Gate-3 `interrupt()`; editing soft_steer re-runs synthesis only (hash guard), research skipped.
 **Acceptance (CP5):** first **end-to-end** run produces `strategy.md` with all required sections, four dossiers, runner-up, decisive factors, open questions — every factual claim resolving to a SUPPORTED/PARTIAL Claim. **I show you the first end-to-end `strategy.md`, then stop.**
 
 ### Slice 7 — Stage 4 `report.html` — §8.7 (proceed)

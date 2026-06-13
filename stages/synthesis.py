@@ -105,6 +105,14 @@ def _open_questions_cover_path(open_questions: list[str], path: str) -> bool:
     return any(any(token in question.lower() for token in tokens) for question in open_questions)
 
 
+def _has_buy_api_surface_claim(ids: list[str], claims_index: dict[str, dict]) -> bool:
+    return any(
+        claims_index[cid]["track"] == "BUY" and claims_index[cid]["dimension"] == "m10"
+        for cid in ids
+        if cid in claims_index
+    )
+
+
 def _validate_synthesis(out: SynthesisOutput, claims_index: dict[str, dict]) -> None:
     if out.recommendation_path not in CANONICAL_PATHS:
         raise ContractError(f"recommendation_path not a known path: {out.recommendation_path!r}")
@@ -132,6 +140,14 @@ def _validate_synthesis(out: SynthesisOutput, claims_index: dict[str, dict]) -> 
             raise ContractError(
                 f"dossier {dossier.path} has no cited claims and no matching open question"
             )
+
+    buy_then_extend = next(d for d in out.dossiers if d.path == "buy_then_extend")
+    has_api_surface = _has_buy_api_surface_claim(buy_then_extend.cited_claim_ids, claims_index)
+    if out.recommendation_path == "buy_then_extend" and not has_api_surface:
+        raise ContractError("buy_then_extend recommendation requires a BUY m10 API-surface claim")
+    if (buy_then_extend.cited_claim_ids and not has_api_surface
+            and not _open_questions_cover_path(out.open_questions, "buy_then_extend")):
+        raise ContractError("buy_then_extend dossier lacks a BUY m10 API-surface claim")
 
 
 def _compact(claim: dict) -> dict:
