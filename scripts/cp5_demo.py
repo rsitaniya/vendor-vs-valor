@@ -16,9 +16,11 @@ from graph import RunDeps, build_graph
 from llm import get_provider, pro_model
 
 NEED = (
-    "We need a vector database to power semantic search over our product catalog. "
-    "Small platform team (3 engineers), cost-conscious, data is not especially "
-    "sensitive, and we want to stay flexible rather than locked into one vendor."
+    "i need a data to power anomaly detection in indian capital markets. "
+    "High quality reliable data tracing over time"
+    "Small team (1 cto, 1 CEO/CFO ), cost-conscious - bootstrap, data needs to be complete, reliable and clean at minimal cost "
+    "time is of essence, but lesser priority than cost. data quality is unarguably most important"
+    "data is not the moat of the project but garabge in garbage out"
 )
 _STAGE_AFTER_GATE = {1: "research", 2: "synthesis", 3: "report"}
 

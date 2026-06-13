@@ -18,8 +18,10 @@ confidence.**
 ## Produce
 - For **each** of the four paths, a **dossier**: `pros`, `cons`, `key_risks`, and
   a one-line `reversibility` note. Each pro, con, risk, and reversibility note is
-  an object with `text` and `cited_claim_ids`. Cite ONLY ids present in the
-  evidence. Connective reasoning need not cite; facts must.
+  an object with `text` and `cited_claim_ids`. **Every bullet must cite at least
+  one id from the evidence pool.** If you have no evidence to cite for a point,
+  omit the bullet and surface the gap as an open question instead. Pros/cons/risks
+  lists may be short or empty — quality over quantity.
 - A `recommendation_path` (one of the four keys) and a 2–3 sentence `thesis`.
 - `decisive_factors`: the 3–5 dimensions that actually drove the recommendation,
   each with a short `why`. (This replaces weights — show your reasoning.)
@@ -34,3 +36,7 @@ confidence.**
 - **Surface conflicts, don't hide them**: if sources disagree (e.g. pricing),
   present both rather than silently picking one.
 - Case-agnostic: reason only from the profile + the evidence.
+- **buy_then_extend gate**: you may only set `recommendation_path` to
+  `buy_then_extend` if its dossier cites at least one BUY-track m10 (API-surface)
+  claim. If no such claim is present in the evidence pool, do not recommend
+  buy_then_extend — choose a different path.
