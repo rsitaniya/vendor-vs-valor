@@ -1,19 +1,23 @@
 """Stage 2 — research substrates -> *-research.{md,json} (spec §5.2).
 
-One parameterized track (BUILD | BUY). Flow: discover (search) -> fetch + cache
-content -> LLM authors atomic ClaimDrafts grounded in the cached sources ->
-assert_claim (cache-constrained, locator computed) -> verify (re-reads cache) ->
-filter. The .md is generated from the filtered json so prose never drifts from
-evidence. Idempotent via the input-hash guard; failures degrade to coverage
-gaps, never crashes (spec §7).
+One parameterized track (BUILD | BUY). Flow: PLAN (LLM expands profile +
+dimensions into diversified, profile-aware search queries) -> discover (search,
+domain-diverse) -> fetch + cache content -> READ/REASON (LLM authors atomic
+ClaimDrafts grounded in the cached sources) -> assert_claim (cache-constrained,
+locator computed) -> verify (re-reads cache) -> filter -> per-dimension coverage.
+The .md is generated from the filtered json so prose never drifts from evidence.
+Idempotent via the input-hash guard; failures degrade to coverage gaps, never
+crashes (spec §7).
 """
 
 from __future__ import annotations
 
 import json
 import os
+import re
 from collections.abc import Callable
 from dataclasses import dataclass, field
+from urllib.parse import urlparse
 
 from pydantic import BaseModel
 
@@ -35,12 +39,42 @@ from skills.grounded_claim import (
 from stages.search import ddg_search
 
 _MIN_CONTENT_CHARS = 400
-_EXCERPT_CHARS = 2500
+_EXCERPT_CHARS = 6000          # head budget per source given to the author
+_COST_WINDOW_BUDGET = 2500     # extra budget for pulled-forward cost/pricing windows
+_COST_WINDOW_PAD = 140         # chars of context around each cost/date hit
+
+# Deterministic "find the numbers" pass (Rule 5: non-language work stays in code).
+# Pulls pricing/effort/date spans buried past the head excerpt to the front so
+# truncation never starves the cost-tagged dimensions.
+_COST_RE = re.compile(
+    r"(\$\s?\d|€\s?\d|£\s?\d"
+    r"|\d+\s?(?:/\s?mo|/\s?month|/\s?yr|/\s?year)"
+    r"|per\s+(?:month|seat|user|year|query|request|1m|million)"
+    r"|\b(?:team|engineer|developer|person|man)[- ]months?\b"
+    r"|\bFTE\b|\b20\d{2}\b)",
+    re.I,
+)
 
 
 class ResearchClaims(BaseModel):
     """Container for the LLM's structured output (a list of drafts)."""
     claims: list[ClaimDraft]
+
+
+class PriorityDimension(BaseModel):
+    id: str
+    why: str
+
+
+class PlannedQuery(BaseModel):
+    query: str
+    dimension: str
+
+
+class QueryPlan(BaseModel):
+    """Phase-A planner output: which dimensions matter + the queries to run."""
+    priority_dimensions: list[PriorityDimension]
+    queries: list[PlannedQuery]
 
 
 @dataclass
@@ -52,9 +86,12 @@ class ResearchResult:
     dropped: list[Claim] = field(default_factory=list)
     assert_rejected: list[dict] = field(default_factory=list)
     coverage_gaps: list[str] = field(default_factory=list)
+    priority_dimensions: list[dict] = field(default_factory=list)
+    coverage: list[dict] = field(default_factory=list)
 
 
 def _queries(capability: str, track: str) -> list[str]:
+    """Deterministic fallback used only if the LLM planner is unavailable."""
     cap = capability.strip()
     if track == "BUILD":
         return [f"{cap} open source", f"how to build {cap}",
@@ -63,15 +100,54 @@ def _queries(capability: str, track: str) -> list[str]:
             f"best {cap} platform", f"{cap} API integration"]
 
 
-def _discover(queries, searcher, max_sources, per_query) -> list[str]:
+def _domain(url: str) -> str:
+    try:
+        return urlparse(url).netloc.lower().removeprefix("www.")
+    except ValueError:
+        return url
+
+
+def _discover(queries, searcher, max_sources, per_query, max_per_domain) -> list[str]:
+    """Domain-diverse discovery: cap sources per domain so one SEO listicle/site
+    cannot dominate the evidence pool."""
     seen: list[str] = []
+    per_domain: dict[str, int] = {}
     for query in queries:
         for url in searcher(query, per_query):
-            if url not in seen:
-                seen.append(url)
+            if url in seen:
+                continue
+            dom = _domain(url)
+            if per_domain.get(dom, 0) >= max_per_domain:
+                continue
+            seen.append(url)
+            per_domain[dom] = per_domain.get(dom, 0) + 1
             if len(seen) >= max_sources:
                 return seen
     return seen
+
+
+def _excerpt(content: str, head_budget: int) -> str:
+    """Head of the content plus any cost/pricing/date windows that fall past the
+    head, so deep pricing tables survive truncation (the cost dims are the
+    schedule risk, spec §7)."""
+    if len(content) <= head_budget:
+        return content
+    head = content[:head_budget]
+    windows: list[str] = []
+    used = 0
+    for m in _COST_RE.finditer(content, head_budget):
+        start = max(0, m.start() - _COST_WINDOW_PAD)
+        end = min(len(content), m.end() + _COST_WINDOW_PAD)
+        win = content[start:end]
+        if any(win in w or w in win for w in windows):
+            continue
+        windows.append(win)
+        used += len(win)
+        if used >= _COST_WINDOW_BUDGET:
+            break
+    if not windows:
+        return head
+    return head + "\n…\n" + "\n…\n".join(windows)
 
 
 def _track_dimensions(track: str) -> list[dict]:
@@ -89,15 +165,51 @@ def _dimensions_block(dims: list[dict], track: str) -> str:
 def _sources_block(cache: SourceCache, urls: list[str]) -> str:
     blocks = ["SOURCES (cite only these urls; copy display_quote verbatim from the matching content):"]
     for url in urls:
-        excerpt = cache.get_content(url)[:_EXCERPT_CHARS]
-        blocks.append(f"\nurl: {url}\ncontent:\n{excerpt}\n---")
+        meta = cache.get_meta(url)
+        dated = f" (dated: {meta.get('source_date')})" if meta.get("source_date") else ""
+        excerpt = _excerpt(cache.get_content(url), _EXCERPT_CHARS)
+        blocks.append(f"\nurl: {url}{dated}\ncontent:\n{excerpt}\n---")
     return "\n".join(blocks)
 
 
 def _profile_block(profile: dict) -> str:
+    # NB: deliberately omits soft_steer — it is synthesis-only (spec §4); a gate-3
+    # steer edit must not change the research evidence pool. Feed the decision
+    # signals research IS allowed to reason over (and that ARE in the hash).
     need = profile["need"]
-    return (f"PROFILE\ncapability: {need['capability']}\ncontext: {need['business_context']}\n"
-            f"problem: {need['problem']}\ncustomization_need: {profile.get('customization_need', '')}")
+    intent = profile.get("intent", {})
+    res = profile.get("resources", {})
+    con = profile.get("constraints", {})
+    return "\n".join([
+        "PROFILE",
+        f"capability: {need['capability']}",
+        f"business_context: {need.get('business_context', '')}",
+        f"problem: {need.get('problem', '')}",
+        f"core_value_proximity: {intent.get('core_value_proximity', '')} — {intent.get('rationale', '')}",
+        f"resources: eng_headcount={res.get('eng_headcount', '?')}, "
+        f"skills={res.get('relevant_skills', [])}, budget={res.get('budget_note', '')}, "
+        f"runway={res.get('runway_note', '')}",
+        f"constraints: compliance={con.get('compliance', [])}, "
+        f"data_sensitivity={con.get('data_sensitivity', '')}, "
+        f"existing_stack={con.get('existing_stack', [])}, "
+        f"timeline_hard_stop={con.get('timeline_hard_stop', '')}",
+        f"customization_need: {profile.get('customization_need', '')}",
+    ])
+
+
+def _plan_queries(plan_prompt, profile, track, dims, provider, model) -> QueryPlan | None:
+    """Phase A: LLM expands profile + dimensions into diversified, profile-aware
+    queries. Degrades to None (-> deterministic fallback) rather than crashing."""
+    context = "\n\n".join([
+        plan_prompt,
+        f"TRACK: {track}",
+        _profile_block(profile),
+        _dimensions_block(dims, track),
+    ])
+    try:
+        return provider.complete(context, response_schema=QueryPlan, model=model)
+    except Exception:  # noqa: BLE001 — a planner failure is degradation, not a crash
+        return None
 
 
 def _author(prompt, profile, track, dims, cache, urls, provider, model) -> list[ClaimDraft]:
@@ -111,7 +223,20 @@ def _author(prompt, profile, track, dims, cache, urls, provider, model) -> list[
     return out.claims
 
 
-def _render_md(track: str, kept: list[Claim], gaps: list[str]) -> str:
+def _coverage(track_dims: list[dict], kept: list[Claim], priority_ids: set[str]) -> list[dict]:
+    """Per-dimension coverage so Gate 2 + synthesis see what came back empty."""
+    rows = []
+    for d in track_dims:
+        count = sum(1 for c in kept if c.dimension == d["id"])
+        rows.append({
+            "id": d["id"], "name": d["name"],
+            "covered": count > 0, "claim_count": count,
+            "priority": d["id"] in priority_ids,
+        })
+    return rows
+
+
+def _render_md(track: str, kept: list[Claim], gaps: list[str], coverage: list[dict]) -> str:
     by_dim: dict[str, list[Claim]] = {}
     for c in kept:
         by_dim.setdefault(c.dimension, []).append(c)
@@ -123,6 +248,13 @@ def _render_md(track: str, kept: list[Claim], gaps: list[str]) -> str:
             src = c.sources[0]
             lines.append(f"- {c.text} ({c.status.value}){flags}")
             lines.append(f"  > \"{src.display_quote}\" — [{src.title or src.url}]({src.url})")
+        lines.append("")
+    if coverage:
+        lines.append("## Dimension coverage")
+        for row in coverage:
+            mark = "✓" if row["covered"] else "✗"
+            star = " ★" if row["priority"] else ""
+            lines.append(f"- {mark} {row['id']} {row['name']}{star} — {row['claim_count']} claim(s)")
         lines.append("")
     if gaps:
         lines.append("## Coverage gaps")
@@ -163,27 +295,33 @@ def run_research(
     provider: LLMProvider | None = None,
     model: str | None = None,
     searcher: Callable[[str, int], list[str]] | None = None,
-    max_sources: int = 6,
-    per_query: int = 4,
+    max_sources: int = 10,
+    per_query: int = 3,
+    max_per_domain: int = 2,
 ) -> ResearchResult:
     if track not in ("BUILD", "BUY"):
         raise ValueError(f"unknown track {track!r}")
     store = RunStore(run_dir)
     name = "build-research" if track == "BUILD" else "buy-research"
     prompt = load_prompt("research_build" if track == "BUILD" else "research_buy")
+    plan_prompt = load_prompt("research_query_plan")
     model = model or flash_model()
     engine_version = os.environ.get("ENGINE_VERSION", "0")
     profile_path = store.artifact_path(profile_name)
     json_path = store.artifact_path(f"{name}.json")
     md_path = store.artifact_path(f"{name}.md")
 
-    # Hash only the profile fields research actually uses (not soft_steer, which
+    # Hash only the profile fields research actually uses (NOT soft_steer, which
     # is synthesis-only) so a gate-3 steer edit does not re-run research (§4).
+    # The planner prompt rides in `extra` so editing either prompt invalidates.
     profile = json.loads(profile_path.read_text(encoding="utf-8"))
     projection = json.dumps({
         "need": profile["need"],
+        "intent": profile.get("intent"),
+        "resources": profile.get("resources"),
         "constraints": profile.get("constraints"),
         "customization_need": profile.get("customization_need"),
+        "plan_prompt": plan_prompt,
     }, sort_keys=True).encode("utf-8")
     current_hash = stage_input_hash(
         input_paths=[], prompt=prompt, model_id=model,
@@ -197,17 +335,34 @@ def run_research(
             kept=[Claim.model_validate(c) for c in data["claims"]],
             dropped=[Claim.model_validate(c) for c in data.get("dropped", [])],
             coverage_gaps=data.get("coverage_gaps", []),
+            priority_dimensions=data.get("priority_dimensions", []),
+            coverage=data.get("coverage", []),
         )
 
     provider = provider or get_provider()
     searcher = searcher or ddg_search
     capability = profile["need"]["capability"]
+    track_dims = _track_dimensions(track)
+
+    # 0) PLAN — LLM expands profile + dimensions into diversified, profile-aware
+    # queries; degrade to deterministic templates if the planner is unavailable.
+    plan = _plan_queries(plan_prompt, profile, track, track_dims, provider, model)
+    if plan and plan.queries:
+        query_strings = [q.query for q in plan.queries]
+        priority = [{"id": p.id, "why": p.why} for p in plan.priority_dimensions]
+    else:
+        query_strings = _queries(capability, track)
+        priority = []
+        gaps_planner = "query planner unavailable; used fallback templates"
+    priority_ids = {p["id"] for p in priority}
 
     # 1) discover + 2) fetch/cache
     cache = SourceCache(run_dir)
     gaps: list[str] = []
+    if not (plan and plan.queries):
+        gaps.append(gaps_planner)
     cached: list[str] = []
-    for url in _discover(_queries(capability, track), searcher, max_sources, per_query):
+    for url in _discover(query_strings, searcher, max_sources, per_query, max_per_domain):
         if cache.has(url):
             cached.append(url)
             continue
@@ -224,7 +379,7 @@ def run_research(
         gaps.append(f"no fetchable sources for track {track}")
 
     # 3) author claims grounded in cached content
-    drafts = (_author(prompt, profile, track, _track_dimensions(track), cache, cached, provider, model)
+    drafts = (_author(prompt, profile, track, track_dims, cache, cached, provider, model)
               if cached else [])
 
     # 4) assert (cache-constrained; locator computed; rejects ungrounded)
@@ -240,6 +395,12 @@ def run_research(
     verified = [verify(c, cache, provider) for c in claims]
     filtered = filter_claims(verified)
 
+    # 6b) per-dimension coverage; an empty PRIORITY dimension is a surfaced gap.
+    coverage = _coverage(track_dims, filtered.kept, priority_ids)
+    for row in coverage:
+        if row["priority"] and not row["covered"]:
+            gaps.append(f"no evidence for priority dimension {row['id']} ({row['name']})")
+
     # 7) persist (json is truth; md generated from it)
     json_path.write_text(json.dumps({
         "track": track,
@@ -247,13 +408,17 @@ def run_research(
         "dropped": [c.model_dump() for c in filtered.dropped],
         "kept_count": len(filtered.kept),
         "dropped_count": len(filtered.dropped),
+        "priority_dimensions": priority,
+        "coverage": coverage,
         "coverage_gaps": gaps,
     }, indent=2, ensure_ascii=False), encoding="utf-8")
-    md_path.write_text(_render_md(track, filtered.kept, gaps), encoding="utf-8")
+    md_path.write_text(_render_md(track, filtered.kept, gaps, coverage), encoding="utf-8")
     verify_report_name = _write_verify_report_section(store, track, {
         "labeled": [{"id": c.id, "status": c.status.value} for c in verified],
         "dropped_unsupported": [{"id": c.id} for c in filtered.dropped],
         "assert_rejected": assert_rejected,
+        "priority_dimensions": priority,
+        "coverage": coverage,
         "coverage_gaps": gaps,
     })
     store.set_stage(name, status="done", recorded_hash=current_hash,
@@ -262,4 +427,5 @@ def run_research(
     return ResearchResult(
         track=track, name=name, skipped=False, kept=filtered.kept, dropped=filtered.dropped,
         assert_rejected=assert_rejected, coverage_gaps=gaps,
+        priority_dimensions=priority, coverage=coverage,
     )

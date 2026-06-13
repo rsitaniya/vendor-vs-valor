@@ -8,7 +8,13 @@ import pytest
 
 from engine.runstore import RunStore
 from skills.grounded_claim import ClaimDraft, SourceCache, SourceDraft, VerificationJudgment
-from stages.research import ResearchClaims, merge_verify_reports, run_research
+from stages.research import (
+    PlannedQuery,
+    QueryPlan,
+    ResearchClaims,
+    merge_verify_reports,
+    run_research,
+)
 
 URL_A = "https://ex.com/a"
 URL_B = "https://ex.com/b"
@@ -37,14 +43,22 @@ def fake_searcher(urls):
 
 
 class FakeProvider:
-    """Serves both the authoring call and the per-claim verify calls."""
+    """Serves the planner call, the authoring call, and the per-claim verify calls."""
 
-    def __init__(self, drafts, verdict="SUPPORTED"):
+    def __init__(self, drafts, verdict="SUPPORTED", priority=("m1",)):
         self.drafts = drafts
         self.verdict = verdict
+        self.priority = priority
         self.author_calls = 0
+        self.plan_calls = 0
 
     def complete(self, prompt, *, response_schema=None, model=None):
+        if response_schema is QueryPlan:
+            self.plan_calls += 1
+            return QueryPlan(
+                priority_dimensions=[{"id": d, "why": "fake"} for d in self.priority],
+                queries=[PlannedQuery(query="q", dimension="m1")],
+            )
         if response_schema is ResearchClaims:
             self.author_calls += 1
             return ResearchClaims(claims=self.drafts)
@@ -112,6 +126,26 @@ def test_editing_soft_steer_does_not_rerun_research(run_dir):
     (run_dir / "profile.json").write_text(json.dumps(profile))
     second = run_research("BUILD", run_dir, provider=prov, searcher=fake_searcher([URL_A]))
     assert second.skipped and prov.author_calls == 1
+
+
+def test_planner_runs_once_and_is_skipped_on_idempotent_rerun(run_dir):
+    prov = FakeProvider([_draft(URL_A, "open source option")])
+    run_research("BUILD", run_dir, provider=prov, searcher=fake_searcher([URL_A]))
+    assert prov.plan_calls == 1
+    second = run_research("BUILD", run_dir, provider=prov, searcher=fake_searcher([URL_A]))
+    assert second.skipped and prov.plan_calls == 1  # no re-planning on cache hit
+
+
+def test_per_dimension_coverage_flags_empty_priority_dimension(run_dir):
+    # claim lands on m1; planner marked m3 (a BUILD dim) a priority but no claim
+    # covers it -> m3 surfaces as a gap.
+    prov = FakeProvider([_draft(URL_A, "open source option", dim="m1")], priority=("m1", "m3"))
+    res = run_research("BUILD", run_dir, provider=prov, searcher=fake_searcher([URL_A]))
+    covered = {r["id"]: r for r in res.coverage}
+    assert covered["m1"]["covered"] and covered["m1"]["claim_count"] == 1
+    assert any("priority dimension m3" in g for g in res.coverage_gaps)
+    data = json.loads((run_dir / "build-research.json").read_text())
+    assert data["priority_dimensions"] and data["coverage"]
 
 
 def test_merge_verify_reports_combines_per_track_outputs(run_dir):
