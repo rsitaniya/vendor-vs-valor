@@ -32,7 +32,7 @@ def _dossier(path, ids):
                        reversibility="reversible", cited_claim_ids=ids)
 
 
-def _synth_out(rec="buy_then_extend", dossier_ids=("b1",)):
+def _synth_out(rec="buy_then_extend", dossier_ids=("yapi",)):
     return SynthesisOutput(
         recommendation_path=rec, thesis="Buy the base, build the edge.",
         dossiers=[_dossier("build", ["b1"]), _dossier("buy", ["y1"]),
@@ -52,7 +52,10 @@ def run_dir(tmp_path):
     store.write_text("build-research.json", json.dumps({
         "track": "BUILD", "claims": [_claim("b1", "BUILD", "m3", "build is costly").model_dump()]}))
     store.write_text("buy-research.json", json.dumps({
-        "track": "BUY", "claims": [_claim("y1", "BUY", "m5", "vendor priced at $x").model_dump()]}))
+        "track": "BUY", "claims": [
+            _claim("y1", "BUY", "m5", "vendor priced at $x").model_dump(),
+            _claim("yapi", "BUY", "m10", "vendor exposes an API").model_dump(),
+        ]}))
     return tmp_path
 
 
@@ -136,10 +139,16 @@ def test_empty_dossier_needs_matching_open_question(run_dir):
     assert res.strategy["dossiers"][-1]["path"] == "adopt_self_host"
 
 
+def test_buy_then_extend_recommendation_requires_buy_api_claim(run_dir):
+    synth = _synth_out(dossier_ids=("b1",))
+    with pytest.raises(ContractError, match="BUY m10 API-surface"):
+        run_synthesis(run_dir, provider=SynthProvider(synth, None), model="m")
+
+
 def test_claims_index_only_contains_referenced_claims(run_dir):
     res = run_synthesis(run_dir, provider=SynthProvider(_synth_out(), None), model="m")
     # b1 and y1 are referenced by dossiers; both should resolve
-    assert set(res.strategy["claims_index"]) <= {"b1", "y1"}
+    assert set(res.strategy["claims_index"]) <= {"b1", "y1", "yapi"}
     assert "b1" in res.strategy["claims_index"]
 
 
