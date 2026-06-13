@@ -1,0 +1,20 @@
+# Superseded design docs — keep local, never commit
+old/
+
+# Secrets
+.env
+
+# Runtime artifacts & source cache (per-run, human-inspectable but not tracked)
+runs/
+
+# Python / uv
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# OS / editor
+.DS_Store
