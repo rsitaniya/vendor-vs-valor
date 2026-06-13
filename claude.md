@@ -1,4 +1,4 @@
-# Portfolio Decision Engine — working agreement for Claude Code
+# Vendor vs Valor — working agreement for Claude Code
 
 ## Ground truth
 The three docs in `/docs` are authoritative. In order of build-relevance:
