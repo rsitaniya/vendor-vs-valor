@@ -21,12 +21,19 @@ def stage_input_hash(
     prompt: str,
     model_id: str,
     engine_version: str,
+    extra: bytes = b"",
 ) -> str:
     digest = hashlib.sha256()
     # upstream artifacts this stage reads (sorted -> deterministic)
     for path in sorted(input_paths, key=str):
         digest.update(b"\x00input\x00")
         digest.update(Path(path).read_bytes())
+    # a derived projection of inputs (e.g. research hashes only the profile
+    # fields it uses, so editing the synthesis-only soft_steer does not
+    # invalidate research — spec §4 gate-3 behavior)
+    if extra:
+        digest.update(b"\x00extra\x00")
+        digest.update(extra)
     # the prompt is the IP: editing it must invalidate the stage
     digest.update(b"\x00prompt\x00")
     digest.update(prompt.encode("utf-8"))

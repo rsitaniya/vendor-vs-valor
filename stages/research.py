@@ -160,8 +160,17 @@ def run_research(
     json_path = store.artifact_path(f"{name}.json")
     md_path = store.artifact_path(f"{name}.md")
 
+    # Hash only the profile fields research actually uses (not soft_steer, which
+    # is synthesis-only) so a gate-3 steer edit does not re-run research (§4).
+    profile = json.loads(profile_path.read_text(encoding="utf-8"))
+    projection = json.dumps({
+        "need": profile["need"],
+        "constraints": profile.get("constraints"),
+        "customization_need": profile.get("customization_need"),
+    }, sort_keys=True).encode("utf-8")
     current_hash = stage_input_hash(
-        input_paths=[profile_path], prompt=prompt, model_id=model, engine_version=engine_version
+        input_paths=[], prompt=prompt, model_id=model,
+        engine_version=engine_version, extra=projection,
     )
     record = store.get_stage(name)
     if record and record.status == "done" and record.recorded_hash == current_hash and json_path.exists():
@@ -175,7 +184,6 @@ def run_research(
 
     provider = provider or get_provider()
     searcher = searcher or ddg_search
-    profile = json.loads(profile_path.read_text(encoding="utf-8"))
     capability = profile["need"]["capability"]
 
     # 1) discover + 2) fetch/cache

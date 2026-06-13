@@ -40,7 +40,8 @@ class RunDeps:
     Absent => nodes no-op (topology/skeleton mode, used by graph tests).
     """
     provider: LLMProvider | None = None
-    model: str | None = None
+    model: str | None = None            # intake/research (None -> flash)
+    synthesis_model: str | None = None  # synthesis/challenger (None -> pro)
 
 
 def _deps(config) -> RunDeps | None:
@@ -72,7 +73,13 @@ def research_node(state: GraphState, config) -> dict:
 
 
 def synthesis_node(state: GraphState, config) -> dict:
-    return {}  # TODO slice 6: synthesize + challenger -> strategy.{md,json}
+    deps = _deps(config)
+    if deps is None:
+        return {}
+    from stages.synthesis import run_synthesis
+
+    run_synthesis(state["run_dir"], provider=deps.provider, model=deps.synthesis_model)
+    return {}
 
 
 def report_node(state: GraphState, config) -> dict:
