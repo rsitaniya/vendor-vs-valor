@@ -27,6 +27,8 @@ from rubric import CANONICAL_PATHS, load_paths
 from skills.schema_stage import ContractError
 
 _INPUTS = ("profile.json", "build-research.json", "buy-research.json")
+_PATH_TITLES = {"build": "Build", "buy": "Buy", "buy_then_extend": "Buy-then-extend",
+                "adopt_self_host": "Adopt & self-host"}
 
 
 # --- LLM output shapes (no defaults -> Gemini struct-output safe) ---
@@ -91,11 +93,45 @@ def _profile_block(profile: dict) -> str:
 
 # --- validation + assembly ---
 
-def _validate_synthesis(out: SynthesisOutput) -> None:
+def _validate_known_claim_ids(ids: list[str], claims_index: dict[str, dict], context: str) -> None:
+    unknown = sorted({cid for cid in ids if cid not in claims_index})
+    if unknown:
+        raise ContractError(f"{context} cites unknown claim ids: {unknown}")
+
+
+def _open_questions_cover_path(open_questions: list[str], path: str) -> bool:
+    title = _PATH_TITLES[path].lower()
+    tokens = {path.lower(), title, title.replace("&", "and")}
+    return any(any(token in question.lower() for token in tokens) for question in open_questions)
+
+
+def _validate_synthesis(out: SynthesisOutput, claims_index: dict[str, dict]) -> None:
     if out.recommendation_path not in CANONICAL_PATHS:
         raise ContractError(f"recommendation_path not a known path: {out.recommendation_path!r}")
     if not out.thesis.strip():
         raise ContractError("synthesis thesis is empty")
+    if out.runner_up_path not in CANONICAL_PATHS:
+        raise ContractError(f"runner_up_path not a known path: {out.runner_up_path!r}")
+    if out.runner_up_path == out.recommendation_path:
+        raise ContractError("runner_up_path must differ from recommendation_path")
+
+    dossier_paths = [d.path for d in out.dossiers]
+    unknown_paths = sorted({p for p in dossier_paths if p not in CANONICAL_PATHS})
+    if unknown_paths:
+        raise ContractError(f"synthesis has dossiers for unknown paths: {unknown_paths}")
+    missing = sorted(set(CANONICAL_PATHS) - set(dossier_paths))
+    duplicates = sorted({p for p in dossier_paths if dossier_paths.count(p) > 1})
+    if missing or duplicates:
+        raise ContractError(f"synthesis must include each path exactly once; "
+                            f"missing={missing} duplicates={duplicates}")
+
+    for dossier in out.dossiers:
+        _validate_known_claim_ids(dossier.cited_claim_ids, claims_index,
+                                  f"dossier {dossier.path}")
+        if not dossier.cited_claim_ids and not _open_questions_cover_path(out.open_questions, dossier.path):
+            raise ContractError(
+                f"dossier {dossier.path} has no cited claims and no matching open question"
+            )
 
 
 def _compact(claim: dict) -> dict:
@@ -110,17 +146,14 @@ def _compact(claim: dict) -> dict:
 
 def _assemble(synth: SynthesisOutput, challenger: ChallengerOutput | None,
               claims_index: dict[str, dict]) -> dict:
-    def known(ids: list[str]) -> list[str]:
-        return [i for i in ids if i in claims_index]
-
     dossiers = [{
         "path": d.path, "pros": d.pros, "cons": d.cons, "key_risks": d.key_risks,
-        "reversibility": d.reversibility, "cited_claim_ids": known(d.cited_claim_ids),
+        "reversibility": d.reversibility, "cited_claim_ids": d.cited_claim_ids,
     } for d in synth.dossiers if d.path in CANONICAL_PATHS]
 
     if challenger is not None:
         runner_up = {"path": challenger.runner_up_path, "wins_when": challenger.wins_when,
-                     "case": challenger.case, "cited_claim_ids": known(challenger.cited_claim_ids),
+                     "case": challenger.case, "cited_claim_ids": challenger.cited_claim_ids,
                      "from_challenger": True}
     else:
         runner_up = {"path": synth.runner_up_path, "wins_when": synth.runner_up_wins_when,
@@ -136,11 +169,6 @@ def _assemble(synth: SynthesisOutput, challenger: ChallengerOutput | None,
         "claims_index": {i: _compact(claims_index[i]) for i in referenced},
         "challenger_ran": challenger is not None,
     }
-
-
-_PATH_TITLES = {"build": "Build", "buy": "Buy", "buy_then_extend": "Buy-then-extend",
-                "adopt_self_host": "Adopt & self-host"}
-
 
 def _render_evidence(ids: list[str], idx: dict[str, dict]) -> list[str]:
     lines = []
@@ -222,7 +250,7 @@ def run_synthesis(
     synth_context = "\n\n".join([synth_prompt, _profile_block(profile), paths_block,
                                  _claims_block(claims_index)])
     synth = provider.complete(synth_context, response_schema=SynthesisOutput, model=model)
-    _validate_synthesis(synth)
+    _validate_synthesis(synth, claims_index)
 
     challenger = None
     if run_challenger:
@@ -234,6 +262,7 @@ def run_synthesis(
             cand = provider.complete(chall_context, response_schema=ChallengerOutput, model=model)
             # a runner-up identical to the recommendation is no challenge; degrade
             if cand.runner_up_path in CANONICAL_PATHS and cand.runner_up_path != synth.recommendation_path:
+                _validate_known_claim_ids(cand.cited_claim_ids, claims_index, "challenger")
                 challenger = cand
         except Exception:  # noqa: BLE001 — challenger is degradable (spec §5.3)
             challenger = None
