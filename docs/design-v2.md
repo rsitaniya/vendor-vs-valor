@@ -189,7 +189,7 @@ Takes `profile.json` + both research pools and:
 - Produces a **recommendation** with a 2–3 sentence thesis.
 - Runs a **challenger pass**: handed the recommendation *and the evidence pools*, it makes the strongest **cited** case for a different path. Whatever it surfaces becomes the **runner-up** with "wins when" conditions. If it cannot mount a credible alternative, that is itself signal (earned confidence — expressed qualitatively in Target).
 - Reports **decisive factors** (§3.4) and **open questions / what we couldn't determine** (explicit gaps, not smoothed over).
-- Validates that every cited claim id resolves to verified evidence before writing `strategy.md`; bad citations fail loudly rather than being cleaned up.
+- Validates that every cited claim id resolves to verified evidence before writing `strategy.md`; bad citations fail loudly rather than being cleaned up. Dossier citations are bound to individual bullets, not only to a dossier-level citation list.
 - Enforces the buy-then-extend gate: that path needs BUY-side API/extensibility evidence, not just a vague vendor-fit claim.
 
 > Build complexity: **MEDIUM.** The challenger is one extra LLM call over the same pools; it is **degradable** to a single-pass synthesis if the sprint runs short. MVP-critical (challenger degradable).
