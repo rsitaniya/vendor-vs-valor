@@ -24,12 +24,20 @@ NEED = (
 def _show_research(res) -> None:
     print(f"\n=== {res.track} research: {len(res.kept)} verified claims "
           f"({len(res.dropped)} dropped, {len(res.assert_rejected)} rejected at assert) ===")
+    if res.priority_dimensions:
+        pri = ", ".join(p["id"] for p in res.priority_dimensions)
+        print(f"  priority dimensions (planner): {pri}")
     for c in res.kept:
         flags = f"  [{', '.join(c.flags)}]" if c.flags else ""
         src = c.sources[0]
         print(f"\n• ({c.dimension}/{c.status.value}){flags} {c.text}")
         print(f"    \"{src.display_quote}\"")
         print(f"    -> {src.url}  (dated: {src.source_date})")
+    covered = sorted(r["id"] for r in res.coverage if r["covered"])
+    missing = sorted(r["id"] for r in res.coverage if not r["covered"])
+    if res.coverage:
+        print(f"\n  coverage: {len(covered)}/{len(res.coverage)} dims "
+              f"(have: {', '.join(covered) or '—'} | empty: {', '.join(missing) or '—'})")
     for gap in res.coverage_gaps:
         print(f"  gap: {gap}")
 

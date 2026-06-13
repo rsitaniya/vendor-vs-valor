@@ -299,6 +299,7 @@ portfolio-decision-engine/
     schema_stage/            ← load→LLM→validate→persist wrapper
   /agents
     intake.md                ← intake prompt + profile schema + soft-steer capture
+    research_query_plan.md   ← search planner: profile+dimensions → diversified queries
     research_build.md        ← build-substrate scoping prompt
     research_buy.md          ← buy-substrate scoping prompt (incl. API/extensibility)
     synthesis.md             ← four-path reasoning prompt

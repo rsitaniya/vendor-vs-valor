@@ -254,13 +254,20 @@ This guard is what makes node bodies **idempotent** — which is also exactly wh
 
 ### 5.2 Stage 2 — Research substrates → `*-research.{md,json}`
 
-**Type:** two parallel invocations of one parameterized research agent (`track ∈ {BUILD, BUY}`), each followed by `verify` + `filter`; a join step assembles the combined `verify-report.json`. **Complexity: MEDIUM — the engine's center of gravity.** (The scoping prompts are the IP and are the build's schedule risk — see §7.)
+**Type:** two parallel invocations of one parameterized research agent (`track ∈ {BUILD, BUY}`), each a two-phase **plan → read/reason** flow followed by `verify` + `filter`; a join step assembles the combined `verify-report.json`. **Complexity: MEDIUM — the engine's center of gravity.** (The scoping prompts are the IP and are the build's schedule risk — see §7.)
 
-**BUILD substrate covers:** industry approaches/best-practices; benchmarks across approaches (OSS options, reference architectures); **live cost analysis** (eng-effort, infra, the maintenance/bloat curve — researched, dated); build risks (talent scarcity, overruns, tech-debt accretion).
+Each track runs, in one idempotent node:
+1. **Plan (Phase A, `agents/research_query_plan.md`).** An LLM call expands the profile + the track's dimensions into `priority_dimensions` (the 4–6 decisive for *this* profile) and a diversified, profile-aware query set (8–12 keyword queries biased toward primary/datable sources). This is a single planning pass — **not** the Target-Architecture intra-track research fan-out (no reflection/re-search loop). Degrades to deterministic fallback queries if the planner is unavailable. The planner sees the same profile fields as the author (see below); it does **not** see `soft_steer`.
+2. **Discover.** Domain-diverse search (`max_per_domain` cap) so one SEO listicle/site cannot dominate the pool; fetch + cache full content once.
+3. **Read/reason (Phase B, `agents/research_build.md` / `research_buy.md`).** The author grounds atomic `Claim`s in the cached content. The source excerpt given to the author keeps the head plus deterministically pulls **cost/pricing/date windows** forward so deep pricing tables survive truncation. Source-credibility is a *selection* rule in the prompt (prefer primary/datable over listicles) — never an author-set flag, preserving the trust-layer invariant.
+
+**Profile fields research reasons over (and hashes):** `need`, `intent`, `resources`, `constraints`, `customization_need`. **Excluded:** `soft_steer` (synthesis-only, §4) — a gate-3 steer edit must not re-run research. Both prompts ride in the input hash, so editing either invalidates the cache.
+
+**BUILD substrate covers:** industry approaches/best-practices; benchmarks across approaches (OSS options, reference architectures); **live cost analysis** (eng-effort as team-months/FTE-time — *not* how-to tutorials, infra, the maintenance/bloat curve — researched, dated); build risks (talent scarcity, overruns, tech-debt accretion).
 
 **BUY substrate covers:** commercial options; fit vs. the profile; **live pricing** (short + at-scale + renewal, dated); **API surface & extensibility** (this gates buy-then-extend); data-handling/compliance posture; vendor viability.
 
-**Output:** each track emits `Claim[]` via `assert_claim` (sources cached on fetch), then `verify` re-reads cached content and labels, then `filter` drops/flags. The `*-research.md` is **generated from** the filtered json so prose and evidence never drift.
+**Output:** each track emits `Claim[]` via `assert_claim` (sources cached on fetch), then `verify` re-reads cached content and labels, then `filter` drops/flags. The json also carries `priority_dimensions` and per-dimension `coverage` (which dimensions got evidence; an empty *priority* dimension is surfaced as a coverage gap → feeds Gate 2 and synthesis `open_questions`). The `*-research.md` is **generated from** the filtered json so prose and evidence never drift.
 
 **Gate 2:** node `interrupt()` surfaces both research docs + `verify-report.json`; human reviews and resumes with `Command(resume="approve")`.
 
@@ -291,7 +298,8 @@ These files *are* the differentiator; the orchestration is commodity.
 - **`/rubric/metrics.json`** — the 14 research dimensions, each with the question it answers and the per-track "what to look for" list. The research checklist that makes coverage consistent.
 - **`/rubric/paths.json`** — the path→evidence-pool mapping (§3.3).
 - **`/agents/intake.md`** — interview prompt + `profile.json` schema + soft-steer capture. *Case-agnostic — no domain cues.*
-- **`/agents/research_build.md`** / **`/agents/research_buy.md`** — per-track scoping prompts (§5.2) + the `assert_claim` contract + citation-mandatory + atomicity instruction.
+- **`/agents/research_query_plan.md`** — Phase-A search planner (§5.2): profile + dimensions → `priority_dimensions` + diversified, profile-aware query set. Single planning pass, not intra-track fan-out.
+- **`/agents/research_build.md`** / **`/agents/research_buy.md`** — per-track scoping prompts (§5.2) + the `assert_claim` contract + citation-mandatory + atomicity + source-credibility-as-selection + dimension-prioritization instruction.
 - **`/agents/synthesis.md`** — four-path reasoning + decisive-factors + open-questions prompt.
 - **`/agents/challenger.md`** — adversarial path-advocate prompt (sees pools + recommendation; cited counter-case).
 - **`/skills/grounded_claim/`** — `Claim` + `assert`/`verify`/`filter` (the reproducibility & trust guarantee).
