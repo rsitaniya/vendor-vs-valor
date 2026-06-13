@@ -4,7 +4,24 @@ from __future__ import annotations
 
 from langgraph.types import Command
 
-from graph import build_graph
+from graph import _EDGES, _NODES, build_graph
+
+
+def test_graph_declares_expected_topology():
+    assert [name for name, _ in _NODES] == [
+        "intake",
+        "gate1",
+        "research_build",
+        "research_buy",
+        "research_join",
+        "gate2",
+        "synthesis",
+        "gate3",
+        "report",
+    ]
+    assert ("gate1", "research_build") in _EDGES
+    assert ("gate1", "research_buy") in _EDGES
+    assert (["research_build", "research_buy"], "research_join") in _EDGES
 
 
 def _config(thread="t1"):

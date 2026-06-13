@@ -18,7 +18,9 @@ import json
 import os
 import re
 from collections import defaultdict
+from collections.abc import Sequence
 from dataclasses import dataclass
+from pathlib import Path
 from urllib.parse import urlparse
 
 from pydantic import BaseModel
@@ -31,8 +33,14 @@ from llm.provider import LLMProvider
 from rubric import CANONICAL_PATHS, load_paths
 from skills.grounded_claim import PRICE_CONFLICT
 from skills.schema_stage import ContractError
+from stages.challenger import (
+    ChallengerOutput,
+    has_buy_api_surface_claim,
+    run_challenger as run_challenger_pass,
+)
 
 _INPUTS = ("profile.json", "build-research.json", "buy-research.json")
+_CHALLENGER_PROMPT_SEPARATOR = "\n===CHALLENGER===\n"
 _PATH_TITLES = {"build": "Build", "buy": "Buy", "buy_then_extend": "Buy-then-extend",
                 "adopt_self_host": "Adopt & self-host"}
 _MONEY_RE = re.compile(r"(?:\$|USD\s*)(\d[\d,]*(?:\.\d+)?)\s*(k|m|thousand|million)?", re.I)
@@ -66,13 +74,6 @@ class SynthesisOutput(BaseModel):
     open_questions: list[str]
     runner_up_path: str
     runner_up_wins_when: list[str]
-
-
-class ChallengerOutput(BaseModel):
-    runner_up_path: str
-    wins_when: list[str]
-    case: str
-    cited_claim_ids: list[str]
 
 
 @dataclass
@@ -162,62 +163,6 @@ def _open_questions_cover_path(open_questions: list[str], path: str) -> bool:
     return any(any(token in question.lower() for token in tokens) for question in open_questions)
 
 
-def _has_buy_api_surface_claim(ids: list[str], claims_index: dict[str, dict]) -> bool:
-    return any(
-        claims_index[cid]["track"] == "BUY" and claims_index[cid]["dimension"] == "m10"
-        for cid in ids
-        if cid in claims_index
-    )
-
-
-def _evaluate_challenger(
-    cand: ChallengerOutput,
-    recommendation_path: str,
-    synth_runner_up_path: str,
-    claims_index: dict[str, dict],
-    paths_spec: dict[str, dict],
-) -> tuple[ChallengerOutput | None, str, str | None]:
-    """Classify a challenger result into one of three visible states.
-
-    Returns ``(accepted, status, note)``:
-    - ``"mounted"``  — a distinct, grounded counter-recommendation (``accepted`` set).
-      ``note`` flags convergence with synthesis' own second-best, else ``None``.
-    - ``"concurred"``— the challenger returned the *recommended* path: the adversarial
-      pass could not beat it. That agreement is signal, not failure.
-    - ``"degraded"`` — the output was invalid/ungrounded (``accepted`` ``None``); ``note``
-      carries the reason. The challenger is spec-degradable (§5.3) so this never raises,
-      but the reason is recorded so degradation is visible, not silent (Contract rule 12).
-
-    Parity with synthesis: a mounted counter's cited ids must exist, be non-empty, come
-    from the runner-up path's own evidence pools, and a ``buy_then_extend`` runner-up
-    needs a BUY m10 API-surface claim.
-    """
-    if cand.runner_up_path == recommendation_path:
-        return None, "concurred", "it could not make a stronger case for any alternative path"
-    if cand.runner_up_path not in CANONICAL_PATHS:
-        return None, "degraded", f"challenger returned an unknown path: {cand.runner_up_path!r}"
-    unknown = sorted({cid for cid in cand.cited_claim_ids if cid not in claims_index})
-    if unknown:
-        return None, "degraded", f"challenger cited unknown claim ids: {unknown}"
-    if not cand.cited_claim_ids:
-        return None, "degraded", "challenger case was uncited"
-    if not cand.case.strip() or not any(w.strip() for w in cand.wins_when):
-        return None, "degraded", "challenger case or wins_when was empty"
-    pools = set(paths_spec[cand.runner_up_path]["pools"])
-    outside = sorted({cid for cid in cand.cited_claim_ids
-                      if claims_index[cid]["track"] not in pools})
-    if outside:
-        return None, "degraded", (f"challenger cited claims outside the {cand.runner_up_path} "
-                                  f"evidence pool {sorted(pools)}: {outside}")
-    if (cand.runner_up_path == "buy_then_extend"
-            and not _has_buy_api_surface_claim(cand.cited_claim_ids, claims_index)):
-        return None, "degraded", "challenger runner-up buy_then_extend lacks a BUY m10 API-surface claim"
-    note = None
-    if cand.runner_up_path == synth_runner_up_path:
-        note = "the engine's own second-best and the challenger independently converged on this path"
-    return cand, "mounted", note
-
-
 def _dossier_bullets(dossier: PathDossier) -> list[CitedBullet]:
     return [*dossier.pros, *dossier.cons, *dossier.key_risks, dossier.reversibility]
 
@@ -265,7 +210,7 @@ def _validate_synthesis(out: SynthesisOutput, claims_index: dict[str, dict]) -> 
 
     buy_then_extend = next(d for d in out.dossiers if d.path == "buy_then_extend")
     buy_then_extend_ids = _dossier_claim_ids(buy_then_extend)
-    has_api_surface = _has_buy_api_surface_claim(buy_then_extend_ids, claims_index)
+    has_api_surface = has_buy_api_surface_claim(buy_then_extend_ids, claims_index)
     if out.recommendation_path == "buy_then_extend" and not has_api_surface:
         raise ContractError("buy_then_extend recommendation requires a BUY m10 API-surface claim")
     if (buy_then_extend_ids and not has_api_surface
@@ -306,10 +251,16 @@ def _assemble(synth: SynthesisOutput, challenger: ChallengerOutput | None,
         runner_up = {"path": synth.runner_up_path, "wins_when": synth.runner_up_wins_when,
                      "case": "", "cited_claim_ids": [], "from_challenger": False}
 
-    referenced = {i for d in dossiers for i in d["cited_claim_ids"]} | set(runner_up["cited_claim_ids"])
+    referenced = (
+        {i for d in dossiers for i in d["cited_claim_ids"]}
+        | set(runner_up["cited_claim_ids"])
+    )
     return {
         "recommendation": {"path": synth.recommendation_path, "thesis": synth.thesis},
-        "decisive_factors": [{"dimension": f.dimension, "why": f.why} for f in synth.decisive_factors],
+        "decisive_factors": [
+            {"dimension": f.dimension, "why": f.why}
+            for f in synth.decisive_factors
+        ],
         "dossiers": dossiers,
         "runner_up": runner_up,
         "open_questions": synth.open_questions,
@@ -319,6 +270,32 @@ def _assemble(synth: SynthesisOutput, challenger: ChallengerOutput | None,
         "challenger_note": challenger_note,
     }
 
+
+def _load_strategy_inputs(input_paths: Sequence[Path]) -> tuple[dict, dict, dict]:
+    profile = json.loads(input_paths[0].read_text(encoding="utf-8"))
+    build = json.loads(input_paths[1].read_text(encoding="utf-8"))
+    buy = json.loads(input_paths[2].read_text(encoding="utf-8"))
+    return profile, build, buy
+
+
+def _write_strategy_outputs(
+    store: RunStore,
+    *,
+    strategy: dict,
+    json_path: Path,
+    md_path: Path,
+    current_hash: str,
+) -> None:
+    md_path.write_text(render_strategy_md(strategy), encoding="utf-8")
+    json_path.write_text(json.dumps(strategy, indent=2, ensure_ascii=False), encoding="utf-8")
+    store.set_stage(
+        "strategy",
+        status="done",
+        recorded_hash=current_hash,
+        artifacts=["strategy.md", "strategy.json"],
+    )
+
+
 def _render_evidence(ids: list[str], idx: dict[str, dict]) -> list[str]:
     lines = []
     for cid in ids:
@@ -327,7 +304,10 @@ def _render_evidence(ids: list[str], idx: dict[str, dict]) -> list[str]:
             continue
         flags = f" _[{', '.join(c['flags'])}]_" if c["flags"] else ""
         s = c["source"]
-        lines.append(f"  - [{cid}] \"{s['display_quote']}\"{flags} — [{s['title'] or s['url']}]({s['url']})")
+        lines.append(
+            f"  - [{cid}] \"{s['display_quote']}\"{flags} — "
+            f"[{s['title'] or s['url']}]({s['url']})"
+        )
     return lines
 
 
@@ -404,21 +384,34 @@ def run_synthesis(
     model = model or pro_model()
     engine_version = os.environ.get("ENGINE_VERSION", "0")
     input_paths = [store.artifact_path(f) for f in _INPUTS]
-    combined_prompt = synth_prompt + "\n===CHALLENGER===\n" + (chall_prompt if run_challenger else "(disabled)")
+    combined_prompt = (
+        synth_prompt
+        + _CHALLENGER_PROMPT_SEPARATOR
+        + (chall_prompt if run_challenger else "(disabled)")
+    )
     current_hash = stage_input_hash(
-        input_paths=input_paths, prompt=combined_prompt, model_id=model, engine_version=engine_version
+        input_paths=input_paths,
+        prompt=combined_prompt,
+        model_id=model,
+        engine_version=engine_version,
     )
     json_path = store.artifact_path("strategy.json")
     md_path = store.artifact_path("strategy.md")
 
     record = store.get_stage("strategy")
-    if record and record.status == "done" and record.recorded_hash == current_hash and json_path.exists():
-        return SynthesisResult(skipped=True, strategy=json.loads(json_path.read_text(encoding="utf-8")))
+    if (
+        record
+        and record.status == "done"
+        and record.recorded_hash == current_hash
+        and json_path.exists()
+    ):
+        return SynthesisResult(
+            skipped=True,
+            strategy=json.loads(json_path.read_text(encoding="utf-8")),
+        )
 
     provider = provider or get_provider()
-    profile = json.loads(input_paths[0].read_text(encoding="utf-8"))
-    build = json.loads(input_paths[1].read_text(encoding="utf-8"))
-    buy = json.loads(input_paths[2].read_text(encoding="utf-8"))
+    profile, build, buy = _load_strategy_inputs(input_paths)
     claims_index = _flag_price_conflicts({c["id"]: c for c in build["claims"] + buy["claims"]})
 
     paths_spec = load_paths()
@@ -428,27 +421,32 @@ def run_synthesis(
     synth = provider.complete(synth_context, response_schema=SynthesisOutput, model=model)
     _validate_synthesis(synth, claims_index)
 
-    challenger = None
-    challenger_status = "disabled"
-    challenger_note = None
-    if run_challenger:
-        cand = None
-        try:
-            chall_context = "\n\n".join([
-                chall_prompt, _profile_block(profile), _claims_block(claims_index),
-                f"SYNTHESIS RECOMMENDATION: {synth.recommendation_path}\nTHESIS: {synth.thesis}",
-            ])
-            cand = provider.complete(chall_context, response_schema=ChallengerOutput, model=model)
-        except Exception as exc:  # noqa: BLE001 — generation failure is degradable (spec §5.3)
-            challenger_status = "degraded"
-            challenger_note = f"challenger generation failed: {exc}"
-        if cand is not None:
-            challenger, challenger_status, challenger_note = _evaluate_challenger(
-                cand, synth.recommendation_path, synth.runner_up_path, claims_index, paths_spec)
+    challenge = run_challenger_pass(
+        enabled=run_challenger,
+        provider=provider,
+        prompt=chall_prompt,
+        profile_context=_profile_block(profile),
+        evidence_context=_claims_block(claims_index),
+        recommendation_path=synth.recommendation_path,
+        thesis=synth.thesis,
+        synthesis_runner_up_path=synth.runner_up_path,
+        claims_index=claims_index,
+        paths_spec=paths_spec,
+        model=model,
+    )
 
-    strategy = _assemble(synth, challenger, claims_index, challenger_status, challenger_note)
-    md_path.write_text(render_strategy_md(strategy), encoding="utf-8")
-    json_path.write_text(json.dumps(strategy, indent=2, ensure_ascii=False), encoding="utf-8")
-    store.set_stage("strategy", status="done", recorded_hash=current_hash,
-                    artifacts=["strategy.md", "strategy.json"])
+    strategy = _assemble(
+        synth,
+        challenge.challenger,
+        claims_index,
+        challenge.status,
+        challenge.note,
+    )
+    _write_strategy_outputs(
+        store,
+        strategy=strategy,
+        json_path=json_path,
+        md_path=md_path,
+        current_hash=current_hash,
+    )
     return SynthesisResult(skipped=False, strategy=strategy)
