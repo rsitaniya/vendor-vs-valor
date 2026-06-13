@@ -993,7 +993,7 @@ wheels = [
 ]
 
 [[package]]
-name = "portfolio-decision-engine"
+name = "vendor-vs-valor"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [

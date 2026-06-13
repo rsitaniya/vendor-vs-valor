@@ -1,7 +1,7 @@
 [project]
-name = "portfolio-decision-engine"
+name = "vendor-vs-valor"
 version = "0.1.0"
-description = "Advisory buy-vs-build research engine (MVP). LangGraph orchestration, Gemini behind a provider interface, grounded citations."
+description = "Vendor vs Valor advisory research engine (MVP). LangGraph orchestration, Gemini behind a provider interface, grounded citations."
 requires-python = ">=3.11"
 dependencies = [
     # Orchestration: graph, interrupt() gates, checkpointer-backed resume

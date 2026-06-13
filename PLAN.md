@@ -1,4 +1,4 @@
-# PLAN.md — Portfolio Decision Engine (MVP build plan)
+# PLAN.md — Vendor vs Valor (MVP build plan)
 
 **Status:** awaiting approval. No code until PLAN.md is approved (per CLAUDE.md).
 **Source of truth:** `docs/mvp-hld-and-build-spec.md` (primary), `docs/design-v2.md` (why), `docs/target-architecture.md` (context only — do NOT build Target features).
