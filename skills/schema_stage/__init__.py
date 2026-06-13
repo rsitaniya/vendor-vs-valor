@@ -26,6 +26,8 @@ from engine.runstore import RunStore
 from llm import flash_model, get_provider
 from llm.provider import LLMProvider
 
+_EMPTY_REQUIRED_VALUES = (None, "", [], {})
+
 
 class ContractError(ValueError):
     """Raised when a stage's output fails its output_contract (fail loudly)."""
@@ -54,7 +56,10 @@ class StageResult:
 def _assemble_context(prompt: str, input_paths: list[Path]) -> str:
     parts = [prompt]
     for path in input_paths:
-        parts.append(f"\n\n--- input: {path.name} ---\n{path.read_text(encoding='utf-8')}")
+        parts.append(
+            f"\n\n--- input: {path.name} ---\n"
+            f"{path.read_text(encoding='utf-8')}"
+        )
     return "".join(parts)
 
 
@@ -62,12 +67,78 @@ def _check_contract(data: dict, contract: OutputContract) -> None:
     errors = [
         f"missing/empty required field: {name}"
         for name in contract.required_fields
-        if data.get(name) in (None, "", [], {})
+        if data.get(name) in _EMPTY_REQUIRED_VALUES
     ]
     if errors:
         raise ContractError("; ".join(errors))
     if contract.validate is not None:
         contract.validate(data)
+
+
+def _stage_artifact_paths(store: RunStore, name: str) -> tuple[Path, Path]:
+    return store.artifact_path(f"{name}.json"), store.artifact_path(f"{name}.md")
+
+
+def _cache_hit(record, current_hash: str, json_path: Path) -> bool:
+    return (
+        record is not None
+        and record.status == "done"
+        and record.recorded_hash == current_hash
+        and json_path.exists()
+    )
+
+
+def _load_cached_result(
+    name: str,
+    current_hash: str,
+    json_path: Path,
+    md_path: Path,
+) -> StageResult:
+    return StageResult(
+        name=name,
+        skipped=True,
+        input_hash=current_hash,
+        data=json.loads(json_path.read_text(encoding="utf-8")),
+        json_path=json_path,
+        md_path=md_path,
+    )
+
+
+def _complete_provider_call(
+    *,
+    provider: LLMProvider,
+    context: str,
+    output_contract: OutputContract,
+    model: str,
+) -> dict:
+    if output_contract.response_schema is not None:
+        parsed = provider.complete(
+            context,
+            response_schema=output_contract.response_schema,
+            model=model,
+        )
+        return parsed.model_dump()
+    return {"text": provider.complete(context, model=model)}
+
+
+def _write_outputs(
+    store: RunStore,
+    *,
+    name: str,
+    data: dict,
+    render: Callable[[dict], str],
+    current_hash: str,
+    json_path: Path,
+    md_path: Path,
+) -> None:
+    json_path.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
+    md_path.write_text(render(data), encoding="utf-8")
+    store.set_stage(
+        name,
+        status="done",
+        recorded_hash=current_hash,
+        artifacts=[json_path.name, md_path.name],
+    )
 
 
 def run(
@@ -90,35 +161,39 @@ def run(
 
     input_paths = [store.artifact_path(f) for f in inputs]
     current_hash = stage_input_hash(
-        input_paths=input_paths, prompt=prompt, model_id=model, engine_version=engine_version
+        input_paths=input_paths,
+        prompt=prompt,
+        model_id=model,
+        engine_version=engine_version,
     )
-    json_path = store.artifact_path(f"{name}.json")
-    md_path = store.artifact_path(f"{name}.md")
+    json_path, md_path = _stage_artifact_paths(store, name)
 
     # --- skip guard: reuse the artifact iff done + hash matches (spec §4) ---
     record = store.get_stage(name)
-    if record and record.status == "done" and record.recorded_hash == current_hash and json_path.exists():
-        return StageResult(
-            name=name, skipped=True, input_hash=current_hash,
-            data=json.loads(json_path.read_text(encoding="utf-8")),
-            json_path=json_path, md_path=md_path,
-        )
+    if _cache_hit(record, current_hash, json_path):
+        return _load_cached_result(name, current_hash, json_path, md_path)
 
     # --- run: load -> LLM -> validate -> persist ---
     provider = provider or get_provider()
     context = _assemble_context(prompt, input_paths)
-    if output_contract.response_schema is not None:
-        parsed = provider.complete(context, response_schema=output_contract.response_schema, model=model)
-        data = parsed.model_dump()
-    else:
-        data = {"text": provider.complete(context, model=model)}
+    data = _complete_provider_call(
+        provider=provider,
+        context=context,
+        output_contract=output_contract,
+        model=model,
+    )
 
     _check_contract(data, output_contract)
 
-    json_path.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
-    md_path.write_text(render(data), encoding="utf-8")
-    store.set_stage(name, status="done", recorded_hash=current_hash,
-                    artifacts=[json_path.name, md_path.name])
+    _write_outputs(
+        store,
+        name=name,
+        data=data,
+        render=render,
+        current_hash=current_hash,
+        json_path=json_path,
+        md_path=md_path,
+    )
 
     return StageResult(
         name=name, skipped=False, input_hash=current_hash, data=data,

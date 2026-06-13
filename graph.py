@@ -23,6 +23,8 @@ from langgraph.types import interrupt
 
 from llm.provider import LLMProvider
 
+NodeResult = dict[str, str]
+
 
 class GraphState(TypedDict, total=False):
     run_id: str
@@ -49,20 +51,30 @@ def _deps(config) -> RunDeps | None:
     return (config or {}).get("configurable", {}).get("deps")
 
 
+def _has_runtime_deps(config) -> bool:
+    return _deps(config) is not None
+
+
 # --- work nodes (idempotent via schema_stage; no-op without deps) ---
 
-def intake_node(state: GraphState, config) -> dict:
+def intake_node(state: GraphState, config) -> NodeResult:
     deps = _deps(config)
     if deps is None:
         return {}
     from stages.intake import run_intake
 
-    run_intake(state["need"], state["run_dir"], run_id=state.get("run_id"),
-               context=state.get("context", ""), provider=deps.provider, model=deps.model)
+    run_intake(
+        state["need"],
+        state["run_dir"],
+        run_id=state.get("run_id"),
+        context=state.get("context", ""),
+        provider=deps.provider,
+        model=deps.model,
+    )
     return {}
 
 
-def research_build_node(state: GraphState, config) -> dict:
+def research_build_node(state: GraphState, config) -> NodeResult:
     deps = _deps(config)
     if deps is None:
         return {}
@@ -72,7 +84,7 @@ def research_build_node(state: GraphState, config) -> dict:
     return {}
 
 
-def research_buy_node(state: GraphState, config) -> dict:
+def research_buy_node(state: GraphState, config) -> NodeResult:
     deps = _deps(config)
     if deps is None:
         return {}
@@ -82,9 +94,8 @@ def research_buy_node(state: GraphState, config) -> dict:
     return {}
 
 
-def research_join_node(state: GraphState, config) -> dict:
-    deps = _deps(config)
-    if deps is None:
+def research_join_node(state: GraphState, config) -> NodeResult:
+    if not _has_runtime_deps(config):
         return {}
     from stages.research import merge_verify_reports
 
@@ -92,7 +103,7 @@ def research_join_node(state: GraphState, config) -> dict:
     return {}
 
 
-def synthesis_node(state: GraphState, config) -> dict:
+def synthesis_node(state: GraphState, config) -> NodeResult:
     deps = _deps(config)
     if deps is None:
         return {}
@@ -102,16 +113,25 @@ def synthesis_node(state: GraphState, config) -> dict:
     return {}
 
 
-def report_node(state: GraphState, config) -> dict:
-    return {}  # TODO slice 7: render report.html
+def report_node(state: GraphState, config) -> NodeResult:
+    """Placeholder for the report renderer stage.
+
+    The graph keeps this node so the topology already matches the planned final
+    pipeline: gate 3 resumes into report generation, then END.
+    """
+    return {}
 
 
 # --- gate nodes (isolated interrupts; only these re-enter on resume) ---
 
 def _gate(number: int, stage: str, artifact: str, message: str):
-    def gate_node(state: GraphState) -> dict:
-        decision = interrupt({"gate": number, "stage": stage, "artifact": artifact,
-                              "message": message})
+    def gate_node(state: GraphState) -> NodeResult:
+        decision = interrupt({
+            "gate": number,
+            "stage": stage,
+            "artifact": artifact,
+            "message": message,
+        })
         return {f"gate{number}": decision}
     return gate_node
 
@@ -122,7 +142,7 @@ gate2_node = _gate(2, "research", "build-research.md / buy-research.md",
 gate3_node = _gate(3, "synthesis", "strategy.md",
                    "Review the strategy; edit the soft steer to re-synthesize, or approve.")
 
-_NODES = [
+_NODES = (
     ("intake", intake_node),
     ("gate1", gate1_node),
     ("research_build", research_build_node),
@@ -132,7 +152,20 @@ _NODES = [
     ("synthesis", synthesis_node),
     ("gate3", gate3_node),
     ("report", report_node),
-]
+)
+
+_EDGES = (
+    (START, "intake"),
+    ("intake", "gate1"),
+    ("gate1", "research_build"),
+    ("gate1", "research_buy"),
+    (["research_build", "research_buy"], "research_join"),
+    ("research_join", "gate2"),
+    ("gate2", "synthesis"),
+    ("synthesis", "gate3"),
+    ("gate3", "report"),
+    ("report", END),
+)
 
 
 def build_graph(checkpointer=None):
@@ -140,16 +173,8 @@ def build_graph(checkpointer=None):
     graph = StateGraph(GraphState)
     for node_name, fn in _NODES:
         graph.add_node(node_name, fn)
-    graph.add_edge(START, "intake")
-    graph.add_edge("intake", "gate1")
-    graph.add_edge("gate1", "research_build")
-    graph.add_edge("gate1", "research_buy")
-    graph.add_edge(["research_build", "research_buy"], "research_join")
-    graph.add_edge("research_join", "gate2")
-    graph.add_edge("gate2", "synthesis")
-    graph.add_edge("synthesis", "gate3")
-    graph.add_edge("gate3", "report")
-    graph.add_edge("report", END)
+    for start, end in _EDGES:
+        graph.add_edge(start, end)
     return graph.compile(checkpointer=checkpointer or InMemorySaver())
 
 

@@ -47,18 +47,32 @@ class RunStore:
         self.manifest_path = self.dir / "run.json"
 
     @classmethod
-    def new(cls, runs_root: str | Path = "runs", *, run_id: str | None = None,
-            model_id: str | None = None, engine_version: str | None = None) -> "RunStore":
+    def new(
+        cls,
+        runs_root: str | Path = "runs",
+        *,
+        run_id: str | None = None,
+        model_id: str | None = None,
+        engine_version: str | None = None,
+    ) -> "RunStore":
         run_id = run_id or new_run_id()
         store = cls(Path(runs_root) / run_id)
         if not store.manifest_path.exists():
-            store.save(RunManifest(run_id=run_id, created_at=_now_iso(),
-                                   model_id=model_id, engine_version=engine_version))
+            store.save(
+                RunManifest(
+                    run_id=run_id,
+                    created_at=_now_iso(),
+                    model_id=model_id,
+                    engine_version=engine_version,
+                )
+            )
         return store
 
     def load(self) -> RunManifest:
         if self.manifest_path.exists():
-            return RunManifest.model_validate_json(self.manifest_path.read_text(encoding="utf-8"))
+            return RunManifest.model_validate_json(
+                self.manifest_path.read_text(encoding="utf-8")
+            )
         return RunManifest(run_id=self.dir.name, created_at=_now_iso())
 
     def save(self, manifest: RunManifest) -> None:

@@ -14,6 +14,15 @@ from pathlib import Path
 
 from rubric import METRICS_PATH, PATHS_PATH
 
+_RUBRIC_PATHS = (METRICS_PATH, PATHS_PATH)
+
+
+def _update_section(digest, name: bytes, payload: bytes) -> None:
+    digest.update(b"\x00")
+    digest.update(name)
+    digest.update(b"\x00")
+    digest.update(payload)
+
 
 def stage_input_hash(
     *,
@@ -26,25 +35,19 @@ def stage_input_hash(
     digest = hashlib.sha256()
     # upstream artifacts this stage reads (sorted -> deterministic)
     for path in sorted(input_paths, key=str):
-        digest.update(b"\x00input\x00")
-        digest.update(Path(path).read_bytes())
+        _update_section(digest, b"input", Path(path).read_bytes())
     # a derived projection of inputs (e.g. research hashes only the profile
     # fields it uses, so editing the synthesis-only soft_steer does not
     # invalidate research — spec §4 gate-3 behavior)
     if extra:
-        digest.update(b"\x00extra\x00")
-        digest.update(extra)
+        _update_section(digest, b"extra", extra)
     # the prompt is the IP: editing it must invalidate the stage
-    digest.update(b"\x00prompt\x00")
-    digest.update(prompt.encode("utf-8"))
+    _update_section(digest, b"prompt", prompt.encode("utf-8"))
     # rubric: metrics + paths feed every reasoning stage
-    for rubric_path in (METRICS_PATH, PATHS_PATH):
-        digest.update(b"\x00rubric\x00")
-        digest.update(rubric_path.read_bytes())
+    for rubric_path in _RUBRIC_PATHS:
+        _update_section(digest, b"rubric", rubric_path.read_bytes())
     # same inputs, different model => different output
-    digest.update(b"\x00model\x00")
-    digest.update(model_id.encode("utf-8"))
+    _update_section(digest, b"model", model_id.encode("utf-8"))
     # manual bump on logic changes (MVP limitation; -> Target code-hash)
-    digest.update(b"\x00engine\x00")
-    digest.update(engine_version.encode("utf-8"))
+    _update_section(digest, b"engine", engine_version.encode("utf-8"))
     return digest.hexdigest()

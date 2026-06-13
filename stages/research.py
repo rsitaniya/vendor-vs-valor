@@ -17,6 +17,8 @@ import os
 import re
 from collections.abc import Callable
 from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Literal, cast
 from urllib.parse import urlparse
 
 from pydantic import BaseModel
@@ -55,6 +57,21 @@ _COST_RE = re.compile(
     re.I,
 )
 
+Track = Literal["BUILD", "BUY"]
+_TRACKS: tuple[Track, ...] = ("BUILD", "BUY")
+_RESEARCH_NAMES: dict[Track, str] = {
+    "BUILD": "build-research",
+    "BUY": "buy-research",
+}
+_PROMPT_NAMES: dict[Track, str] = {
+    "BUILD": "research_build",
+    "BUY": "research_buy",
+}
+_VERIFY_REPORT_NAMES: dict[Track, str] = {
+    "BUILD": "build-verify-report.json",
+    "BUY": "buy-verify-report.json",
+}
+
 
 class ResearchClaims(BaseModel):
     """Container for the LLM's structured output (a list of drafts)."""
@@ -90,7 +107,7 @@ class ResearchResult:
     coverage: list[dict] = field(default_factory=list)
 
 
-def _queries(capability: str, track: str) -> list[str]:
+def _queries(capability: str, track: Track) -> list[str]:
     """Deterministic fallback used only if the LLM planner is unavailable."""
     cap = capability.strip()
     if track == "BUILD":
@@ -150,11 +167,17 @@ def _excerpt(content: str, head_budget: int) -> str:
     return head + "\n…\n" + "\n…\n".join(windows)
 
 
-def _track_dimensions(track: str) -> list[dict]:
+def _as_track(track: str) -> Track:
+    if track not in _TRACKS:
+        raise ValueError(f"unknown track {track!r}")
+    return cast(Track, track)
+
+
+def _track_dimensions(track: Track) -> list[dict]:
     return [d for d in load_metrics() if track in d.get("tracks", [])]
 
 
-def _dimensions_block(dims: list[dict], track: str) -> str:
+def _dimensions_block(dims: list[dict], track: Track) -> str:
     lines = ["ALLOWED DIMENSIONS (use these ids):"]
     for d in dims:
         hints = "; ".join(d["look_for"][track])
@@ -163,7 +186,10 @@ def _dimensions_block(dims: list[dict], track: str) -> str:
 
 
 def _sources_block(cache: SourceCache, urls: list[str]) -> str:
-    blocks = ["SOURCES (cite only these urls; copy display_quote verbatim from the matching content):"]
+    blocks = [
+        "SOURCES (cite only these urls; copy display_quote verbatim from "
+        "the matching content):"
+    ]
     for url in urls:
         meta = cache.get_meta(url)
         dated = f" (dated: {meta.get('source_date')})" if meta.get("source_date") else ""
@@ -185,7 +211,8 @@ def _profile_block(profile: dict) -> str:
         f"capability: {need['capability']}",
         f"business_context: {need.get('business_context', '')}",
         f"problem: {need.get('problem', '')}",
-        f"core_value_proximity: {intent.get('core_value_proximity', '')} — {intent.get('rationale', '')}",
+        "core_value_proximity: "
+        f"{intent.get('core_value_proximity', '')} — {intent.get('rationale', '')}",
         f"resources: eng_headcount={res.get('eng_headcount', '?')}, "
         f"skills={res.get('relevant_skills', [])}, budget={res.get('budget_note', '')}, "
         f"runway={res.get('runway_note', '')}",
@@ -197,7 +224,7 @@ def _profile_block(profile: dict) -> str:
     ])
 
 
-def _plan_queries(plan_prompt, profile, track, dims, provider, model) -> QueryPlan | None:
+def _plan_queries(plan_prompt, profile, track: Track, dims, provider, model) -> QueryPlan | None:
     """Phase A: LLM expands profile + dimensions into diversified, profile-aware
     queries. Degrades to None (-> deterministic fallback) rather than crashing."""
     context = "\n\n".join([
@@ -212,7 +239,7 @@ def _plan_queries(plan_prompt, profile, track, dims, provider, model) -> QueryPl
         return None
 
 
-def _author(prompt, profile, track, dims, cache, urls, provider, model) -> list[ClaimDraft]:
+def _author(prompt, profile, track: Track, dims, cache, urls, provider, model) -> list[ClaimDraft]:
     context = "\n\n".join([
         prompt,
         _profile_block(profile),
@@ -236,7 +263,7 @@ def _coverage(track_dims: list[dict], kept: list[Claim], priority_ids: set[str])
     return rows
 
 
-def _render_md(track: str, kept: list[Claim], gaps: list[str], coverage: list[dict]) -> str:
+def _render_md(track: Track, kept: list[Claim], gaps: list[str], coverage: list[dict]) -> str:
     by_dim: dict[str, list[Claim]] = {}
     for c in kept:
         by_dim.setdefault(c.dimension, []).append(c)
@@ -254,7 +281,10 @@ def _render_md(track: str, kept: list[Claim], gaps: list[str], coverage: list[di
         for row in coverage:
             mark = "✓" if row["covered"] else "✗"
             star = " ★" if row["priority"] else ""
-            lines.append(f"- {mark} {row['id']} {row['name']}{star} — {row['claim_count']} claim(s)")
+            lines.append(
+                f"- {mark} {row['id']} {row['name']}{star} — "
+                f"{row['claim_count']} claim(s)"
+            )
         lines.append("")
     if gaps:
         lines.append("## Coverage gaps")
@@ -262,23 +292,70 @@ def _render_md(track: str, kept: list[Claim], gaps: list[str], coverage: list[di
     return "\n".join(lines)
 
 
-def _verify_report_name(track: str) -> str:
-    return "build-verify-report.json" if track == "BUILD" else "buy-verify-report.json"
+def _load_skipped_result(track: Track, name: str, json_path: Path) -> ResearchResult:
+    data = json.loads(json_path.read_text(encoding="utf-8"))
+    return ResearchResult(
+        track=track,
+        name=name,
+        skipped=True,
+        kept=[Claim.model_validate(c) for c in data["claims"]],
+        dropped=[Claim.model_validate(c) for c in data.get("dropped", [])],
+        coverage_gaps=data.get("coverage_gaps", []),
+        priority_dimensions=data.get("priority_dimensions", []),
+        coverage=data.get("coverage", []),
+    )
 
 
-def _write_verify_report_section(store: RunStore, track: str, section: dict) -> str:
-    name = _verify_report_name(track)
-    store.artifact_path(name).write_text(json.dumps(section, indent=2, ensure_ascii=False),
-                                         encoding="utf-8")
+def _write_verify_report_section(store: RunStore, track: Track, section: dict) -> str:
+    name = _VERIFY_REPORT_NAMES[track]
+    store.artifact_path(name).write_text(
+        json.dumps(section, indent=2, ensure_ascii=False),
+        encoding="utf-8",
+    )
     return name
+
+
+def _write_research_outputs(
+    store: RunStore,
+    *,
+    track: Track,
+    json_path: Path,
+    md_path: Path,
+    kept: list[Claim],
+    dropped: list[Claim],
+    verified: list[Claim],
+    assert_rejected: list[dict],
+    priority: list[dict],
+    coverage: list[dict],
+    gaps: list[str],
+) -> str:
+    json_path.write_text(json.dumps({
+        "track": track,
+        "claims": [c.model_dump() for c in kept],
+        "dropped": [c.model_dump() for c in dropped],
+        "kept_count": len(kept),
+        "dropped_count": len(dropped),
+        "priority_dimensions": priority,
+        "coverage": coverage,
+        "coverage_gaps": gaps,
+    }, indent=2, ensure_ascii=False), encoding="utf-8")
+    md_path.write_text(_render_md(track, kept, gaps, coverage), encoding="utf-8")
+    return _write_verify_report_section(store, track, {
+        "labeled": [{"id": c.id, "status": c.status.value} for c in verified],
+        "dropped_unsupported": [{"id": c.id} for c in dropped],
+        "assert_rejected": assert_rejected,
+        "priority_dimensions": priority,
+        "coverage": coverage,
+        "coverage_gaps": gaps,
+    })
 
 
 def merge_verify_reports(run_dir: str) -> dict:
     """Combine per-track verify reports after BUILD and BUY branches finish."""
     store = RunStore(run_dir)
     report: dict[str, dict] = {}
-    for track in ("BUILD", "BUY"):
-        path = store.artifact_path(_verify_report_name(track))
+    for track in _TRACKS:
+        path = store.artifact_path(_VERIFY_REPORT_NAMES[track])
         if path.exists():
             report[track] = json.loads(path.read_text(encoding="utf-8"))
     out = store.artifact_path("verify-report.json")
@@ -299,11 +376,10 @@ def run_research(
     per_query: int = 3,
     max_per_domain: int = 2,
 ) -> ResearchResult:
-    if track not in ("BUILD", "BUY"):
-        raise ValueError(f"unknown track {track!r}")
+    track = _as_track(track)
     store = RunStore(run_dir)
-    name = "build-research" if track == "BUILD" else "buy-research"
-    prompt = load_prompt("research_build" if track == "BUILD" else "research_buy")
+    name = _RESEARCH_NAMES[track]
+    prompt = load_prompt(_PROMPT_NAMES[track])
     plan_prompt = load_prompt("research_query_plan")
     model = model or flash_model()
     engine_version = os.environ.get("ENGINE_VERSION", "0")
@@ -328,16 +404,13 @@ def run_research(
         engine_version=engine_version, extra=projection,
     )
     record = store.get_stage(name)
-    if record and record.status == "done" and record.recorded_hash == current_hash and json_path.exists():
-        data = json.loads(json_path.read_text(encoding="utf-8"))
-        return ResearchResult(
-            track=track, name=name, skipped=True,
-            kept=[Claim.model_validate(c) for c in data["claims"]],
-            dropped=[Claim.model_validate(c) for c in data.get("dropped", [])],
-            coverage_gaps=data.get("coverage_gaps", []),
-            priority_dimensions=data.get("priority_dimensions", []),
-            coverage=data.get("coverage", []),
-        )
+    if (
+        record
+        and record.status == "done"
+        and record.recorded_hash == current_hash
+        and json_path.exists()
+    ):
+        return _load_skipped_result(track, name, json_path)
 
     provider = provider or get_provider()
     searcher = searcher or ddg_search
@@ -402,25 +475,19 @@ def run_research(
             gaps.append(f"no evidence for priority dimension {row['id']} ({row['name']})")
 
     # 7) persist (json is truth; md generated from it)
-    json_path.write_text(json.dumps({
-        "track": track,
-        "claims": [c.model_dump() for c in filtered.kept],
-        "dropped": [c.model_dump() for c in filtered.dropped],
-        "kept_count": len(filtered.kept),
-        "dropped_count": len(filtered.dropped),
-        "priority_dimensions": priority,
-        "coverage": coverage,
-        "coverage_gaps": gaps,
-    }, indent=2, ensure_ascii=False), encoding="utf-8")
-    md_path.write_text(_render_md(track, filtered.kept, gaps, coverage), encoding="utf-8")
-    verify_report_name = _write_verify_report_section(store, track, {
-        "labeled": [{"id": c.id, "status": c.status.value} for c in verified],
-        "dropped_unsupported": [{"id": c.id} for c in filtered.dropped],
-        "assert_rejected": assert_rejected,
-        "priority_dimensions": priority,
-        "coverage": coverage,
-        "coverage_gaps": gaps,
-    })
+    verify_report_name = _write_research_outputs(
+        store,
+        track=track,
+        json_path=json_path,
+        md_path=md_path,
+        kept=filtered.kept,
+        dropped=filtered.dropped,
+        verified=verified,
+        assert_rejected=assert_rejected,
+        priority=priority,
+        coverage=coverage,
+        gaps=gaps,
+    )
     store.set_stage(name, status="done", recorded_hash=current_hash,
                     artifacts=[json_path.name, md_path.name, verify_report_name])
 
