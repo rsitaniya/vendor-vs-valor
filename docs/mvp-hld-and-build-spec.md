@@ -144,6 +144,8 @@ Each source is fetched **once**, at research time, and its *content* is cached p
 3. **Conflict surfacing** — when two cost claims for the same path/vendor disagree **materially** (LLM-judged in synthesis, not a coded epsilon), both are presented as a **range with both sources**: *"reported between ~$2k–$3.5k/mo [a][b]."* Never silently pick one. (Engine Rule #5.)
 4. **Gated pricing as a finding** — when cost research returns no public price, the dossier states it explicitly: *"pricing not publicly listed; gated behind sales contact."* This is intelligence, not a gap to smooth over. (Replaces any neutral-midpoint inflation.)
 
+MVP implementation note: synthesis conservatively flags obvious numeric `price_conflict` cases when cost-tagged claims in the same track/dimension/source-host disagree materially. It does not attempt full vendor normalization across arbitrary domains.
+
 **MVP→Target seam:** post-hoc here (assert freely → verify → filter); structural + hard gate in *Target*. Same object, same three operations — the upgrade is a strategy swap behind the interface.
 
 ### 3.2 `schema_stage` — the stage lifecycle wrapper

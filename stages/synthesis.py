@@ -14,7 +14,10 @@ from __future__ import annotations
 
 import json
 import os
+import re
+from collections import defaultdict
 from dataclasses import dataclass
+from urllib.parse import urlparse
 
 from pydantic import BaseModel
 
@@ -24,11 +27,13 @@ from engine.runstore import RunStore
 from llm import get_provider, pro_model
 from llm.provider import LLMProvider
 from rubric import CANONICAL_PATHS, load_paths
+from skills.grounded_claim import PRICE_CONFLICT
 from skills.schema_stage import ContractError
 
 _INPUTS = ("profile.json", "build-research.json", "buy-research.json")
 _PATH_TITLES = {"build": "Build", "buy": "Buy", "buy_then_extend": "Buy-then-extend",
                 "adopt_self_host": "Adopt & self-host"}
+_MONEY_RE = re.compile(r"(?:\$|USD\s*)(\d[\d,]*(?:\.\d+)?)\s*(k|m|thousand|million)?", re.I)
 
 
 # --- LLM output shapes (no defaults -> Gemini struct-output safe) ---
@@ -80,6 +85,52 @@ def _claims_block(claims_index: dict[str, dict]) -> str:
         lines.append(f"[{cid}] ({c['track']}/{c['dimension']}/{c['status']}){flags} "
                      f"{c['text']} | source: {src['url']}")
     return "\n".join(lines)
+
+
+def _source_host(claim: dict) -> str:
+    url = claim["sources"][0]["url"]
+    return urlparse(url).netloc.lower().removeprefix("www.")
+
+
+def _money_values(claim: dict) -> list[float]:
+    src = claim["sources"][0]
+    text = f"{claim.get('text', '')} {src.get('display_quote', '')}"
+    values: list[float] = []
+    for match in _MONEY_RE.finditer(text):
+        value = float(match.group(1).replace(",", ""))
+        scale = (match.group(2) or "").lower()
+        if scale in {"k", "thousand"}:
+            value *= 1_000
+        elif scale in {"m", "million"}:
+            value *= 1_000_000
+        values.append(value)
+    return values
+
+
+def _flag_price_conflicts(claims_index: dict[str, dict]) -> dict[str, dict]:
+    """Flag obvious conflicting cost claims from the same source host/dimension.
+
+    MVP deliberately stays conservative: it only flags numeric money conflicts
+    where the track, dimension, and source host match. It does not try to solve
+    vendor normalization across arbitrary domains.
+    """
+    flagged = {cid: {**claim, "flags": list(claim.get("flags", []))}
+               for cid, claim in claims_index.items()}
+    groups: dict[tuple[str, str, str], list[tuple[str, float]]] = defaultdict(list)
+    for cid, claim in flagged.items():
+        if not claim.get("cost_tagged"):
+            continue
+        for value in _money_values(claim):
+            groups[(claim["track"], claim["dimension"], _source_host(claim))].append((cid, value))
+
+    for entries in groups.values():
+        values = [value for _, value in entries]
+        if len(values) < 2 or min(values) <= 0 or max(values) / min(values) < 1.2:
+            continue
+        for cid, _ in entries:
+            if PRICE_CONFLICT not in flagged[cid]["flags"]:
+                flagged[cid]["flags"].append(PRICE_CONFLICT)
+    return flagged
 
 
 def _profile_block(profile: dict) -> str:
@@ -260,7 +311,7 @@ def run_synthesis(
     profile = json.loads(input_paths[0].read_text(encoding="utf-8"))
     build = json.loads(input_paths[1].read_text(encoding="utf-8"))
     buy = json.loads(input_paths[2].read_text(encoding="utf-8"))
-    claims_index = {c["id"]: c for c in build["claims"] + buy["claims"]}
+    claims_index = _flag_price_conflicts({c["id"]: c for c in build["claims"] + buy["claims"]})
 
     paths_block = f"PATH->POOL MAPPING\n{json.dumps(load_paths())}"
     synth_context = "\n\n".join([synth_prompt, _profile_block(profile), paths_block,
