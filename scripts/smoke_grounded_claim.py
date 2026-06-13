@@ -20,7 +20,7 @@ from skills.grounded_claim import (
     verify,
 )
 
-URL = "https://en.wikipedia.org/wiki/Vector_database"
+URL = "https://www.pinecone.io/learn/vector-database/"
 
 
 def main() -> int:
