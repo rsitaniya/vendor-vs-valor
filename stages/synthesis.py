@@ -4,7 +4,9 @@ Two LLM steps over the same two evidence pools, then deterministic assembly:
 (a) synthesize: a dossier per path + recommendation + decisive factors + open
     questions + the engine's own runner-up.
 (b) challenger (degradable): the strongest *cited* case for a different path,
-    which becomes the runner-up if it runs.
+    shown as a first-class counter-recommendation when it mounts one. It can also
+    concur (return the recommended path) or degrade (invalid/ungrounded output);
+    all three states are recorded and rendered, never silently swallowed.
 (c) assemble (code): strategy.md (the deliverable, md is truth) + strategy.json
     (section manifest + referenced claim ids + a compact claims index the report
     renders from). Idempotent via the input-hash guard.
@@ -168,6 +170,54 @@ def _has_buy_api_surface_claim(ids: list[str], claims_index: dict[str, dict]) ->
     )
 
 
+def _evaluate_challenger(
+    cand: ChallengerOutput,
+    recommendation_path: str,
+    synth_runner_up_path: str,
+    claims_index: dict[str, dict],
+    paths_spec: dict[str, dict],
+) -> tuple[ChallengerOutput | None, str, str | None]:
+    """Classify a challenger result into one of three visible states.
+
+    Returns ``(accepted, status, note)``:
+    - ``"mounted"``  — a distinct, grounded counter-recommendation (``accepted`` set).
+      ``note`` flags convergence with synthesis' own second-best, else ``None``.
+    - ``"concurred"``— the challenger returned the *recommended* path: the adversarial
+      pass could not beat it. That agreement is signal, not failure.
+    - ``"degraded"`` — the output was invalid/ungrounded (``accepted`` ``None``); ``note``
+      carries the reason. The challenger is spec-degradable (§5.3) so this never raises,
+      but the reason is recorded so degradation is visible, not silent (Contract rule 12).
+
+    Parity with synthesis: a mounted counter's cited ids must exist, be non-empty, come
+    from the runner-up path's own evidence pools, and a ``buy_then_extend`` runner-up
+    needs a BUY m10 API-surface claim.
+    """
+    if cand.runner_up_path == recommendation_path:
+        return None, "concurred", "it could not make a stronger case for any alternative path"
+    if cand.runner_up_path not in CANONICAL_PATHS:
+        return None, "degraded", f"challenger returned an unknown path: {cand.runner_up_path!r}"
+    unknown = sorted({cid for cid in cand.cited_claim_ids if cid not in claims_index})
+    if unknown:
+        return None, "degraded", f"challenger cited unknown claim ids: {unknown}"
+    if not cand.cited_claim_ids:
+        return None, "degraded", "challenger case was uncited"
+    if not cand.case.strip() or not any(w.strip() for w in cand.wins_when):
+        return None, "degraded", "challenger case or wins_when was empty"
+    pools = set(paths_spec[cand.runner_up_path]["pools"])
+    outside = sorted({cid for cid in cand.cited_claim_ids
+                      if claims_index[cid]["track"] not in pools})
+    if outside:
+        return None, "degraded", (f"challenger cited claims outside the {cand.runner_up_path} "
+                                  f"evidence pool {sorted(pools)}: {outside}")
+    if (cand.runner_up_path == "buy_then_extend"
+            and not _has_buy_api_surface_claim(cand.cited_claim_ids, claims_index)):
+        return None, "degraded", "challenger runner-up buy_then_extend lacks a BUY m10 API-surface claim"
+    note = None
+    if cand.runner_up_path == synth_runner_up_path:
+        note = "the engine's own second-best and the challenger independently converged on this path"
+    return cand, "mounted", note
+
+
 def _dossier_bullets(dossier: PathDossier) -> list[CitedBullet]:
     return [*dossier.pros, *dossier.cons, *dossier.key_risks, dossier.reversibility]
 
@@ -234,7 +284,8 @@ def _compact(claim: dict) -> dict:
 
 
 def _assemble(synth: SynthesisOutput, challenger: ChallengerOutput | None,
-              claims_index: dict[str, dict]) -> dict:
+              claims_index: dict[str, dict], challenger_status: str = "disabled",
+              challenger_note: str | None = None) -> dict:
     def bullet(b: CitedBullet) -> dict:
         return {"text": b.text, "cited_claim_ids": b.cited_claim_ids}
 
@@ -264,6 +315,8 @@ def _assemble(synth: SynthesisOutput, challenger: ChallengerOutput | None,
         "open_questions": synth.open_questions,
         "claims_index": {i: _compact(claims_index[i]) for i in referenced},
         "challenger_ran": challenger is not None,
+        "challenger_status": challenger_status,
+        "challenger_note": challenger_note,
     }
 
 def _render_evidence(ids: list[str], idx: dict[str, dict]) -> list[str]:
@@ -310,7 +363,23 @@ def render_strategy_md(strategy: dict) -> str:
             out.append("**Evidence:**")
             out += ev
     ru = strategy["runner_up"]
-    out += ["", f"## Runner-up: {_PATH_TITLES.get(ru['path'], ru['path'])}"]
+    status = strategy.get("challenger_status", "disabled")
+    note = strategy.get("challenger_note")
+    ru_title = _PATH_TITLES.get(ru["path"], ru["path"])
+    if status == "mounted":
+        out += ["", f"## Challenger's counter-recommendation: {ru_title}"]
+        if note:
+            out += [f"_{note[0].upper()}{note[1:]}._"]
+    else:
+        out += ["", f"## Runner-up: {ru_title}"]
+        if status == "concurred":
+            out += [f"_Challenger concurred: {note}. The runner-up below is the engine's own "
+                    "second-best._"]
+        elif status == "degraded":
+            out += [f"_Challenger could not mount a counter-case ({note}). The runner-up below is "
+                    "the engine's own second-best._"]
+        else:  # disabled
+            out += ["_Challenger disabled; the runner-up below is the engine's own second-best._"]
     if ru["wins_when"]:
         out.append("**Wins when:**")
         out += [f"- {w}" for w in ru["wins_when"]]
@@ -319,8 +388,6 @@ def render_strategy_md(strategy: dict) -> str:
     out += _render_evidence(ru["cited_claim_ids"], idx)
     out += ["", "## Open questions"]
     out += [f"- {q}" for q in strategy["open_questions"]] or ["- (none)"]
-    if not strategy["challenger_ran"]:
-        out += ["", "_Challenger degraded to single-pass synthesis; runner-up is the engine's own._"]
     return "\n".join(out) + "\n"
 
 
@@ -354,28 +421,32 @@ def run_synthesis(
     buy = json.loads(input_paths[2].read_text(encoding="utf-8"))
     claims_index = _flag_price_conflicts({c["id"]: c for c in build["claims"] + buy["claims"]})
 
-    paths_block = f"PATH->POOL MAPPING\n{json.dumps(load_paths())}"
+    paths_spec = load_paths()
+    paths_block = f"PATH->POOL MAPPING\n{json.dumps(paths_spec)}"
     synth_context = "\n\n".join([synth_prompt, _profile_block(profile), paths_block,
                                  _claims_block(claims_index)])
     synth = provider.complete(synth_context, response_schema=SynthesisOutput, model=model)
     _validate_synthesis(synth, claims_index)
 
     challenger = None
+    challenger_status = "disabled"
+    challenger_note = None
     if run_challenger:
+        cand = None
         try:
             chall_context = "\n\n".join([
-                chall_prompt, _claims_block(claims_index),
+                chall_prompt, _profile_block(profile), _claims_block(claims_index),
                 f"SYNTHESIS RECOMMENDATION: {synth.recommendation_path}\nTHESIS: {synth.thesis}",
             ])
             cand = provider.complete(chall_context, response_schema=ChallengerOutput, model=model)
-            # a runner-up identical to the recommendation is no challenge; degrade
-            if cand.runner_up_path in CANONICAL_PATHS and cand.runner_up_path != synth.recommendation_path:
-                _validate_known_claim_ids(cand.cited_claim_ids, claims_index, "challenger")
-                challenger = cand
-        except Exception:  # noqa: BLE001 — challenger is degradable (spec §5.3)
-            challenger = None
+        except Exception as exc:  # noqa: BLE001 — generation failure is degradable (spec §5.3)
+            challenger_status = "degraded"
+            challenger_note = f"challenger generation failed: {exc}"
+        if cand is not None:
+            challenger, challenger_status, challenger_note = _evaluate_challenger(
+                cand, synth.recommendation_path, synth.runner_up_path, claims_index, paths_spec)
 
-    strategy = _assemble(synth, challenger, claims_index)
+    strategy = _assemble(synth, challenger, claims_index, challenger_status, challenger_note)
     md_path.write_text(render_strategy_md(strategy), encoding="utf-8")
     json_path.write_text(json.dumps(strategy, indent=2, ensure_ascii=False), encoding="utf-8")
     store.set_stage("strategy", status="done", recorded_hash=current_hash,
