@@ -74,6 +74,7 @@ Repo layout per design §9.5 (`/skills`, `/agents`, `/rubric`, `/eval`, `/runs`,
 - `assert_claim(text, sources, dimension, track)` → UNVERIFIED; **rejects** empty sources, URLs not in cache, and cost-tagged claims missing `source_date`.
 - `verify(claim)` → reads **cached** content via locator, independently judges SUPPORTED/PARTIAL/UNSUPPORTED (separate LLM call via provider interface; never trusts `display_quote`).
 - `filter(claims, policy)` → drops UNSUPPORTED (logged), keeps+flags PARTIAL, applies `stale_cost` (>12mo) and `price_conflict` flags.
+- `price_conflict` is set conservatively in synthesis for obvious numeric cost disagreements in the same track/dimension/source-host; deeper vendor normalization is deferred.
 - **Provider interface** (`llm/provider.py`) built here since `verify` needs it: `complete(prompt, schema, model_id)` behind an interface, Gemini impl, model id from env.
 - **Load-bearing smoke test (per CLAUDE.md):** confirm Gemini reliably returns the structured `Claim`/locator shape before research is built on it. If it doesn't → I stop and raise it as a design conversation.
 **Acceptance (CP1):** `pytest` green on grounded_claim in isolation — assert rejects unsourced/uncached/undated-cost; verify labels a planted SUPPORTED, a PARTIAL, and an UNSUPPORTED correctly against fixture cached content; filter drops/flags correctly; status is unsettable by the author. **I show you green tests + the smoke-test output, then stop.**

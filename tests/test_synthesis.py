@@ -18,12 +18,13 @@ from stages.synthesis import (
 )
 
 
-def _claim(cid, track, dim, text):
+def _claim(cid, track, dim, text, *, url=None, cost_tagged=False, quote="quote"):
     return Claim(
         id=cid, text=text, dimension=dim, track=track, status=ClaimStatus.SUPPORTED,
-        sources=[Source(url=f"https://ex.com/{cid}", title="T", accessed_date="2026-06-13",
+        cost_tagged=cost_tagged,
+        sources=[Source(url=url or f"https://ex.com/{cid}", title="T", accessed_date="2026-06-13",
                         source_date="2025-10-01", locator=Locator(start=0, end=4),
-                        display_quote="quote")],
+                        display_quote=quote)],
     )
 
 
@@ -150,6 +151,28 @@ def test_claims_index_only_contains_referenced_claims(run_dir):
     # b1 and y1 are referenced by dossiers; both should resolve
     assert set(res.strategy["claims_index"]) <= {"b1", "y1", "yapi"}
     assert "b1" in res.strategy["claims_index"]
+
+
+def test_conflicting_cost_claims_are_flagged(run_dir):
+    buy = {
+        "track": "BUY",
+        "claims": [
+            _claim("y1", "BUY", "m5", "Vendor pricing is $500 per month.",
+                   url="https://vendor.example/pricing-a", cost_tagged=True,
+                   quote="$500 per month").model_dump(),
+            _claim("y2", "BUY", "m5", "Vendor pricing is $900 per month.",
+                   url="https://vendor.example/pricing-b", cost_tagged=True,
+                   quote="$900 per month").model_dump(),
+            _claim("yapi", "BUY", "m10", "vendor exposes an API").model_dump(),
+        ],
+    }
+    (run_dir / "buy-research.json").write_text(json.dumps(buy), encoding="utf-8")
+    synth = _synth_out()
+    synth.dossiers[1].cited_claim_ids = ["y1", "y2"]
+    res = run_synthesis(run_dir, provider=SynthProvider(synth, None), model="m")
+    assert "price_conflict" in res.strategy["claims_index"]["y1"]["flags"]
+    assert "price_conflict" in res.strategy["claims_index"]["y2"]["flags"]
+    assert "price_conflict" in (run_dir / "strategy.md").read_text()
 
 
 def test_editing_soft_steer_reruns_synthesis(run_dir):
