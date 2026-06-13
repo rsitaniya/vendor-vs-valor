@@ -1,5 +1,5 @@
 # Target Architecture
-### Portfolio Decision Engine (Buy-vs-Build Research Engine) — Production Scale
+### Vendor vs Valor — Production Scale
 
 **What this document is.** The **Target** system, described at **architecture altitude** — components, responsibilities, the contracts and boundaries between them, and the cross-cutting concerns (durability, grounding, trust, security, scale). It is deliberately *not* HLD or LLD: you describe a system you are not yet building by its boundaries and contracts, not its wiring. The buildable slice is the *MVP HLD & Build Specification*; the rationale is *Design & Decision Model*. Each section names the **MVP shortcut it replaces**, so the through-line from demo to platform is explicit.
 
@@ -17,7 +17,7 @@
 
 ```
         ┌───────────────────────────────────────────────────────────┐
-        │                  Portfolio Decision Engine                │
+        │                     Vendor vs Valor                       │
         │                                                           │
  Platform│   ┌──────────┐  ┌───────────┐  ┌──────────┐  ┌─────────┐ │
  team   ─┼──▶│  Intake  │─▶│  Research │─▶│ Synthesis│─▶│Reporting│ │──▶ Decision
@@ -202,18 +202,6 @@ The MVP proves the engine is *consistent and grounded*; the Target proves it is 
 | Output | static HTML | served dashboard | reviewers want to re-examine live |
 | Eval | degradable harness | continuous CI + back-testing | first prompt-change regression |
 
-The ordering is itself a buy-vs-build-style prioritization: each upgrade is triggered by a real pain, not built speculatively — the same discipline the engine enforces on its users.
-
----
-
-## B12. How to narrate this in the room (mapping to the role)
-
-- **"Shared AI infrastructure portfolio companies standardize on"** → the four services + portfolio memory *are* that infrastructure; every company runs decisions through the same rails.
-- **"Own system-design reviews across the portfolio"** → the durable, audited, challenger-gated pipeline is how those reviews become consistent and reproducible instead of ad-hoc.
-- **"Optimize cost/latency"** → provider routing + cross-run caching + token budgeting (B4, B9) — the APIM-Bot 60%-cost-reduction lineage.
-- **"Mentor engineers"** → cited, verified, challenger-tested, auditable output teaches the decision discipline every run; the calibration loop institutionalizes it.
-- **Amex governance differentiator** → B5's structural grounding + B6's mandatory challenger + B8's audit trail are governance rails for capital allocation — the exact pattern built for model risk, at the org level Emergence operates at.
-
----
+The ordering follows the same prioritization discipline: each upgrade is triggered by a real pain, not built speculatively — the same discipline the engine enforces on its users.
 
 *End of Target Architecture. Together with the Design & Decision Model and the MVP HLD & Build Specification, this is the full arc: a credible 2-day build that visibly grows into a portfolio-scale platform.*
