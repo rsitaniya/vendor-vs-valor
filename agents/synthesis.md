@@ -17,8 +17,9 @@ confidence.**
 
 ## Produce
 - For **each** of the four paths, a **dossier**: `pros`, `cons`, `key_risks`, and
-  a one-line `reversibility` note. List the `cited_claim_ids` you drew on — cite
-  ONLY ids present in the evidence. Connective reasoning need not cite; facts must.
+  a one-line `reversibility` note. Each pro, con, risk, and reversibility note is
+  an object with `text` and `cited_claim_ids`. Cite ONLY ids present in the
+  evidence. Connective reasoning need not cite; facts must.
 - A `recommendation_path` (one of the four keys) and a 2–3 sentence `thesis`.
 - `decisive_factors`: the 3–5 dimensions that actually drove the recommendation,
   each with a short `why`. (This replaces weights — show your reasoning.)

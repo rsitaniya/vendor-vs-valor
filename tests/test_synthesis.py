@@ -11,6 +11,7 @@ from skills.grounded_claim import Claim, ClaimStatus, Locator, Source
 from skills.schema_stage import ContractError
 from stages.synthesis import (
     ChallengerOutput,
+    CitedBullet,
     DecisiveFactor,
     PathDossier,
     SynthesisOutput,
@@ -29,8 +30,11 @@ def _claim(cid, track, dim, text, *, url=None, cost_tagged=False, quote="quote")
 
 
 def _dossier(path, ids):
-    return PathDossier(path=path, pros=["p"], cons=["c"], key_risks=["r"],
-                       reversibility="reversible", cited_claim_ids=ids)
+    cited = [CitedBullet(text="p", cited_claim_ids=list(ids))]
+    return PathDossier(path=path, pros=cited,
+                       cons=[CitedBullet(text="c", cited_claim_ids=list(ids))],
+                       key_risks=[CitedBullet(text="r", cited_claim_ids=list(ids))],
+                       reversibility=CitedBullet(text="reversible", cited_claim_ids=list(ids)))
 
 
 def _synth_out(rec="buy_then_extend", dossier_ids=("yapi",)):
@@ -132,12 +136,22 @@ def test_empty_dossier_needs_matching_open_question(run_dir):
     synth = _synth_out()
     for dossier in synth.dossiers:
         if dossier.path == "adopt_self_host":
-            dossier.cited_claim_ids = []
+            dossier.pros = []
+            dossier.cons = []
+            dossier.key_risks = []
+            dossier.reversibility = CitedBullet(text="", cited_claim_ids=[])
     with pytest.raises(ContractError, match="no cited claims"):
         run_synthesis(run_dir, provider=SynthProvider(synth, None), model="m")
     synth.open_questions.append("adopt_self_host evidence is thin")
     res = run_synthesis(run_dir, provider=SynthProvider(synth, None), model="m")
     assert res.strategy["dossiers"][-1]["path"] == "adopt_self_host"
+
+
+def test_factual_bullet_must_have_citation(run_dir):
+    synth = _synth_out()
+    synth.dossiers[0].pros[0] = CitedBullet(text="uncited factual claim", cited_claim_ids=[])
+    with pytest.raises(ContractError, match="uncited bullet"):
+        run_synthesis(run_dir, provider=SynthProvider(synth, None), model="m")
 
 
 def test_buy_then_extend_recommendation_requires_buy_api_claim(run_dir):
@@ -168,10 +182,12 @@ def test_conflicting_cost_claims_are_flagged(run_dir):
     }
     (run_dir / "buy-research.json").write_text(json.dumps(buy), encoding="utf-8")
     synth = _synth_out()
-    synth.dossiers[1].cited_claim_ids = ["y1", "y2"]
+    synth.dossiers[1].pros[0] = CitedBullet(text="pricing sources disagree",
+                                            cited_claim_ids=["y1", "y2"])
     res = run_synthesis(run_dir, provider=SynthProvider(synth, None), model="m")
     assert "price_conflict" in res.strategy["claims_index"]["y1"]["flags"]
     assert "price_conflict" in res.strategy["claims_index"]["y2"]["flags"]
+    assert res.strategy["dossiers"][1]["pros"][0]["cited_claim_ids"] == ["y1", "y2"]
     assert "price_conflict" in (run_dir / "strategy.md").read_text()
 
 

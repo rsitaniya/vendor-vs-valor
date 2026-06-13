@@ -38,13 +38,17 @@ _MONEY_RE = re.compile(r"(?:\$|USD\s*)(\d[\d,]*(?:\.\d+)?)\s*(k|m|thousand|milli
 
 # --- LLM output shapes (no defaults -> Gemini struct-output safe) ---
 
+class CitedBullet(BaseModel):
+    text: str
+    cited_claim_ids: list[str]
+
+
 class PathDossier(BaseModel):
     path: str
-    pros: list[str]
-    cons: list[str]
-    key_risks: list[str]
-    reversibility: str
-    cited_claim_ids: list[str]
+    pros: list[CitedBullet]
+    cons: list[CitedBullet]
+    key_risks: list[CitedBullet]
+    reversibility: CitedBullet
 
 
 class DecisiveFactor(BaseModel):
@@ -164,6 +168,19 @@ def _has_buy_api_surface_claim(ids: list[str], claims_index: dict[str, dict]) ->
     )
 
 
+def _dossier_bullets(dossier: PathDossier) -> list[CitedBullet]:
+    return [*dossier.pros, *dossier.cons, *dossier.key_risks, dossier.reversibility]
+
+
+def _dossier_claim_ids(dossier: PathDossier) -> list[str]:
+    seen: list[str] = []
+    for bullet in _dossier_bullets(dossier):
+        for cid in bullet.cited_claim_ids:
+            if cid not in seen:
+                seen.append(cid)
+    return seen
+
+
 def _validate_synthesis(out: SynthesisOutput, claims_index: dict[str, dict]) -> None:
     if out.recommendation_path not in CANONICAL_PATHS:
         raise ContractError(f"recommendation_path not a known path: {out.recommendation_path!r}")
@@ -185,18 +202,23 @@ def _validate_synthesis(out: SynthesisOutput, claims_index: dict[str, dict]) -> 
                             f"missing={missing} duplicates={duplicates}")
 
     for dossier in out.dossiers:
-        _validate_known_claim_ids(dossier.cited_claim_ids, claims_index,
-                                  f"dossier {dossier.path}")
-        if not dossier.cited_claim_ids and not _open_questions_cover_path(out.open_questions, dossier.path):
+        for bullet in _dossier_bullets(dossier):
+            if bullet.text.strip() and not bullet.cited_claim_ids:
+                raise ContractError(f"dossier {dossier.path} has an uncited bullet")
+            _validate_known_claim_ids(bullet.cited_claim_ids, claims_index,
+                                      f"dossier {dossier.path}")
+        dossier_ids = _dossier_claim_ids(dossier)
+        if not dossier_ids and not _open_questions_cover_path(out.open_questions, dossier.path):
             raise ContractError(
                 f"dossier {dossier.path} has no cited claims and no matching open question"
             )
 
     buy_then_extend = next(d for d in out.dossiers if d.path == "buy_then_extend")
-    has_api_surface = _has_buy_api_surface_claim(buy_then_extend.cited_claim_ids, claims_index)
+    buy_then_extend_ids = _dossier_claim_ids(buy_then_extend)
+    has_api_surface = _has_buy_api_surface_claim(buy_then_extend_ids, claims_index)
     if out.recommendation_path == "buy_then_extend" and not has_api_surface:
         raise ContractError("buy_then_extend recommendation requires a BUY m10 API-surface claim")
-    if (buy_then_extend.cited_claim_ids and not has_api_surface
+    if (buy_then_extend_ids and not has_api_surface
             and not _open_questions_cover_path(out.open_questions, "buy_then_extend")):
         raise ContractError("buy_then_extend dossier lacks a BUY m10 API-surface claim")
 
@@ -213,9 +235,16 @@ def _compact(claim: dict) -> dict:
 
 def _assemble(synth: SynthesisOutput, challenger: ChallengerOutput | None,
               claims_index: dict[str, dict]) -> dict:
+    def bullet(b: CitedBullet) -> dict:
+        return {"text": b.text, "cited_claim_ids": b.cited_claim_ids}
+
     dossiers = [{
-        "path": d.path, "pros": d.pros, "cons": d.cons, "key_risks": d.key_risks,
-        "reversibility": d.reversibility, "cited_claim_ids": d.cited_claim_ids,
+        "path": d.path,
+        "pros": [bullet(b) for b in d.pros],
+        "cons": [bullet(b) for b in d.cons],
+        "key_risks": [bullet(b) for b in d.key_risks],
+        "reversibility": bullet(d.reversibility),
+        "cited_claim_ids": _dossier_claim_ids(d),
     } for d in synth.dossiers if d.path in CANONICAL_PATHS]
 
     if challenger is not None:
@@ -249,6 +278,17 @@ def _render_evidence(ids: list[str], idx: dict[str, dict]) -> list[str]:
     return lines
 
 
+def _render_bullets(label: str, bullets: list[dict]) -> list[str]:
+    lines = [f"**{label}:**"]
+    if not bullets:
+        return [f"**{label}:** —"]
+    for bullet in bullets:
+        cites = ", ".join(f"[{cid}]" for cid in bullet["cited_claim_ids"])
+        suffix = f" {cites}" if cites else ""
+        lines.append(f"- {bullet['text']}{suffix}")
+    return lines
+
+
 def render_strategy_md(strategy: dict) -> str:
     rec = strategy["recommendation"]
     idx = strategy["claims_index"]
@@ -260,10 +300,11 @@ def render_strategy_md(strategy: dict) -> str:
     out += ["", "## Path dossiers"]
     for d in strategy["dossiers"]:
         out.append(f"\n### {_PATH_TITLES.get(d['path'], d['path'])}")
-        out.append("**Pros:** " + ("; ".join(d["pros"]) or "—"))
-        out.append("**Cons:** " + ("; ".join(d["cons"]) or "—"))
-        out.append("**Key risks:** " + ("; ".join(d["key_risks"]) or "—"))
-        out.append(f"**Reversibility:** {d['reversibility']}")
+        out += _render_bullets("Pros", d["pros"])
+        out += _render_bullets("Cons", d["cons"])
+        out += _render_bullets("Key risks", d["key_risks"])
+        rev_cites = ", ".join(f"[{cid}]" for cid in d["reversibility"]["cited_claim_ids"])
+        out.append(f"**Reversibility:** {d['reversibility']['text']} {rev_cites}".rstrip())
         ev = _render_evidence(d["cited_claim_ids"], idx)
         if ev:
             out.append("**Evidence:**")
