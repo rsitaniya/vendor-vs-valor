@@ -114,11 +114,11 @@ def synthesis_node(state: GraphState, config) -> NodeResult:
 
 
 def report_node(state: GraphState, config) -> NodeResult:
-    """Placeholder for the report renderer stage.
+    if not _has_runtime_deps(config):
+        return {}
+    from stages.report import run_report
 
-    The graph keeps this node so the topology already matches the planned final
-    pipeline: gate 3 resumes into report generation, then END.
-    """
+    run_report(state["run_dir"])
     return {}
 
 
