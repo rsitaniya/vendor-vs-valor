@@ -101,3 +101,14 @@ def test_research_is_idempotent_and_skips_reauthoring(run_dir):
     assert prov.author_calls == 1
     second = run_research("BUILD", run_dir, provider=prov, searcher=fake_searcher([URL_A]))
     assert second.skipped and prov.author_calls == 1  # no re-authoring
+
+
+def test_editing_soft_steer_does_not_rerun_research(run_dir):
+    # Gate-3 behavior (spec §4): soft_steer is synthesis-only; research skips.
+    prov = FakeProvider([_draft(URL_A, "open source option")])
+    run_research("BUILD", run_dir, provider=prov, searcher=fake_searcher([URL_A]))
+    profile = json.loads((run_dir / "profile.json").read_text())
+    profile["soft_steer"] = "completely different steer"
+    (run_dir / "profile.json").write_text(json.dumps(profile))
+    second = run_research("BUILD", run_dir, provider=prov, searcher=fake_searcher([URL_A]))
+    assert second.skipped and prov.author_calls == 1
