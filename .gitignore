@@ -1,5 +1,7 @@
 # Superseded design docs — keep local, never commit
 old/
+interview.md
+emergence_portfolio.md
 
 # Secrets
 .env
