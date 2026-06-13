@@ -1,0 +1,43 @@
+"""The input-hash guard (spec §4) — the idempotency core.
+
+A stage skips its body and reuses its artifact iff its recorded hash matches the
+current one. The hash folds in everything that should invalidate the artifact:
+upstream inputs, the prompt (the IP), the rubric, the model id, and a manual
+engine_version. This is also what defuses LangGraph's "re-enter from the top on
+resume" footgun — a re-run stage recomputes the same hash and no-ops.
+"""
+
+from __future__ import annotations
+
+import hashlib
+from pathlib import Path
+
+from rubric import METRICS_PATH, PATHS_PATH
+
+
+def stage_input_hash(
+    *,
+    input_paths: list[Path],
+    prompt: str,
+    model_id: str,
+    engine_version: str,
+) -> str:
+    digest = hashlib.sha256()
+    # upstream artifacts this stage reads (sorted -> deterministic)
+    for path in sorted(input_paths, key=str):
+        digest.update(b"\x00input\x00")
+        digest.update(Path(path).read_bytes())
+    # the prompt is the IP: editing it must invalidate the stage
+    digest.update(b"\x00prompt\x00")
+    digest.update(prompt.encode("utf-8"))
+    # rubric: metrics + paths feed every reasoning stage
+    for rubric_path in (METRICS_PATH, PATHS_PATH):
+        digest.update(b"\x00rubric\x00")
+        digest.update(rubric_path.read_bytes())
+    # same inputs, different model => different output
+    digest.update(b"\x00model\x00")
+    digest.update(model_id.encode("utf-8"))
+    # manual bump on logic changes (MVP limitation; -> Target code-hash)
+    digest.update(b"\x00engine\x00")
+    digest.update(engine_version.encode("utf-8"))
+    return digest.hexdigest()
