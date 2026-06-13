@@ -1,0 +1,20 @@
+{
+  "version": "1.0",
+  "paths": {
+    "build": {
+      "pools": ["BUILD"]
+    },
+    "buy": {
+      "pools": ["BUY"]
+    },
+    "buy_then_extend": {
+      "pools": ["BUY", "BUILD"],
+      "gate": "buy.api_surface present",
+      "note": "License a core platform with a strong API, build the differentiating layer on top."
+    },
+    "adopt_self_host": {
+      "pools": ["BUILD", "BUY"],
+      "note": "Favored under data-residency / sensitivity constraints; trades license fees for ops burden."
+    }
+  }
+}
