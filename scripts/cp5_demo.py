@@ -7,6 +7,7 @@ Run: uv run python scripts/cp5_demo.py
 
 from __future__ import annotations
 
+import subprocess
 import sys
 
 from langgraph.types import Command
@@ -44,11 +45,20 @@ def main() -> int:
         print("FAIL: no strategy.md produced")
         return 1
 
+    report_html = store.artifact_path("report.html")
+
     print("\n" + "=" * 72)
     print(strategy_md.read_text())
     print("=" * 72)
     print(f"\nCP5 PASS: end-to-end run produced {strategy_md}")
     print(f"artifacts: {store.dir}/  (profile, *-research, verify-report, strategy, sources/)")
+
+    if report_html.exists():
+        print(f"report:    {report_html}")
+        subprocess.run(["open", str(report_html)], check=False)
+    else:
+        print("note: report.html not produced (report stage may have been skipped)")
+
     return 0
 
 
