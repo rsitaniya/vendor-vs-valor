@@ -8,6 +8,7 @@ import pytest
 
 from engine.runstore import RunStore
 from skills.grounded_claim import Claim, ClaimStatus, Locator, Source
+from skills.schema_stage import ContractError
 from stages.synthesis import (
     ChallengerOutput,
     DecisiveFactor,
@@ -35,7 +36,7 @@ def _synth_out(rec="buy_then_extend", dossier_ids=("b1",)):
     return SynthesisOutput(
         recommendation_path=rec, thesis="Buy the base, build the edge.",
         dossiers=[_dossier("build", ["b1"]), _dossier("buy", ["y1"]),
-                  _dossier("buy_then_extend", list(dossier_ids)), _dossier("adopt_self_host", [])],
+                  _dossier("buy_then_extend", list(dossier_ids)), _dossier("adopt_self_host", ["b1"])],
         decisive_factors=[DecisiveFactor(dimension="m8", why="reversibility")],
         open_questions=["pricing at scale unknown"],
         runner_up_path="build", runner_up_wins_when=["if differentiation matters"],
@@ -103,11 +104,36 @@ def test_challenger_disabled_is_single_pass(run_dir):
     assert res.strategy["challenger_ran"] is False
 
 
-def test_unknown_cited_ids_are_filtered_out(run_dir):
+def test_unknown_cited_ids_fail_contract(run_dir):
     synth = _synth_out(dossier_ids=("b1", "ghost"))
+    with pytest.raises(ContractError, match="unknown claim ids"):
+        run_synthesis(run_dir, provider=SynthProvider(synth, None), model="m")
+
+
+def test_missing_path_dossier_fails_contract(run_dir):
+    synth = _synth_out()
+    synth.dossiers = [d for d in synth.dossiers if d.path != "adopt_self_host"]
+    with pytest.raises(ContractError, match="each path exactly once"):
+        run_synthesis(run_dir, provider=SynthProvider(synth, None), model="m")
+
+
+def test_runner_up_must_differ_from_recommendation(run_dir):
+    synth = _synth_out(rec="build")
+    synth.runner_up_path = "build"
+    with pytest.raises(ContractError, match="runner_up_path must differ"):
+        run_synthesis(run_dir, provider=SynthProvider(synth, None), model="m")
+
+
+def test_empty_dossier_needs_matching_open_question(run_dir):
+    synth = _synth_out()
+    for dossier in synth.dossiers:
+        if dossier.path == "adopt_self_host":
+            dossier.cited_claim_ids = []
+    with pytest.raises(ContractError, match="no cited claims"):
+        run_synthesis(run_dir, provider=SynthProvider(synth, None), model="m")
+    synth.open_questions.append("adopt_self_host evidence is thin")
     res = run_synthesis(run_dir, provider=SynthProvider(synth, None), model="m")
-    bte = next(d for d in res.strategy["dossiers"] if d["path"] == "buy_then_extend")
-    assert "ghost" not in bte["cited_claim_ids"] and "b1" in bte["cited_claim_ids"]
+    assert res.strategy["dossiers"][-1]["path"] == "adopt_self_host"
 
 
 def test_claims_index_only_contains_referenced_claims(run_dir):

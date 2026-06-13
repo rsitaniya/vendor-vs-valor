@@ -1,6 +1,6 @@
 """The input-hash guard (spec §4) — the idempotency core.
 
-A stage skips its body and reuses its artifact iff its recorded hash matches the
+A stage skips its body and reuses its artifact if its recorded hash matches the
 current one. The hash folds in everything that should invalidate the artifact:
 upstream inputs, the prompt (the IP), the rubric, the model id, and a manual
 engine_version. This is also what defuses LangGraph's "re-enter from the top on

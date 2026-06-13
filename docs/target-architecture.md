@@ -17,26 +17,26 @@
 
 ```
         ┌───────────────────────────────────────────────────────────┐
-        │                  Portfolio Decision Engine                 │
-        │                                                            │
+        │                  Portfolio Decision Engine                │
+        │                                                           │
  Platform│   ┌──────────┐  ┌───────────┐  ┌──────────┐  ┌─────────┐ │
- team   ─┼──▶│  Intake  │─▶│  Research │─▶│ Synthesis│─▶│ Reporting│ │──▶ Decision
- / CTO   │   │  Service │  │  Service  │  │  Service │  │  Service │ │    record +
-        │   └──────────┘  └─────┬─────┘  └────┬─────┘  └─────────┘ │    report
-        │                       │             │                    │
-        │   ┌───────────────────▼─────────────▼──────────────────┐ │
+ team   ─┼──▶│  Intake  │─▶│  Research │─▶│ Synthesis│─▶│Reporting│ │──▶ Decision
+ / CTO   │   │  Service │  │  Service  │  │  Service │  │ Service │ │    record +
+        │    └──────────┘  └─────┬─────┘  └────┬─────┘  └─────────┘ │    report
+        │                       │             │                     │
+        │   ┌───────────────────▼─────────────▼──────────────────┐  │
         │   │            Portfolio Memory Service                 │ │
         │   │  decisions · capabilities · vendors · reusable IP   │ │
         │   └─────────────────────────────────────────────────────┘ │
         │   ┌─────────────────────────────────────────────────────┐ │
-        │   │            Orchestration Service (durable)           │ │
+        │   │            Orchestration Service (durable)          │ │
         │   └─────────────────────────────────────────────────────┘ │
         └────────────┬───────────────────────┬──────────────────────┘
                      │                        │
             ┌────────▼────────┐      ┌────────▼─────────┐
-            │  LLM providers  │      │  Research sources │
-            │ (routed: Gemini,│      │ web_search · MCP  │
-            │  Claude, OSS)   │      │ connectors · docs │
+            │  LLM providers  │      │ Research sources │
+            │ (routed: Gemini,│      │ web_search · MCP │
+            │  Claude, OSS)   │      │ connectors · docs│
             └─────────────────┘      └──────────────────┘
 ```
 
