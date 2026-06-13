@@ -28,3 +28,8 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 # No package to build yet; this keeps `uv sync` from erroring on layout before /skills exists.
 bypass-selection = true
+
+[tool.pytest.ini_options]
+# Top-level packages (rubric/, skills/, agents/) import from the repo root.
+pythonpath = ["."]
+testpaths = ["tests"]

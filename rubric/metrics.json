@@ -1,0 +1,156 @@
+{
+  "version": "1.0",
+  "_comment": "The 14 research dimensions. Structure, not scores (design v2 §3.3). Each dimension is a research-checklist item and a dossier section. 'cost_tagged' drives grounded_claim's stricter cost rules (spec §3.1.3). 'tracks' = which evidence pools research it; 'look_for' = per-track scoping hints. Case-agnostic: no domain baked in.",
+  "dimensions": [
+    {
+      "id": "m1",
+      "name": "Strategic differentiation / moat",
+      "question": "Does owning this build competitive advantage or proprietary data that compounds?",
+      "cost_tagged": false,
+      "tracks": ["BUILD", "BUY"],
+      "look_for": {
+        "BUILD": ["whether the capability is core IP or a commodity", "evidence that building creates a durable moat or compounding advantage"],
+        "BUY": ["how far commercial options commoditize this capability", "what differentiation, if any, survives after buying"]
+      }
+    },
+    {
+      "id": "m2",
+      "name": "Proprietary-data generation",
+      "question": "Does building this generate data no competitor can replicate?",
+      "cost_tagged": false,
+      "tracks": ["BUILD", "BUY"],
+      "look_for": {
+        "BUILD": ["whether owning the implementation produces proprietary data exhaust", "whether that data flywheel compounds over time"],
+        "BUY": ["who owns the data a vendor processes", "whether the vendor captures or restricts use of data generated through it"]
+      }
+    },
+    {
+      "id": "m3",
+      "name": "Total cost — build",
+      "question": "Engineering salaries x time, infra, and the opportunity cost of what those engineers are not building.",
+      "cost_tagged": true,
+      "tracks": ["BUILD"],
+      "look_for": {
+        "BUILD": ["dated engineering-effort estimates for comparable builds", "infra/run cost", "opportunity cost framing (what the team is not building instead)"]
+      }
+    },
+    {
+      "id": "m4",
+      "name": "Total cost — maintenance (the bloat curve)",
+      "question": "What does upkeep cost in year 2, 3, 5 as it accretes features and tech debt?",
+      "cost_tagged": true,
+      "tracks": ["BUILD", "BUY"],
+      "look_for": {
+        "BUILD": ["dated evidence on long-run maintenance burden and tech-debt accretion", "the year-2/3/5 upkeep curve for self-built or self-hosted systems"],
+        "BUY": ["residual integration/operational maintenance left to the buyer after purchase", "upgrade/migration burden across vendor versions"]
+      }
+    },
+    {
+      "id": "m5",
+      "name": "Total cost — buy (short + long term)",
+      "question": "License + integration + per-seat scaling + price-escalation risk at renewal.",
+      "cost_tagged": true,
+      "tracks": ["BUY"],
+      "look_for": {
+        "BUY": ["dated published pricing (entry, at-scale, renewal)", "per-seat / usage scaling behavior", "renewal price-escalation signals", "whether pricing is gated behind sales contact (state as a finding, not a gap)"]
+      }
+    },
+    {
+      "id": "m6",
+      "name": "Time-to-value",
+      "question": "Time to a working capability for each path.",
+      "cost_tagged": false,
+      "tracks": ["BUILD", "BUY"],
+      "look_for": {
+        "BUILD": ["dated estimates of time-to-first-working-version for comparable builds"],
+        "BUY": ["typical onboarding/integration time to production for the commercial option"]
+      }
+    },
+    {
+      "id": "m7",
+      "name": "Resource & talent availability",
+      "question": "Do we have the engineers/skills, or must we hire?",
+      "cost_tagged": false,
+      "tracks": ["BUILD", "BUY"],
+      "look_for": {
+        "BUILD": ["scarcity of the skills the build requires", "hiring-market signals for those skills"],
+        "BUY": ["skills needed to integrate/operate the bought option (lighter, but non-zero)"]
+      }
+    },
+    {
+      "id": "m8",
+      "name": "Reversibility / switching cost",
+      "question": "How expensive is it to unwind this decision later? (The dimension most frameworks omit.)",
+      "cost_tagged": false,
+      "tracks": ["BUILD", "BUY"],
+      "look_for": {
+        "BUILD": ["how locked-in a self-built/self-hosted choice becomes (data, ops, expertise)"],
+        "BUY": ["contract lock-in, data-export/portability, migration cost away from the vendor"]
+      }
+    },
+    {
+      "id": "m9",
+      "name": "Data ownership / sensitivity / compliance",
+      "question": "Where does data live? Regulatory exposure? Vendor data-handling risk?",
+      "cost_tagged": false,
+      "tracks": ["BUILD", "BUY"],
+      "look_for": {
+        "BUILD": ["data-residency/control achievable when self-hosting or building"],
+        "BUY": ["vendor data-handling posture, certifications, sub-processors, residency options"]
+      }
+    },
+    {
+      "id": "m10",
+      "name": "Customization need vs. availability",
+      "question": "How much must it bend to our workflow, and can each path deliver that?",
+      "cost_tagged": false,
+      "tracks": ["BUILD", "BUY"],
+      "look_for": {
+        "BUILD": ["the degree of customization a build can achieve (full, but costly)"],
+        "BUY": ["configurability / API surface / extensibility of the commercial option (this gates buy-then-extend)"]
+      }
+    },
+    {
+      "id": "m11",
+      "name": "Focus / core-value alignment",
+      "question": "Does doing this ourselves distract from the company's core value?",
+      "cost_tagged": false,
+      "tracks": ["BUILD", "BUY"],
+      "look_for": {
+        "BUILD": ["whether building pulls scarce focus away from the company's core value"],
+        "BUY": ["whether buying lets the team stay on its core value"]
+      }
+    },
+    {
+      "id": "m12",
+      "name": "Portfolio reuse & amortization",
+      "question": "Can this be built once and shared across N companies? (The Emergence multiplier.)",
+      "cost_tagged": false,
+      "tracks": [],
+      "mvp_status": "dormant",
+      "note": "Dormant in MVP (single-need; no Portfolio Memory). Survives as structure; activated by the Portfolio Memory Service in Target (target-architecture §B7). Research does not chase this dimension in the MVP."
+    },
+    {
+      "id": "m13",
+      "name": "Vendor viability / lock-in risk",
+      "question": "Is the vendor (or OSS project) durable? Acquisition / EOL / abandonment risk?",
+      "cost_tagged": false,
+      "tracks": ["BUILD", "BUY"],
+      "look_for": {
+        "BUILD": ["health of the OSS projects a build/adopt path depends on (maintenance cadence, governance, bus factor)"],
+        "BUY": ["vendor durability signals: funding, traction, acquisition/EOL risk"]
+      }
+    },
+    {
+      "id": "m14",
+      "name": "Integration complexity",
+      "question": "Cost to wire into existing (often legacy, underinvested) stacks.",
+      "cost_tagged": false,
+      "tracks": ["BUILD", "BUY"],
+      "look_for": {
+        "BUILD": ["effort to integrate a self-built component into the existing stack"],
+        "BUY": ["available connectors/APIs/SDKs and the integration effort for the commercial option"]
+      }
+    }
+  ]
+}
