@@ -61,7 +61,14 @@ def intake_node(state: GraphState, config) -> dict:
 
 
 def research_node(state: GraphState, config) -> dict:
-    return {}  # TODO slice 5: research BUILD then BUY -> *-research.{md,json}
+    deps = _deps(config)
+    if deps is None:
+        return {}
+    from stages.research import run_research
+
+    run_research("BUILD", state["run_dir"], provider=deps.provider, model=deps.model)
+    run_research("BUY", state["run_dir"], provider=deps.provider, model=deps.model)
+    return {}
 
 
 def synthesis_node(state: GraphState, config) -> dict:
