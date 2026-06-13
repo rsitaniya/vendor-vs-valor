@@ -25,6 +25,17 @@ VALID_POOLS = frozenset({"BUILD", "BUY"})
 #: The four paths — and only four. Acquire does not exist anywhere (design v2 §3.1).
 CANONICAL_PATHS = frozenset({"build", "buy", "buy_then_extend", "adopt_self_host"})
 
+#: The 14 dimensions survive as fixed structure (design v2 §3.3).
+CANONICAL_DIMENSION_IDS = frozenset(f"m{i}" for i in range(1, 15))
+
+#: Cost dimensions drive stricter grounded_claim source-date/staleness rules.
+COST_TAGGED_DIMENSION_IDS = frozenset({"m3", "m4", "m5"})
+
+#: Gates synthesis must respect before presenting conditional paths.
+REQUIRED_PATH_GATES = {
+    "buy_then_extend": "buy.api_surface present",
+}
+
 _ID_RE = re.compile(r"^m\d+$")
 
 
@@ -67,6 +78,12 @@ def load_paths() -> dict[str, dict]:
         bad = set(pools) - VALID_POOLS
         if bad:
             raise RubricError(f"paths.json: path '{name}' has unknown pools {sorted(bad)}")
+
+        expected_gate = REQUIRED_PATH_GATES.get(name)
+        if expected_gate is not None and spec.get("gate") != expected_gate:
+            raise RubricError(
+                f"paths.json: path '{name}' must define gate {expected_gate!r}"
+            )
     return paths
 
 
@@ -109,8 +126,22 @@ def load_metrics() -> list[dict]:
                 if not isinstance(hints, list) or not hints:
                     raise RubricError(f"metrics.json: {dim_id} look_for[{track}] must be non-empty")
 
-    if not any(dim["cost_tagged"] for dim in dims):
-        raise RubricError("metrics.json: expected at least one cost_tagged dimension")
+    if seen != CANONICAL_DIMENSION_IDS:
+        missing = CANONICAL_DIMENSION_IDS - seen
+        extra = seen - CANONICAL_DIMENSION_IDS
+        raise RubricError(
+            f"metrics.json must define exactly the 14 canonical dimensions. "
+            f"missing={sorted(missing)} unexpected={sorted(extra)}"
+        )
+
+    cost_tagged = {dim["id"] for dim in dims if dim["cost_tagged"]}
+    if cost_tagged != COST_TAGGED_DIMENSION_IDS:
+        missing = COST_TAGGED_DIMENSION_IDS - cost_tagged
+        extra = cost_tagged - COST_TAGGED_DIMENSION_IDS
+        raise RubricError(
+            f"metrics.json must tag exactly the canonical cost dimensions. "
+            f"missing={sorted(missing)} unexpected={sorted(extra)}"
+        )
     return dims
 
 
