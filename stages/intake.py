@@ -119,8 +119,11 @@ def run_intake(
     run_id = run_id or store.load().run_id
     store.write_text(
         "need.md",
-        f"# Capability need\n\n{need}\n\n## Additional context\n"
-        f"{context or '(none provided)'}\n\nrun_id: {run_id}\n",
+        f"# Capability need\n\n{need}\n\nrun_id: {run_id}\n",
+    )
+    store.write_text(
+        "context.md",
+        f"# Additional context\n\n{context or '(none provided)'}\n\nrun_id: {run_id}\n",
     )
     return schema_stage.run(
         "intake",
@@ -133,7 +136,7 @@ def run_intake(
             validate=validate_profile,
         ),
         render=render_profile_md,
-        inputs=("need.md",),
+        inputs=("need.md", "context.md"),
         provider=provider,
         model=model,
     )

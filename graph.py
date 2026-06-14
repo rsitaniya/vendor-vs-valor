@@ -29,6 +29,7 @@ NodeResult = dict[str, str]
 class GraphState(TypedDict, total=False):
     run_id: str
     run_dir: str
+    input: str
     need: str
     context: str
     gate1: str  # the operator's decision at each gate (recorded for audit)
@@ -63,8 +64,9 @@ def intake_node(state: GraphState, config) -> NodeResult:
         return {}
     from stages.intake import run_intake
 
+    raw_input = state.get("input") or state["need"]
     run_intake(
-        state["need"],
+        raw_input,
         state["run_dir"],
         run_id=state.get("run_id"),
         context=state.get("context", ""),
@@ -166,6 +168,26 @@ _EDGES = (
     ("gate3", "report"),
     ("report", END),
 )
+
+
+def _flow_label(node) -> str:
+    if node == START:
+        return "START"
+    if node == END:
+        return "END"
+    if isinstance(node, list):
+        return " + ".join(str(item) for item in node)
+    return str(node)
+
+
+def graph_flow_lines() -> list[str]:
+    """Return the LangGraph flow from the canonical edge list."""
+    return [f"{_flow_label(start)} -> {_flow_label(end)}" for start, end in _EDGES]
+
+
+def graph_flow_text() -> str:
+    """Return a printable LangGraph flow description."""
+    return "\n".join(graph_flow_lines())
 
 
 def build_graph(checkpointer=None):

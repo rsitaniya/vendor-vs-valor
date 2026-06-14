@@ -40,8 +40,9 @@ def test_run_intake_produces_valid_profile_artifacts(tmp_path):
     assert data["need"]["capability"] == "internal document parser"
     assert data["soft_steer"]
     assert "document parser" in result.md_path.read_text()
-    # need.md was written as the stage input
+    # need.md and context.md are system-created stage inputs
     assert (tmp_path / "need.md").exists()
+    assert (tmp_path / "context.md").exists()
 
 
 def test_intake_is_idempotent_via_hash_guard(tmp_path):
