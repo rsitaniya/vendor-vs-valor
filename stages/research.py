@@ -39,11 +39,15 @@ from skills.grounded_claim import (
     verify,
 )
 from stages.search import ddg_search
-
-_MIN_CONTENT_CHARS = 400
-_EXCERPT_CHARS = 6000          # head budget per source given to the author
-_COST_WINDOW_BUDGET = 2500     # extra budget for pulled-forward cost/pricing windows
-_COST_WINDOW_PAD = 140         # chars of context around each cost/date hit
+from engine.constants import (
+    COST_WINDOW_BUDGET as _COST_WINDOW_BUDGET,
+    COST_WINDOW_PAD as _COST_WINDOW_PAD,
+    EXCERPT_CHARS as _EXCERPT_CHARS,
+    MAX_PER_DOMAIN as _DEFAULT_MAX_PER_DOMAIN,
+    MAX_SOURCES as _DEFAULT_MAX_SOURCES,
+    MIN_CONTENT_CHARS as _MIN_CONTENT_CHARS,
+    PER_QUERY as _DEFAULT_PER_QUERY,
+)
 
 # Deterministic "find the numbers" pass (Rule 5: non-language work stays in code).
 # Pulls pricing/effort/date spans buried past the head excerpt to the front so
@@ -372,9 +376,9 @@ def run_research(
     provider: LLMProvider | None = None,
     model: str | None = None,
     searcher: Callable[[str, int], list[str]] | None = None,
-    max_sources: int = 10,
-    per_query: int = 3,
-    max_per_domain: int = 2,
+    max_sources: int = _DEFAULT_MAX_SOURCES,
+    per_query: int = _DEFAULT_PER_QUERY,
+    max_per_domain: int = _DEFAULT_MAX_PER_DOMAIN,
 ) -> ResearchResult:
     track = _as_track(track)
     store = RunStore(run_dir)

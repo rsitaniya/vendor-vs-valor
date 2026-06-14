@@ -11,6 +11,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import date
 
+from engine.constants import STALE_DAYS as _STALE_DAYS, VERIFY_CONTEXT_CHARS as _CONTEXT_CHARS
 from llm import flash_model, get_provider
 from llm.provider import LLMProvider
 from rubric import VALID_POOLS, cost_tagged_dimensions, dimension_ids
@@ -20,6 +21,7 @@ from .locate import locate
 from .models import (
     PARTIAL_EVIDENCE,
     STALE_COST,
+    UNDATED_COST,
     Claim,
     ClaimStatus,
     Locator,
@@ -31,8 +33,6 @@ from .models import (
 
 # verdict precedence: a claim is as strong as its strongest supporting source.
 _RANK = {ClaimStatus.SUPPORTED: 3, ClaimStatus.PARTIAL: 2, ClaimStatus.UNSUPPORTED: 1}
-_STALE_DAYS = 365  # ≈ 12 months (spec §3.1.3 mitigation 2)
-_CONTEXT_CHARS = 200  # window around the locator span given to the verifier
 
 
 class GroundingError(ValueError):

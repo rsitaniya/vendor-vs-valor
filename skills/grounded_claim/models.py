@@ -19,10 +19,9 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
-# --- flags applied by filter (rendered visually distinct in the report) ---
-PARTIAL_EVIDENCE = "partial_evidence"
-STALE_COST = "stale_cost"
-PRICE_CONFLICT = "price_conflict"  # set later by synthesis (LLM-judged), not filter
+from engine.constants import PARTIAL_EVIDENCE, PRICE_CONFLICT, STALE_COST, UNDATED_COST
+
+__all__ = ["PARTIAL_EVIDENCE", "STALE_COST", "UNDATED_COST", "PRICE_CONFLICT"]
 
 
 class ClaimStatus(str, Enum):
