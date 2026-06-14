@@ -168,6 +168,26 @@ _EDGES = (
 )
 
 
+def _flow_label(node) -> str:
+    if node == START:
+        return "START"
+    if node == END:
+        return "END"
+    if isinstance(node, list):
+        return " + ".join(str(item) for item in node)
+    return str(node)
+
+
+def graph_flow_lines() -> list[str]:
+    """Return the LangGraph flow from the canonical edge list."""
+    return [f"{_flow_label(start)} -> {_flow_label(end)}" for start, end in _EDGES]
+
+
+def graph_flow_text() -> str:
+    """Return a printable LangGraph flow description."""
+    return "\n".join(graph_flow_lines())
+
+
 def build_graph(checkpointer=None):
     """Compile the pipeline. Defaults to an in-memory checkpointer (tests)."""
     graph = StateGraph(GraphState)
