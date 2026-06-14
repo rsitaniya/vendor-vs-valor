@@ -39,11 +39,17 @@ from skills.grounded_claim import (
     verify,
 )
 from stages.search import ddg_search
-
-_MIN_CONTENT_CHARS = 400
-_EXCERPT_CHARS = 6000          # head budget per source given to the author
-_COST_WINDOW_BUDGET = 2500     # extra budget for pulled-forward cost/pricing windows
-_COST_WINDOW_PAD = 140         # chars of context around each cost/date hit
+from engine.constants import (
+    COST_WINDOW_BUDGET as _COST_WINDOW_BUDGET,
+    COST_WINDOW_PAD as _COST_WINDOW_PAD,
+    ENTITY_DISCOVERY_MAX_SOURCES as _ENTITY_DISCOVERY_MAX_SOURCES,
+    ENTITY_DISCOVERY_QUERIES as _ENTITY_DISCOVERY_QUERIES,
+    EXCERPT_CHARS as _EXCERPT_CHARS,
+    MAX_PER_DOMAIN as _DEFAULT_MAX_PER_DOMAIN,
+    MAX_SOURCES as _DEFAULT_MAX_SOURCES,
+    MIN_CONTENT_CHARS as _MIN_CONTENT_CHARS,
+    PER_QUERY as _DEFAULT_PER_QUERY,
+)
 
 # Deterministic "find the numbers" pass (Rule 5: non-language work stays in code).
 # Pulls pricing/effort/date spans buried past the head excerpt to the front so
@@ -71,6 +77,10 @@ _VERIFY_REPORT_NAMES: dict[Track, str] = {
     "BUILD": "build-verify-report.json",
     "BUY": "buy-verify-report.json",
 }
+_DISCOVERY_NAMES: dict[Track, str] = {
+    "BUILD": "build-entity-discovery",
+    "BUY": "buy-entity-discovery",
+}
 
 
 class ResearchClaims(BaseModel):
@@ -94,6 +104,22 @@ class QueryPlan(BaseModel):
     queries: list[PlannedQuery]
 
 
+class DiscoveryQueries(BaseModel):
+    queries: list[str]
+
+
+class CuratedEntity(BaseModel):
+    name: str
+    rationale: str
+    commercial_twin: str | None = None
+
+
+class EntityDiscovery(BaseModel):
+    selected: list[CuratedEntity]
+    excluded: list[str]
+    source_urls: list[str]
+
+
 @dataclass
 class ResearchResult:
     track: str
@@ -105,6 +131,7 @@ class ResearchResult:
     coverage_gaps: list[str] = field(default_factory=list)
     priority_dimensions: list[dict] = field(default_factory=list)
     coverage: list[dict] = field(default_factory=list)
+    discovered_entities: list[str] = field(default_factory=list)
 
 
 def _queries(capability: str, track: Track) -> list[str]:
@@ -224,29 +251,199 @@ def _profile_block(profile: dict) -> str:
     ])
 
 
-def _plan_queries(plan_prompt, profile, track: Track, dims, provider, model) -> QueryPlan | None:
+def _discovery_query_prompt(profile: dict, track: Track) -> str:
+    cap = profile["need"]["capability"]
+    ctx = profile["need"].get("business_context", "")
+    if track == "BUY":
+        focus = (
+            "commercial vendors, SaaS platforms, and APIs. "
+            "Target comparison articles, listicles ('best X providers'), "
+            "G2/Capterra/analyst reports, and industry reviews."
+        )
+    else:
+        focus = (
+            "open-source libraries, frameworks, and self-hostable tools. "
+            "Target OSS comparison articles ('best X library'), GitHub Awesome lists, "
+            "engineering blog comparisons, and benchmark articles."
+        )
+    profile_ctx = f"Capability: {cap}"
+    if ctx:
+        profile_ctx += f"\nBusiness context: {ctx}"
+    return (
+        f"Generate {_ENTITY_DISCOVERY_QUERIES} diverse web search queries to discover "
+        f"the leading {focus}\n\n"
+        f"{profile_ctx}\n\n"
+        "Return queries that surface authoritative comparison sources, "
+        "not individual vendor marketing pages."
+    )
+
+
+def _curation_prompt(
+    profile: dict, track: Track, content_block: str,
+    commercial_twins_hint: list[str] | None,
+) -> str:
+    cap = profile["need"]["capability"]
+    ctx = profile["need"].get("business_context", "")
+    if track == "BUY":
+        entity_type = "commercial vendors, SaaS platforms, and API providers"
+        twin_note = "Set commercial_twin to null for all entries."
+    else:
+        entity_type = "open-source libraries, frameworks, and self-hostable tools"
+        twin_note = (
+            "For each OSS project identify its commercial_twin if one exists "
+            "(e.g., 'Qdrant' → commercial_twin='Qdrant Cloud'). "
+            "Set null if no managed/cloud version exists."
+        )
+
+    cap_ctx = f"Capability: {cap}"
+    if ctx:
+        cap_ctx += f"\nBusiness context: {ctx}"
+
+    twins_block = ""
+    if commercial_twins_hint:
+        twins_block = (
+            "\nHINT — these commercial products map to OSS projects from the BUILD track "
+            "(validates commercial_twin fields): " + ", ".join(commercial_twins_hint) + "\n"
+        )
+
+    return (
+        f"Curate a list of {track} options for: {cap_ctx}\n\n"
+        f"From the web research below, select the {entity_type} that are:\n"
+        "1. Mentioned across multiple sources (cross-validated, not just self-reported)\n"
+        "2. Currently active and maintained\n"
+        "3. Relevant to the capability and business context above\n"
+        "4. Have real documentation or pricing worth deeper research\n\n"
+        f"{twin_note}{twins_block}\n"
+        "Put explicitly rejected candidates in the `excluded` list.\n\n"
+        f"WEB RESEARCH CONTENT:\n{content_block}"
+    )
+
+
+def _discover_entities_via_search(
+    profile: dict,
+    track: Track,
+    searcher: Callable[[str, int], list[str]],
+    cache: SourceCache,
+    provider: LLMProvider,
+    model: str,
+    *,
+    store: RunStore,
+    commercial_twins_hint: list[str] | None = None,
+) -> EntityDiscovery:
+    """Phase 0: web-search-backed entity discovery.
+
+    Generates discovery queries via LLM, fetches listicles/comparison pages,
+    then asks the LLM to curate a reasoned list of vendors (BUY) or OSS
+    projects (BUILD). Never relies on LLM world-knowledge for entity names —
+    everything is derived from fetched content.
+    """
+    # 1) Generate discovery queries from profile
+    try:
+        disc = provider.complete(
+            _discovery_query_prompt(profile, track),
+            response_schema=DiscoveryQueries,
+            model=model,
+        )
+        queries = disc.queries[:_ENTITY_DISCOVERY_QUERIES]
+    except Exception:  # noqa: BLE001 — deterministic fallback
+        cap = profile["need"]["capability"]
+        if track == "BUY":
+            queries = [
+                f"best {cap} vendors comparison",
+                f"top {cap} platforms api providers",
+                f"{cap} software comparison review",
+            ]
+        else:
+            queries = [
+                f"best open source {cap} library",
+                f"{cap} framework comparison github",
+                f"awesome {cap} tools self-hosted",
+            ]
+
+    # 2) Collect URLs — no domain cap for discovery (listicles are ideal here)
+    seen: list[str] = []
+    for query in queries:
+        for url in searcher(query, _ENTITY_DISCOVERY_MAX_SOURCES):
+            if url not in seen:
+                seen.append(url)
+            if len(seen) >= _ENTITY_DISCOVERY_MAX_SOURCES:
+                break
+        if len(seen) >= _ENTITY_DISCOVERY_MAX_SOURCES:
+            break
+
+    # 3) Fetch (Jina fallback already in cache.fetch)
+    fetched_urls: list[str] = []
+    for url in seen:
+        try:
+            content = cache.fetch(url)
+            if len(content.strip()) >= _MIN_CONTENT_CHARS:
+                fetched_urls.append(url)
+        except Exception:  # noqa: BLE001
+            pass
+
+    # 4) LLM curation over all fetched content
+    if fetched_urls:
+        content_block = "\n---\n".join(
+            f"[{url}]\n{cache.get_content(url)[:_EXCERPT_CHARS]}"
+            for url in fetched_urls
+        )
+        try:
+            discovery = provider.complete(
+                _curation_prompt(profile, track, content_block, commercial_twins_hint),
+                response_schema=EntityDiscovery,
+                model=model,
+            )
+        except Exception:  # noqa: BLE001
+            discovery = EntityDiscovery(selected=[], excluded=[], source_urls=fetched_urls)
+    else:
+        discovery = EntityDiscovery(selected=[], excluded=[], source_urls=[])
+
+    if not discovery.source_urls:
+        discovery = discovery.model_copy(update={"source_urls": fetched_urls})
+
+    # 5) Persist artifact
+    store.artifact_path(f"{_DISCOVERY_NAMES[track]}.json").write_text(
+        json.dumps(discovery.model_dump(), indent=2, ensure_ascii=False),
+        encoding="utf-8",
+    )
+    return discovery
+
+
+def _entity_context_block(discovery: EntityDiscovery, track: Track) -> str:
+    if not discovery.selected:
+        return ""
+    label = "commercial vendors/platforms" if track == "BUY" else "OSS projects/frameworks"
+    lines = [f"DISCOVERED_ENTITIES ({label} found via web search — use these names in your queries):"]
+    for e in discovery.selected:
+        twin = f" [commercial_twin: {e.commercial_twin}]" if e.commercial_twin else ""
+        lines.append(f"- {e.name}{twin}: {e.rationale}")
+    return "\n".join(lines)
+
+
+def _plan_queries(
+    plan_prompt, profile, track: Track, dims, provider, model,
+    entity_context: str = "",
+) -> QueryPlan | None:
     """Phase A: LLM expands profile + dimensions into diversified, profile-aware
     queries. Degrades to None (-> deterministic fallback) rather than crashing."""
-    context = "\n\n".join([
-        plan_prompt,
-        f"TRACK: {track}",
-        _profile_block(profile),
-        _dimensions_block(dims, track),
-    ])
+    parts = [plan_prompt, f"TRACK: {track}", _profile_block(profile), _dimensions_block(dims, track)]
+    if entity_context:
+        parts.append(entity_context)
     try:
-        return provider.complete(context, response_schema=QueryPlan, model=model)
+        return provider.complete("\n\n".join(parts), response_schema=QueryPlan, model=model)
     except Exception:  # noqa: BLE001 — a planner failure is degradation, not a crash
         return None
 
 
-def _author(prompt, profile, track: Track, dims, cache, urls, provider, model) -> list[ClaimDraft]:
-    context = "\n\n".join([
-        prompt,
-        _profile_block(profile),
-        _dimensions_block(dims, track),
-        _sources_block(cache, urls),
-    ])
-    out = provider.complete(context, response_schema=ResearchClaims, model=model)
+def _author(
+    prompt, profile, track: Track, dims, cache, urls, provider, model,
+    entity_context: str = "",
+) -> list[ClaimDraft]:
+    parts = [prompt, _profile_block(profile), _dimensions_block(dims, track)]
+    if entity_context:
+        parts.append(entity_context)
+    parts.append(_sources_block(cache, urls))
+    out = provider.complete("\n\n".join(parts), response_schema=ResearchClaims, model=model)
     return out.claims
 
 
@@ -303,6 +500,7 @@ def _load_skipped_result(track: Track, name: str, json_path: Path) -> ResearchRe
         coverage_gaps=data.get("coverage_gaps", []),
         priority_dimensions=data.get("priority_dimensions", []),
         coverage=data.get("coverage", []),
+        discovered_entities=data.get("discovered_entities", []),
     )
 
 
@@ -328,9 +526,11 @@ def _write_research_outputs(
     priority: list[dict],
     coverage: list[dict],
     gaps: list[str],
+    discovered_entities: list[str],
 ) -> str:
     json_path.write_text(json.dumps({
         "track": track,
+        "discovered_entities": discovered_entities,
         "claims": [c.model_dump() for c in kept],
         "dropped": [c.model_dump() for c in dropped],
         "kept_count": len(kept),
@@ -372,9 +572,9 @@ def run_research(
     provider: LLMProvider | None = None,
     model: str | None = None,
     searcher: Callable[[str, int], list[str]] | None = None,
-    max_sources: int = 10,
-    per_query: int = 3,
-    max_per_domain: int = 2,
+    max_sources: int = _DEFAULT_MAX_SOURCES,
+    per_query: int = _DEFAULT_PER_QUERY,
+    max_per_domain: int = _DEFAULT_MAX_PER_DOMAIN,
 ) -> ResearchResult:
     track = _as_track(track)
     store = RunStore(run_dir)
@@ -417,9 +617,33 @@ def run_research(
     capability = profile["need"]["capability"]
     track_dims = _track_dimensions(track)
 
-    # 0) PLAN — LLM expands profile + dimensions into diversified, profile-aware
+    # 0a) ENTITY DISCOVERY — web-search-backed; never LLM world-knowledge.
+    #     For BUY, try to seed with commercial_twins from BUILD if it already ran.
+    commercial_twins_hint: list[str] | None = None
+    if track == "BUY":
+        build_disc_path = store.artifact_path("build-entity-discovery.json")
+        if build_disc_path.exists():
+            try:
+                build_disc = json.loads(build_disc_path.read_text(encoding="utf-8"))
+                twins = [
+                    e["commercial_twin"]
+                    for e in build_disc.get("selected", [])
+                    if e.get("commercial_twin")
+                ]
+                if twins:
+                    commercial_twins_hint = twins
+            except Exception:  # noqa: BLE001
+                pass
+
+    discovery = _discover_entities_via_search(
+        profile, track, searcher, SourceCache(run_dir), provider, model,
+        store=store, commercial_twins_hint=commercial_twins_hint,
+    )
+    entity_context = _entity_context_block(discovery, track)
+
+    # 0b) PLAN — LLM expands profile + dimensions into diversified, profile-aware
     # queries; degrade to deterministic templates if the planner is unavailable.
-    plan = _plan_queries(plan_prompt, profile, track, track_dims, provider, model)
+    plan = _plan_queries(plan_prompt, profile, track, track_dims, provider, model, entity_context)
     if plan and plan.queries:
         query_strings = [q.query for q in plan.queries]
         priority = [{"id": p.id, "why": p.why} for p in plan.priority_dimensions]
@@ -452,7 +676,7 @@ def run_research(
         gaps.append(f"no fetchable sources for track {track}")
 
     # 3) author claims grounded in cached content
-    drafts = (_author(prompt, profile, track, track_dims, cache, cached, provider, model)
+    drafts = (_author(prompt, profile, track, track_dims, cache, cached, provider, model, entity_context)
               if cached else [])
 
     # 4) assert (cache-constrained; locator computed; rejects ungrounded)
@@ -474,6 +698,9 @@ def run_research(
         if row["priority"] and not row["covered"]:
             gaps.append(f"no evidence for priority dimension {row['id']} ({row['name']})")
 
+    discovered_entity_names = [e.name for e in discovery.selected]
+    discovery_artifact = f"{_DISCOVERY_NAMES[track]}.json"
+
     # 7) persist (json is truth; md generated from it)
     verify_report_name = _write_research_outputs(
         store,
@@ -487,12 +714,14 @@ def run_research(
         priority=priority,
         coverage=coverage,
         gaps=gaps,
+        discovered_entities=discovered_entity_names,
     )
     store.set_stage(name, status="done", recorded_hash=current_hash,
-                    artifacts=[json_path.name, md_path.name, verify_report_name])
+                    artifacts=[json_path.name, md_path.name, verify_report_name, discovery_artifact])
 
     return ResearchResult(
         track=track, name=name, skipped=False, kept=filtered.kept, dropped=filtered.dropped,
         assert_rejected=assert_rejected, coverage_gaps=gaps,
         priority_dimensions=priority, coverage=coverage,
+        discovered_entities=discovered_entity_names,
     )

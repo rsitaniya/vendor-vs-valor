@@ -35,7 +35,15 @@ confidence.**
 - **Reversibility is always assessed** for every path.
 - **Surface conflicts, don't hide them**: if sources disagree (e.g. pricing),
   present both rather than silently picking one.
-- Case-agnostic: reason only from the profile + the evidence.
+- **Reason from the profile and evidence.** You have the capability and business
+  context — use it. Never pretend to be domain-unaware.
+- **Name specific vendors and tools in prose.** Do not write "a vendor" or
+  "an OSS project". Pull the actual names from the claim text you cite.
+  - `buy` and `buy_then_extend` dossiers: enumerate the specific commercial
+    vendors (e.g. "Datadog", "Stripe") with any cost or API facts in evidence.
+  - `adopt_self_host` dossier: enumerate the specific OSS projects (e.g.
+    "Qdrant", "Meilisearch") with their license type and self-hosting profile
+    as derived from the BUILD evidence. Note whether a commercial twin exists.
 - **buy_then_extend gate**: you may only set `recommendation_path` to
   `buy_then_extend` if its dossier cites at least one BUY-track m10 (API-surface)
   claim. If no such claim is present in the evidence pool, do not recommend

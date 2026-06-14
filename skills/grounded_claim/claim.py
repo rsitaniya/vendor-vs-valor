@@ -11,6 +11,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import date
 
+from engine.constants import STALE_DAYS as _STALE_DAYS, VERIFY_CONTEXT_CHARS as _CONTEXT_CHARS
 from llm import flash_model, get_provider
 from llm.provider import LLMProvider
 from rubric import VALID_POOLS, cost_tagged_dimensions, dimension_ids
@@ -20,6 +21,7 @@ from .locate import locate
 from .models import (
     PARTIAL_EVIDENCE,
     STALE_COST,
+    UNDATED_COST,
     Claim,
     ClaimStatus,
     Locator,
@@ -31,8 +33,6 @@ from .models import (
 
 # verdict precedence: a claim is as strong as its strongest supporting source.
 _RANK = {ClaimStatus.SUPPORTED: 3, ClaimStatus.PARTIAL: 2, ClaimStatus.UNSUPPORTED: 1}
-_STALE_DAYS = 365  # ≈ 12 months (spec §3.1.3 mitigation 2)
-_CONTEXT_CHARS = 200  # window around the locator span given to the verifier
 
 
 class GroundingError(ValueError):
@@ -74,10 +74,9 @@ def assert_claim(
 
         meta = cache.get_meta(url)
         source_date = meta.get("source_date")
-        if is_cost and not source_date:
-            raise GroundingError(
-                f"cost-tagged claim needs a dated source (spec §3.1.3): {url}"
-            )
+        # undated cost sources are kept but flagged at filter time (not rejected
+        # here) — covers JS-rendered vendor pricing pages where trafilatura/Jina
+        # can't extract a publication date even when content is present.
 
         built.append(Source(
             url=url,
@@ -174,5 +173,8 @@ def filter_claims(claims: list[Claim], policy: FilterPolicy | None = None) -> Fi
             flags.append(PARTIAL_EVIDENCE)
         if _is_stale_cost(claim, policy) and STALE_COST not in flags:
             flags.append(STALE_COST)
+        if claim.cost_tagged and any(not s.source_date for s in claim.sources):
+            if UNDATED_COST not in flags:
+                flags.append(UNDATED_COST)
         result.kept.append(claim.model_copy(update={"flags": flags}))
     return result

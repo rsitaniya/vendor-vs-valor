@@ -16,6 +16,8 @@ from pathlib import Path
 import httpx
 import trafilatura
 
+from engine.constants import MIN_CONTENT_CHARS
+
 # Many sites (e.g. Wikipedia) reject non-descriptive bot agents with 403.
 # A standard browser UA is the pragmatic choice for research fetching.
 _USER_AGENT = (
@@ -72,7 +74,11 @@ class SourceCache:
         return content
 
     def fetch(self, url: str, *, timeout: float = 30.0) -> str:
-        """Fetch + extract main text once, then cache. Re-reads cache if present."""
+        """Fetch + extract main text once, then cache. Re-reads cache if present.
+
+        Falls back to Jina Reader when trafilatura returns thin content — covers
+        JS-rendered vendor pricing pages that return little to no text directly.
+        """
         if self.has(url):
             return self.get_content(url)
         resp = httpx.get(url, follow_redirects=True, timeout=timeout,
@@ -85,4 +91,25 @@ class SourceCache:
         if meta is not None:
             title = meta.title
             source_date = meta.date  # 'YYYY-MM-DD' or None
+
+        if len(content.strip()) < MIN_CONTENT_CHARS:
+            # Thin content — likely a JS-rendered page. Try Jina Reader which
+            # returns a pre-rendered version; run trafilatura on its output.
+            jina_url = f"https://r.jina.ai/{url}"
+            try:
+                resp2 = httpx.get(jina_url, follow_redirects=True, timeout=timeout,
+                                  headers={"User-Agent": _USER_AGENT})
+                resp2.raise_for_status()
+                jina_content = trafilatura.extract(
+                    resp2.text, include_comments=False, include_tables=True
+                ) or ""
+                if len(jina_content.strip()) > len(content.strip()):
+                    content = jina_content
+                    jina_meta = trafilatura.extract_metadata(resp2.text)
+                    if jina_meta is not None:
+                        title = title or jina_meta.title
+                        source_date = source_date or jina_meta.date
+            except Exception:  # noqa: BLE001 — fallback; original content used if Jina fails
+                pass
+
         return self.add(url, content, title=title, source_date=source_date)
