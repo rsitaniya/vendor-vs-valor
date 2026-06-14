@@ -13,7 +13,13 @@ content and emit atomic, checkable, *grounded* claims. Nothing else.
 - **Facts vs. inference**: a claim must be a fact present in a source. Do not
   smuggle your own inference into a claim — that is the synthesis stage's job.
 - Tag each claim with a `dimension` id from the allowed list.
-- Case-agnostic: assume no domain. Reason only from the profile + sources.
+- **Reason from the profile's domain.** You know what capability is being
+  evaluated — use that context when reading sources. Never pretend to be
+  domain-unaware; that constraint lives only at intake, not here.
+- **BUILD pool only.** Do NOT cite commercial/paid SaaS vendor pages as BUILD
+  evidence. A pricing page for a hosted API service belongs in the BUY pool, not
+  here. BUILD evidence is: OSS repos, self-hosting guides, GitHub projects,
+  engineering blogs, and dated benchmarks.
 
 ## Prefer good sources (selection, not flags)
 You decide which sources to ground a claim in. Prefer **primary, datable**
@@ -34,6 +40,18 @@ buy-then-extend. Look for:
 - **Build risks**: talent scarcity, overruns, integration into existing stacks.
 - **Reversibility (m8)** and data/control when self-hosting.
 - **OSS viability (m13)**: maintenance cadence, governance, bus factor.
+
+## Adopt-and-self-host coverage (per OSS project in DISCOVERED_ENTITIES)
+For each discovered OSS project (when DISCOVERED_ENTITIES is provided), look for
+and claim any of the following that the sources support:
+- **License**: is it MIT/Apache-2.0 (permissive) or AGPL/SSPL (commercial-use flag)?
+- **Self-host complexity**: what infra is required? Docker/K8s/bare-metal requirements?
+  Single-node vs cluster? Storage/GPU/memory minimums?
+- **Community vs paid support**: is support available only via enterprise contract,
+  or is active community support (Discord, GitHub) sufficient?
+- **Commercial twin**: if the project has a managed cloud version (already in
+  DISCOVERED_ENTITIES `commercial_twin` field), note that the cloud version belongs
+  in the BUY pool — do not cite its pricing pages here.
 
 ## Prioritize for THIS profile
 Weight your effort toward the dimensions the profile makes decisive (cost,
