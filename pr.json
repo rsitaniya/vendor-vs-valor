@@ -1,0 +1,218 @@
+{
+  "prs": [
+    {
+      "id": "PR-001",
+      "title": "Research depth: web-search entity discovery, domain-aware queries, Jina fallback, cost-flag relaxation, OSS/adopt-self-host coverage",
+      "status": "planned",
+      "priority": "critical",
+      "context": "The BUY and BUILD research tracks produce ~12 claims per run but fail to name specific commercial vendors (BUY) or specific OSS libraries (BUILD). Root-cause: the query planner starts blind (no entity names), fetch failure rates are ~40-50% on JS-rendered pricing pages, cost claims from undated vendor pages are hard-rejected, and the domain-aware constraint was incorrectly applied at the search layer instead of only at intake. This PR fixes all flaws in one coordinated pass because they compound — fixing entity discovery without fixing fetch or cost-rejection just surfaces new failures downstream.",
+      "flaws_fixed": [
+        {
+          "id": "F1",
+          "severity": "critical",
+          "title": "Query planner starts blind — no entity names in queries",
+          "detail": "research_query_plan.md forbids domain knowledge ('Case-agnostic: assume no domain'), preventing the planner from naming specific vendors (BUY) or OSS libraries (BUILD). Search returns SEO listicles. Indian-markets BUY run cached one listicle, one vendor (TrueData), one GitHub OSS repo. Major commercial vendors (Zerodha, Upstox, Dhan, Angel One) never appeared. BUILD cited a banking pipeline and a Fivetran benchmark blog as Indian-markets build evidence.",
+          "fix": "Add a web-search-backed entity discovery phase BEFORE query planning. Phase 0 uses the LLM to generate 2–3 broad discovery queries, runs them through DuckDuckGo, fetches and scans the top results (listicles are ideal here — they enumerate current options), and extracts entity names from the content. LLM general/world knowledge is NOT used to enumerate entities — only to generate the discovery queries and parse the fetched results. This keeps the entity list fresh and grounded in current web content."
+        },
+        {
+          "id": "F2",
+          "severity": "high",
+          "title": "Cross-track contamination: commercial vendor pages cited as BUILD evidence",
+          "detail": "Without OSS-specific entity names, the BUILD query planner generates generic searches that surface commercial vendor pages. marketstack.com (a BUY option) appeared in BUILD research under m10 and m3 in the Indian-markets run. The LLM author cited it as build evidence.",
+          "fix": "BUILD entity discovery enumerates OSS projects (not commercial vendors). BUILD query planner prompt explicitly scoped to OSS repos, GitHub projects, engineering write-ups, dated benchmarks. Added rule: 'Do NOT generate queries targeting commercial/paid vendor products — those belong to the BUY track.'"
+        },
+        {
+          "id": "F3",
+          "severity": "high",
+          "title": "source_date hard-rejects cost claims from vendor and OSS pricing pages",
+          "detail": "claim.py:77–80 raises GroundingError for m3/m4/m5 claims if source URL has no HTML-extractable publication date. Vendor pricing pages and OSS README cost sections are dynamically maintained — trafilatura returns source_date=None. Fixing F1 surfaces this: pages get fetched, cost claims authored, all assert-rejected silently.",
+          "fix": "Change hard rejection to undated_cost flag in filter_claims, following the same pattern as stale_cost. Add UNDATED_COST constant to models.py. Claim passes through verify (which reads cached content independently) and is kept with the flag visible to synthesis and report."
+        },
+        {
+          "id": "F4",
+          "severity": "high",
+          "title": "Source pool too small given real-world fetch failure rates",
+          "detail": "Default max_sources=10, per_query=3. Indian-markets run: 7 of ~17 attempted fetches failed (Cloudflare, paywalls, dead links), leaving 3 effective sources for 12 BUY dimensions. The _excerpt() function already bounds LLM token cost per source to ~6K chars + 2.5K cost-window, so raising limits does not proportionally raise LLM cost.",
+          "fix": "Raise defaults to max_sources=25, per_query=6 via constants.py."
+        },
+        {
+          "id": "F5",
+          "severity": "high",
+          "title": "Trafilatura alone cannot fetch JS-rendered vendor pricing pages",
+          "detail": "Many vendor pricing pages are JavaScript-rendered or Cloudflare-protected. trafilatura.extract() returns empty/near-empty content, triggering thin-content gaps. Major cause of the 40–50% fetch failure rate.",
+          "fix": "Add Jina Reader as fallback in cache.py fetch(). If trafilatura produces content < _MIN_CONTENT_CHARS, retry via https://r.jina.ai/{url} (free, no key at low volume, headless JS rendering). Cache Jina result under the same URL key. Pattern confirmed by web-forager toolkit and 2025-2026 AI agent benchmarks."
+        },
+        {
+          "id": "F6",
+          "severity": "medium",
+          "title": "Synthesis writes generic 'commercial providers' instead of naming specific entities",
+          "detail": "Synthesis prompt does not require naming specific vendors or OSS projects in dossier prose. Indian-markets strategy says 'paid commercial tiers are affordable' — TrueData only appears in citation footnotes. adopt_self_host dossier mentions 'open-source alternatives' with only one project named.",
+          "fix": "Add rule to synthesis.md: for buy and buy_then_extend paths, enumerate specific vendor names with their cost/API facts from the evidence. For adopt_self_host path, enumerate specific OSS project names, their licensing, and self-hosting profile. No generic phrases when specific names are available."
+        },
+        {
+          "id": "F7",
+          "severity": "medium",
+          "title": "All constants scattered across files — no single source of truth",
+          "detail": "Magic numbers live in research.py, claim.py, models.py. Changing a threshold requires hunting across files.",
+          "fix": "Create engine/constants.py. Move all tunable constants and flag strings there. Import everywhere."
+        },
+        {
+          "id": "F8",
+          "severity": "medium",
+          "title": "BUILD prompt does not explicitly cover adopt_self_host requirements",
+          "detail": "research_build.md mentions adopt_self_host in passing but gives no specific guidance on what to research for it: OSS licensing (commercial use permitted?), self-hosting complexity, community vs paid support, and whether the OSS has a managed commercial twin. Without this, BUILD produces generic OSS maturity claims and misses the self-host-specific evidence synthesis needs.",
+          "fix": "Add a dedicated 'Adopt-and-self-host coverage' section to research_build.md with explicit per-entity lookups: licensing terms, self-host infra requirements, commercial support availability, and commercial-twin flagging."
+        },
+        {
+          "id": "F9",
+          "severity": "medium",
+          "title": "No link between BUILD OSS discovery and BUY vendor discovery for dual-mode projects",
+          "detail": "OSS projects with commercial cloud twins (Weaviate/Weaviate Cloud, Qdrant/Qdrant Cloud, Elastic/Elastic Cloud) appear in BUY research by accident (via comparison articles) rather than by design. BUILD discovers the OSS project but has no way to signal to BUY that a commercial twin exists and should be researched.",
+          "fix": "BUILD entity discovery produces a commercial_twins map: { 'Qdrant': 'Qdrant Cloud', 'Weaviate': 'Weaviate Cloud', 'nsepy': null }. Non-null twins are passed as seed entities into BUY entity discovery (before query planning). Both discoveries run in parallel; results merged before targeted query generation. Graph shape does not change."
+        }
+      ],
+      "design_decisions": [
+        {
+          "decision": "Entity discovery via web search, not LLM world knowledge",
+          "rationale": "LLM training data for vendor lists and OSS ecosystems goes stale quickly. A fresh DuckDuckGo search for 'best [capability] APIs 2026' returns current options. Listicle/comparison pages — which we avoid for claim authoring — are ideal for entity discovery: their purpose is to enumerate options. The LLM's role in Phase 0 is only to generate discovery queries and parse fetched content, not to recall vendor names from memory."
+        },
+        {
+          "decision": "Case-agnostic constraint removed from research prompts, kept only at intake",
+          "rationale": "The constraint exists to prevent hard-coded domain logic in the ENGINE (no 'if HIPAA...' in code). It should not prevent the RESEARCHER from using the domain specified in the profile. Once the profile says 'Indian capital markets data', the researcher must think domain-specifically to write useful queries and claims."
+        },
+        {
+          "decision": "adopt_self_host served by improved BUILD + BUY, not a separate agent",
+          "rationale": "Unlike buy_then_extend (which needs to know which specific BUY vendor was chosen — a sequential dependency), adopt_self_host has no cross-track dependency. It needs good OSS entity discovery in BUILD and commercial-twin flagging to seed BUY. No new stage, no new graph node."
+        },
+        {
+          "decision": "buy_then_extend extension layer is a separate parallel agent (PR-002)",
+          "rationale": "The extension-layer research requires knowing which BUY vendor was discovered. This is a sequential dependency that BUILD's main parallel track cannot satisfy. A lightweight 3rd parallel agent that reads BUY's discovered_entities and generates vendor-specific extension-cost queries is the right split."
+        }
+      ],
+      "files_changed": [
+        {
+          "path": "engine/constants.py",
+          "action": "create",
+          "reason": "Single source of truth for all tunables and flag strings"
+        },
+        {
+          "path": "skills/grounded_claim/models.py",
+          "action": "modify",
+          "reason": "Add UNDATED_COST flag constant; import from engine/constants.py"
+        },
+        {
+          "path": "skills/grounded_claim/claim.py",
+          "action": "modify",
+          "reason": "Relax source_date hard rejection to undated_cost flag; import constants"
+        },
+        {
+          "path": "skills/grounded_claim/cache.py",
+          "action": "modify",
+          "reason": "Add Jina Reader fallback in fetch() when trafilatura returns thin content"
+        },
+        {
+          "path": "stages/research.py",
+          "action": "modify",
+          "reason": "Add Phase 0 web-search entity discovery (_discover_entities_via_search); two-phase query planning; commercial_twins merge for BUY; import constants; persist entity discovery artifact"
+        },
+        {
+          "path": "agents/research_query_plan.md",
+          "action": "modify",
+          "reason": "Add sub-phase A context (receives pre-discovered entity list from Phase 0); remove case-agnostic constraint; add BUY/BUILD-specific scoping rules; update output contract to include discovered_entities"
+        },
+        {
+          "path": "agents/research_buy.md",
+          "action": "modify",
+          "reason": "Remove case-agnostic constraint; make domain-aware post-profile"
+        },
+        {
+          "path": "agents/research_build.md",
+          "action": "modify",
+          "reason": "Remove case-agnostic constraint; add explicit OSS-scoping rule; add adopt-and-self-host section with licensing, self-host complexity, support, commercial-twin flagging"
+        },
+        {
+          "path": "agents/synthesis.md",
+          "action": "modify",
+          "reason": "Add naming rule: buy/buy_then_extend dossiers name specific vendors; adopt_self_host dossier names specific OSS projects with licensing and self-host profile"
+        }
+      ],
+      "new_artifacts_per_run": [
+        "buy-entity-discovery.json  — entities found via web search for BUY track + source URLs",
+        "build-entity-discovery.json — entities found via web search for BUILD track + commercial_twins map + source URLs"
+      ],
+      "schema_changes": [
+        {
+          "model": "EntityDiscovery (new)",
+          "file": "stages/research.py",
+          "change": "entities: list[str], commercial_twins: dict[str, str | None] (BUILD only), discovery_source_urls: list[str]"
+        },
+        {
+          "model": "QueryPlan",
+          "file": "stages/research.py",
+          "change": "No schema change needed — entity list fed as plain text context into the existing planner prompt"
+        },
+        {
+          "model": "ResearchResult",
+          "file": "stages/research.py",
+          "change": "Add discovered_entities: list[str] field for downstream visibility"
+        }
+      ],
+      "not_changing": [
+        "grounded_claim trust model (assert_claim / verify / filter contract)",
+        "LangGraph graph structure, interrupt gates, checkpointer",
+        "Stage 1 intake — case-agnostic stays here",
+        "Synthesis output schema (PathDossier, SynthesisOutput)",
+        "The four-path model",
+        "BUY and BUILD track parallelism",
+        "buy_then_extend extension-layer agent — that is PR-002"
+      ],
+      "build_order": [
+        {
+          "step": 1,
+          "what": "engine/constants.py — extract all constants, update all imports across claim.py, cache.py, research.py, models.py",
+          "checkpoint": "grep confirms no magic numbers remain in source files"
+        },
+        {
+          "step": 2,
+          "what": "skills/grounded_claim/cache.py — Jina Reader fallback in fetch()",
+          "checkpoint": "unit test: fetch a known JS-heavy URL, confirm Jina fallback fires and content > _MIN_CONTENT_CHARS"
+        },
+        {
+          "step": 3,
+          "what": "skills/grounded_claim/claim.py + models.py — undated_cost flag replaces GroundingError",
+          "checkpoint": "unit test: cost claim from undated source is kept with undated_cost flag, not rejected"
+        },
+        {
+          "step": 4,
+          "what": "stages/research.py — Phase 0 _discover_entities_via_search(); persist buy-entity-discovery.json / build-entity-discovery.json; commercial_twins merge; pass entity list to query planner",
+          "checkpoint": "dry run BUY track: buy-entity-discovery.json names 5+ vendors with source URLs; BUILD: build-entity-discovery.json names 5+ OSS projects"
+        },
+        {
+          "step": 5,
+          "what": "agents/research_query_plan.md — remove case-agnostic; add entity list context section; add BUY vs BUILD scoping rules",
+          "checkpoint": "prompt review: no 'case-agnostic' language; entity-specific queries visible in buy-research.json coverage"
+        },
+        {
+          "step": 6,
+          "what": "agents/research_buy.md + agents/research_build.md — remove case-agnostic; BUILD adds adopt-self-host section",
+          "checkpoint": "prompt review only — no code change"
+        },
+        {
+          "step": 7,
+          "what": "agents/synthesis.md — add vendor/OSS naming rule",
+          "checkpoint": "strategy.md buy dossier names specific vendors; adopt_self_host dossier names specific OSS projects"
+        },
+        {
+          "step": 8,
+          "what": "End-to-end run on Indian capital markets case",
+          "checkpoint": "buy-research.md names 3+ distinct vendors with specific pricing; build-research.md names 3+ OSS libraries; adopt_self_host dossier names projects with licensing; no commercial vendor cited in BUILD evidence"
+        }
+      ],
+      "pr_002_preview": {
+        "title": "buy_then_extend extension-layer: 3rd parallel research agent",
+        "summary": "After BUY entity discovery completes, a lightweight 3rd agent reads discovered_entities and generates vendor-specific extension-cost queries (API SDK effort, integration complexity, extension layer build time). Runs in parallel with the main BUY+BUILD fetch cycles. Produces buy-then-extend-extension.json as additional BUILD-side evidence for the buy_then_extend synthesis lens.",
+        "status": "planned — implement after PR-001 is verified end-to-end"
+      }
+    }
+  ]
+}
