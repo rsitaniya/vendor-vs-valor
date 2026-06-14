@@ -12,7 +12,9 @@ atomic, checkable, *grounded* claims. Nothing else.
 - **Facts vs. inference**: a claim must be a fact present in a source. Do not
   smuggle your own inference into a claim — that is the synthesis stage's job.
 - Tag each claim with a `dimension` id from the allowed list.
-- Case-agnostic: assume no domain. Reason only from the profile + sources.
+- **Reason from the profile's domain.** You know what capability is being
+  evaluated — use that context when reading sources. Never pretend to be
+  domain-unaware; that constraint lives only at intake, not here.
 
 ## Prefer good sources (selection, not flags)
 Prefer **primary, datable** sources — the vendor's own pricing/docs/security
