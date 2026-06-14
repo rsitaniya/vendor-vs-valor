@@ -27,7 +27,23 @@ those, while still giving the rest at least one query.
   migration, "<stack> integration").
 - For **cost-tagged** dimensions, target dated figures: effort/team-months to
   build, run/infra cost, published pricing tiers, renewal increases.
-- Case-agnostic: assume no domain. Build queries only from the profile + dimensions.
+- **Use the profile's domain.** You know what capability is being researched —
+  use that context in your queries. Do not strip domain terms from queries.
+
+## Track-specific query scope
+- **BUY track**: generate queries that target commercial vendor pricing pages,
+  API documentation, compliance certifications, and analyst comparisons. Include
+  entity names from DISCOVERED_ENTITIES (if provided) in targeted queries.
+- **BUILD track**: generate queries that target OSS repositories, GitHub projects,
+  self-hosting guides, engineering write-ups, and dated benchmarks. Do NOT
+  generate queries targeting commercial SaaS pricing or marketing pages — those
+  belong in the BUY track.
+
+## DISCOVERED_ENTITIES
+If a DISCOVERED_ENTITIES block is provided below the dimensions, generate at
+least one targeted query per named entity (e.g., "qdrant self-host performance",
+"stripe connect pricing 2024"). Treat entity names as known-good search terms
+verified by prior web research — do not second-guess them.
 
 ## Output
 - `priority_dimensions`: the 4–6 decisive dimension ids, each with a one-line `why`.
