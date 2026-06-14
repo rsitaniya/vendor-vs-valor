@@ -8,6 +8,7 @@ emergence_portfolio.md
 
 # Runtime artifacts & source cache (per-run, human-inspectable but not tracked)
 runs/
+latest_run/
 
 # Python / uv
 .venv/
