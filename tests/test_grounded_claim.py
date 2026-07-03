@@ -7,6 +7,7 @@ import pytest
 from skills.grounded_claim import (
     PARTIAL_EVIDENCE,
     STALE_COST,
+    UNDATED_COST,
     Claim,
     ClaimStatus,
     FilterPolicy,
@@ -86,12 +87,19 @@ def test_assert_rejects_unknown_dimension_and_track(cache):
         assert_claim("x", [_draft()], "m10", "SIDEWAYS", cache)
 
 
-def test_cost_tagged_dimension_requires_dated_source(tmp_path):
+def test_cost_tagged_undated_source_kept_and_flagged_not_rejected(tmp_path):
+    # PR-001 F3: vendor/OSS pricing pages are often JS-rendered with no
+    # extractable publication date. assert_claim no longer hard-rejects these;
+    # they're kept and flagged `undated_cost` at filter time instead.
     c = SourceCache(tmp_path)
     c.add(COST_URL, CONTENT, source_date=None)  # undated
-    with pytest.raises(GroundingError, match="dated source"):
-        assert_claim("Pricing ~$2k/mo.", [_draft(url=COST_URL, quote="$2,000 per month")],
-                     "m5", "BUY", c)
+    claim = assert_claim("Pricing ~$2k/mo.", [_draft(url=COST_URL, quote="$2,000 per month")],
+                         "m5", "BUY", c)
+    assert claim.cost_tagged is True
+    assert claim.sources[0].source_date is None
+
+    verified = claim.model_copy(update={"status": ClaimStatus.SUPPORTED})
+    assert UNDATED_COST in filter_claims([verified]).kept[0].flags
 
 
 def test_cost_tagged_inferred_from_dimension(cache):
