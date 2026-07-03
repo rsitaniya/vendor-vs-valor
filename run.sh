@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Full pipeline run — reads need from input.md (or $1) and drives end-to-end.
-# Usage: ./run.sh [path/to/input.md]
+# Full pipeline run — reads need from input2.md (or $1) and drives end-to-end.
+# Usage: ./run.sh [path/to/input2.md]
 set -euo pipefail
 
-INPUT="${1:-input.md}"
+INPUT="${1:-input2.md}"
 
 if [ ! -f "$INPUT" ]; then
   echo "ERROR: input file not found: $INPUT" >&2
