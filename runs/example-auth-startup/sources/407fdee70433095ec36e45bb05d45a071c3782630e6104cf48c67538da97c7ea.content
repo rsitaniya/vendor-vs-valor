@@ -1,0 +1,370 @@
+- Published on
+Setting up Supertokens with a NextJS 13 Frontend and an ExpressJS Backend
+- Authors
+- Name
+- Rohan Hussain
+ 
+ 
+This explanation works for both the NextJS App Router as well as the good old Pages Router.
+We will be using the Supertokens EmailPassword recipe.
+Step 1: Initialize the Projects
+It is possible that you already have your frontend (NextJS) and backend (ExpressJS) projects set up, either in a single git repository or in separate ones.
+If you have done that already, you this step and go to Step 2.
+If not, we will have a single repository with
+- our backend in the /backenddirectory, and
+- our frontend in the /frontendrepository.
+/backend
+  -> (express app goes here)
+/frontend
+  -> (nextjs app goes here)
+Step 1A. Initializing ExpressJS
+Create a backend directory and enter
+mkdir backend
+cd backend
+Initialize an Express project with the following command:
+npx express-generator
+Follow the rest of the steps here.
+Step 1B. Initializing NextJS
+No need to create a /frontend directory. The installer will do it for us.
+Run the following command in the root of your repository, i.e. outside the /backend folder.
+npx create-next-app@latest
+When it asks for the name of the app, type frontend so that a folder named frontend is created.
+You can choose the App Router or the Pages Router, whatever suits you.
+For further installation details visit this NextJS docs.
+Step 2: Integrate Supertokens with the Backend
+Let's start
+Step 2A: Install supertokens
+Run:
+npm i -s supertokens-node
+or if you're using yarn:
+yarn add supertokens-node
+Step 2B: Initialize Supertokens
+In the init file of your server, add the following code. If you initalised the ExpressJS project as I in Step 1, then you need to add this code to the /backend/app.js in the start.
+const supertokens = require('supertokens-node')
+const Session = require('supertokens-node/recipe/session')
+const EmailPassword = require('supertokens-node/recipe/emailpassword')
+supertokens.init({
+  framework: 'express',
+  supertokens: {
+    // https://try.supertokens.com is for demo purposes. Replace this with the address of your core instance (sign up on supertokens.com), or self host a core.
+    connectionURI: 'https://try.supertokens.com',
+    // apiKey: <API_KEY(if configured)>,
+  },
+  appInfo: {
+    // learn more about this on https://supertokens.com/docs/session/appinfo
+    appName: 'My Frontend',
+    apiDomain: 'http://localhost:5000',
+    websiteDomain: 'http://localhost:3000',
+    apiBasePath: '/auth',
+    websiteBasePath: '/auth',
+  },
+  recipeList: [
+    EmailPassword.init(), // initializes signin / sign up features
+    Session.init(), // initializes session features
+  ],
+})
+supertokens
+The supertokens key in the initialisation object describes the address of the supertokens core service. The above configuration uses a demo service that supertokens provides.
+We will run our own supertokens core locally using docker, so that we can work offline as well.
+appInfo
+- appNameis what it sounds like. When, for example, supertokens sends users an email, the subject contains the name of your app as configured here.
+- apiDomainis the URL to your backend ExpressJS API. You can see that we will run it on port 5000.
+- websiteDomainis the URL of your NextJS frontend website.
+- **apiBasePath** is- /authusually. This means that supertokens creates its backend routes like this:- /auth/signin
+- /auth/signup
+- etc.
+ 
+- websiteBasePathis also- /authusually. For example, when a user clicks on the email verification link in their inbox, they are redirected to your frontend at the- /auth/verify-emailroute. The- /authpart is determined by this configuration.
+recipeList
+EmailPassword is our authentication strategy, and Session is for supertokens' session and auth token management that it takes care of for us.
+Step 2C: Supertokens API & Cors Setup
+Install the CORS package:
+# if npm
+npm install cors
+# if yarn
+yarn add cors
+Add the following code where shown (in the same file as Step 2B).
+The place in the file where these lines are added matters a lot.
+const cors = require('cors')
+const { middleware } = require('supertokens-node/framework/express')
+// make sure that the supertokens.init({...}) call comes before the code below
+app.use(
+  cors({
+    origin: 'http://localhost:3000',
+    allowedHeaders: ['content-type', ...supertokens.getAllCORSHeaders()],
+    credentials: true,
+  })
+)
+// IMPORTANT: CORS config should be before the below middleware() call.
+app.use(middleware())
+// ...your API routes must come after this
+CORS
+Here's an MDN article on what CORS is.
+middleware()
+This middleware adds supertokens' default API endpoits to your backend API.
+Step 2D: Supertokens Error Handling
+Add the following lines where described:
+const { errorHandler } = require('supertokens-node/framework/express')
+let app = express() // this line already exists in your app
+// ...your API routes are here
+// Add this AFTER all your routes
+app.use(errorHandler())
+Step 3E:
+Run the backend. Verify that the server starts without any errors.
+If you initialised the project as per my instructions above, visiting http://localhost:3000/ should showw you a welcome page for ExpressJS.
+If you initialised the project as per my instructions above, make sure to run the server using the command mentioned here.
+Step 3: Run Supertokens Core Locally
+As I explained in the collapsed optional explanation above, our current configuration uses supertokens' demo core by default.
+We want to run our own instance of the supertokens core locally on port 3567 using docker.
+Make sure your docker engine is running, and then run the following command in a terminal:
+docker run -p 3567:3567 -d registry.supertokens.io/supertokens/supertokens-postgresql:6.0
+Note: The above command fires up a supertokens core that uses a PostgreSQL database. The documentation has commands if you want the core to use MySQL or MongoDB.
+This command also exposes port 3567 of the docker container, which is the port at which our supertokens core is running. Let's verify this:
+Verifying Supertokens Core
+Visit the following address in your browser:
+http://localhost:3567/hello
+If you get a hello, it is working correctly.
+Modifying the backend config
+Remember we added this code to the backend init file:
+supertokens.init({
+  framework: "express",
+  supertokens: {
+    // https://try.supertokens.com is for demo purposes. Replace this with the address of your core instance (sign up on supertokens.com), or self host a core.
+    connectionURI: "https://try.supertokens.com",
+    // apiKey: <API_KEY(if configured)>,
+  },
+  ...
+})
+Replace the connectionURI with that of our local supertokens core instance:
+supertokens.init({
+  framework: "express",
+  supertokens: {
+    // https://try.supertokens.com is for demo purposes. Replace this with the address of your core instance (sign up on supertokens.com), or self host a core.
+    connectionURI: "http://localhost:3567",
+    // apiKey: <API_KEY(if configured)>,
+  },
+  ...
+})
+We also want the backend to run on port 5000 (as we said we would in the collapsed optional section), so go to /backend/bin/www and change the following line
+var port = normalizePort(process.env.PORT || '3000')
+to this:
+var port = normalizePort(process.env.PORT || '5000')
+Or you could also set the PORT environment variable to 5000. That is the better approach.
+Step 4: Frontend NextJS Config
+I'll do the configuration for the App Router first, and will later tell you how to do the same for the Pages Router.
+Although do note that the NextJS Github repository has an example supertokens setup with the pages router that you can read.
+Enter the /frontend folder or wherever your frontend NextJS project is.
+Step 4A: Installation
+# npm
+npm i -s supertokens-web-js
+# yarn
+yarn add supertokens-web-js
+Step 4B: Configuration
+Create a folder for your supertokens configs
+mkdir supertokens-configs
+In the supertokens-configs folder create two files:
+- appInfo.ts
+- frontendConfig.ts
+(or .js if you're not using TypeScript).
+The appInfo.ts file should contain the following code:
+export const appInfo = {
+  // learn more about this on https://supertokens.com/docs/thirdpartyemailpassword/appinfo
+  appName: 'My Frontend',
+  apiDomain: 'http://localhost:5000',
+  apiBasePath: '/auth',
+  websiteDomain: 'http://localhost:3000',
+}
+The frontendConfig.ts file looks like this:
+import EmailPasswordWebJs from 'supertokens-web-js/recipe/emailpassword'
+import SessionWebJs from 'supertokens-web-js/recipe/session'
+import { appInfo } from './appInfo'
+export const frontendConfig = () => {
+  return {
+    appInfo,
+    recipeList: [EmailPasswordWebJs.init(), SessionWebJs.init()],
+  }
+}
+Step 4C: Initialisation
+App Router
+In your /app directory, create a file called providers.tsx. In it, add the following code:
+'use client'
+import SuperTokens from 'supertokens-web-js'
+import { frontendConfig } from '@/config/frontendConfig'
+if (typeof window !== 'undefined') {
+  // we only want to call this init function on the frontend, so we check typeof window !== 'undefined'
+  SuperTokens.init(frontendConfig())
+}
+export function Providers({ children }: React.PropsWithChildren) {
+  const [client] = React.useState(new QueryClient())
+  return children
+}
+Now in your /app/layout.tsx file, import this `Providers`` component and wrap your everything with it, like this:
+import type { Metadata } from "next";
+import { Providers } from "./providers";
+export const metadata: Metadata = {
+  title: "My App",
+  description: "Lorem ipsum",
+};
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en">
+      <body>
+        <Providers>{children}</Providers>
+      </body>
+    </html>
+  );
+}
+You can later use providers.tsx to add providers like that of React Query or Context as well.
+Pages Router
+The rest of the configuration is the same, the only difference is in this Step 4C.
+You add the following code in the /pages/_app.tsx file:
+import SuperTokensWebJs from 'supertokens-web-js'
+import { frontendConfig } from '../../supertokens-configs/frontendConfig'
+// this relative import path may vary depending on where you put the config file and on whether or not you are using the `src` directory
+if (typeof window !== 'undefined') {
+  // we only want to call this init function on the frontend, so we check typeof window !== 'undefined'
+  SuperTokensWebJs.init(frontendConfig())
+}
+Step 4D: Test Run
+Run the NextJS server with
+npm run dev
+# or
+yarn dev
+The server should start without issues.
+Step 5: Test Drive
+The setup is complete. To check if it is working, we will create a sample Sign Up page and check the Supertokens Dashboard to see if it works.
+Setup Supertokens Dashboard
+This is easy. Add the Dashboard recipe to your /backend configuration:
+const Dashboard = require('supertokens-node/recipe/dashboard')
+SuperTokens.init({
+  appInfo: {
+    apiDomain: '...',
+    appName: '...',
+    websiteDomain: '...',
+  },
+  recipeList: [
+    // TODO: Add the following line
+    Dashboard.init(),
+  ],
+})
+Once this is done, the dashboard should be accessible on:
+http://localhost:5000/auth/dashboard
+That is, given that your backend is running on port 5000.
+Create Dashboard Admin User
+You'll have to create a user who can log into this dashboard. Click on "Add New User". It will give you a curl command like this:
+curl --location --request POST 'http://localhost:3567/recipe/dashboard/user' \
+--header 'rid: dashboard' \
+--header 'api-key: <YOUR-API-KEY>' \
+--header 'Content-Type: application/json' \
+--data-raw '{"email": "<YOUR_EMAIL>","password": "<YOUR_PASSWORD>"}'
+- Remove the third line api-keybecause we haven't set up one yet.
+- Add your email and a password in the last --data-rawline. Password must contain alphabets as well as numbers.
+Run this command in a terminal while the supertokens core docker container is running. You know it worked if you get:
+"status":"OK"
+Now try logging into the dashboard with these credentials. It will say You currently do not have any users.
+Let's do something about that.
+Example Sign Up Page
+- In the Pages Router you can paste it in /pages/signup.tsx.
+- In the App Router, you can paste it in /app/signup/page.tsx. Note: Be sure to add a"use client"directive in the first line of the file. (Only for App Router)
+Here's the code. You can paste it without thinking about it.
+import { FormEvent, useState } from 'react'
+import { signUp } from 'supertokens-web-js/recipe/emailpassword'
+export default function SignUp() {
+  const [email, setEmail] = useState<string>('')
+  const [password, setPassword] = useState<string>('')
+  const formHandler = (e: FormEvent) => {
+    e.preventDefault()
+    signUpClicked(email, password)
+  }
+  return (
+    <div>
+      <form onSubmit={formHandler}>
+        <input
+          type="email"
+          name="email"
+          placeholder="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        ></input>
+        <input
+          type="password"
+          name="password"
+          placeholder="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        ></input>
+        <input type="submit"></input>
+      </form>
+    </div>
+  )
+}
+async function signUpClicked(email: string, password: string) {
+  try {
+    let response = await signUp({
+      formFields: [
+        {
+          id: 'email',
+          value: email,
+        },
+        {
+          id: 'password',
+          value: password,
+        },
+      ],
+    })
+    if (response.status === 'FIELD_ERROR') {
+      // one of the input formFields failed validaiton
+      response.formFields.forEach((formField) => {
+        if (formField.id === 'email') {
+          // Email validation failed (for example incorrect email syntax),
+          // or the email is not unique.
+          alert(formField.error)
+        } else if (formField.id === 'password') {
+          // Password validation failed.
+          // Maybe it didn't match the password strength
+          alert(formField.error)
+        }
+      })
+    } else {
+      // sign up successful. The session tokens are automatically handled by
+      // the frontend SDK.
+      window.location.href = '/homepage'
+    }
+  } catch (err: any) {
+    if (err.isSuperTokensGeneralError === true) {
+      // this may be a custom error message sent from the API by you.
+      alert(err.message)
+    } else {
+      alert('Oops! Something went wrong.')
+    }
+  }
+}
+Now go to http://localhost:3000/signup and you should see a page with an email field, a password field, and a sign up button. Don't judge me on the design.
+Enter a random email address and password, then go to the dashboard, and see if the new user appears there.
+Troubleshooting
+If you get an "Oops something went wrong" alert, add a console log in the frontend SignUp page:
+ catch (err: any) {
+      if (err.isSuperTokensGeneralError === true) {
+        alert(err.message);
+      } else {
+        alert("Oops! Something went wrong.");
+        // TODO: Add the following line
+        console.log(err)
+      }
+    }
+If the console logged error says that you are getting a 500 internal server error from the backend, it may help to comment out the following lines in /backend/app.js:
+// error handler
+// app.use(function (err, req, res, next) {
+//   // set locals, only providing error in development
+//   res.locals.message = err.message;
+//   res.locals.error = req.app.get('env') === 'development' ? err : {};
+//   // render the error page
+//   res.status(err.status || 500);
+//   res.render('error');
+// });
+Now when you try to sign up again, and a 500 internal server error occurs, you will see the error message in the server terminal logs.
+A 500 usually happens if your Supertokens Core Docker Container is not running. Make sure it is running.

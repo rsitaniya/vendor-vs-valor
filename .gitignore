@@ -7,7 +7,11 @@ emergence_portfolio.md
 .env
 
 # Runtime artifacts & source cache (per-run, human-inspectable but not tracked)
-runs/
+runs/*
+!runs/example-auth-startup/
+!runs/example-auth-startup/**
+!runs/example-market-data-india/
+!runs/example-market-data-india/**
 
 # Python / uv
 .venv/

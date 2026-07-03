@@ -1,0 +1,653 @@
+{
+  "track": "BUILD",
+  "discovered_entities": [
+    "DuckDB",
+    "ClickHouse",
+    "market-data-warehouse"
+  ],
+  "claims": [
+    {
+      "id": "d282cb",
+      "text": "In the market-data-warehouse architecture, Parquet serves as the system of record rather than DuckDB.",
+      "sources": [
+        {
+          "url": "https://github.com/joemccann/market-data-warehouse/blob/main/CLAUDE.md",
+          "title": "market-data-warehouse/CLAUDE.md at main · joemccann/market-data-warehouse",
+          "accessed_date": "2026-06-15",
+          "source_date": "2010-01-04",
+          "locator": {
+            "type": "char_span",
+            "start": 4219,
+            "end": 4262
+          },
+          "display_quote": "Parquet is the system of record, not DuckDB"
+        }
+      ],
+      "dimension": "m8",
+      "track": "BUILD",
+      "cost_tagged": false,
+      "status": "SUPPORTED",
+      "flags": []
+    },
+    {
+      "id": "ffd90a",
+      "text": "The market-data-warehouse system uses DuckDB as its local query engine for research and backtesting.",
+      "sources": [
+        {
+          "url": "https://github.com/joemccann/market-data-warehouse/blob/main/CLAUDE.md",
+          "title": "market-data-warehouse/CLAUDE.md at main · joemccann/market-data-warehouse",
+          "accessed_date": "2026-06-15",
+          "source_date": "2010-01-04",
+          "locator": {
+            "type": "char_span",
+            "start": 4350,
+            "end": 4411
+          },
+          "display_quote": "DuckDB is the local query engine for research and backtesting"
+        }
+      ],
+      "dimension": "m14",
+      "track": "BUILD",
+      "cost_tagged": false,
+      "status": "SUPPORTED",
+      "flags": []
+    },
+    {
+      "id": "a18c10",
+      "text": "ClickHouse is used within the market-data-warehouse project for production benchmarking.",
+      "sources": [
+        {
+          "url": "https://github.com/joemccann/market-data-warehouse/blob/main/CLAUDE.md",
+          "title": "market-data-warehouse/CLAUDE.md at main · joemccann/market-data-warehouse",
+          "accessed_date": "2026-06-15",
+          "source_date": "2010-01-04",
+          "locator": {
+            "type": "char_span",
+            "start": 125,
+            "end": 163
+          },
+          "display_quote": "ClickHouse for production benchmarking"
+        }
+      ],
+      "dimension": "m14",
+      "track": "BUILD",
+      "cost_tagged": false,
+      "status": "SUPPORTED",
+      "flags": []
+    },
+    {
+      "id": "e58a3e",
+      "text": "Running the IB Gateway on a Hetzner CPX11 VPS costs approximately $4 to $6 per month.",
+      "sources": [
+        {
+          "url": "https://github.com/joemccann/market-data-warehouse/blob/main/CLAUDE.md",
+          "title": "market-data-warehouse/CLAUDE.md at main · joemccann/market-data-warehouse",
+          "accessed_date": "2026-06-15",
+          "source_date": "2010-01-04",
+          "locator": {
+            "type": "char_span",
+            "start": 7850,
+            "end": 7899
+          },
+          "display_quote": "IB Gateway runs on a Hetzner CPX11 VPS (~$4-6/mo)"
+        }
+      ],
+      "dimension": "m3",
+      "track": "BUILD",
+      "cost_tagged": true,
+      "status": "SUPPORTED",
+      "flags": [
+        "stale_cost"
+      ]
+    },
+    {
+      "id": "461520",
+      "text": "Ingesting data within the market-data-warehouse requires a running instance of IB Gateway.",
+      "sources": [
+        {
+          "url": "https://github.com/joemccann/market-data-warehouse",
+          "title": "GitHub - joemccann/market-data-warehouse: A local-first financial data warehouse for universe-scale market data.",
+          "accessed_date": "2026-06-15",
+          "source_date": "2026-03-08",
+          "locator": {
+            "type": "char_span",
+            "start": 1970,
+            "end": 2014
+          },
+          "display_quote": "You need a running IB Gateway for ingestion."
+        }
+      ],
+      "dimension": "m14",
+      "track": "BUILD",
+      "cost_tagged": false,
+      "status": "SUPPORTED",
+      "flags": []
+    },
+    {
+      "id": "493956",
+      "text": "On a single machine, DuckDB often matches or exceeds ClickHouse performance when querying local data.",
+      "sources": [
+        {
+          "url": "https://tasrieit.com/blog/clickhouse-vs-duckdb-2026",
+          "title": "ClickHouse vs DuckDB 2026: Analytical Database Comparison | Tasrie IT Services",
+          "accessed_date": "2026-06-15",
+          "source_date": "2026-01-27",
+          "locator": {
+            "type": "char_span",
+            "start": 2012,
+            "end": 2091
+          },
+          "display_quote": "On a single machine with local data, DuckDB often matches or exceeds ClickHouse"
+        }
+      ],
+      "dimension": "m14",
+      "track": "BUILD",
+      "cost_tagged": false,
+      "status": "SUPPORTED",
+      "flags": []
+    },
+    {
+      "id": "c838ba",
+      "text": "ClickHouse is designed as a distributed columnar database for real-time analytics.",
+      "sources": [
+        {
+          "url": "https://tasrieit.com/blog/clickhouse-vs-duckdb-2026",
+          "title": "ClickHouse vs DuckDB 2026: Analytical Database Comparison | Tasrie IT Services",
+          "accessed_date": "2026-06-15",
+          "source_date": "2026-01-27",
+          "locator": {
+            "type": "char_span",
+            "start": 396,
+            "end": 441
+          },
+          "display_quote": "ClickHouse is a distributed columnar database"
+        }
+      ],
+      "dimension": "m14",
+      "track": "BUILD",
+      "cost_tagged": false,
+      "status": "SUPPORTED",
+      "flags": []
+    },
+    {
+      "id": "2b475a",
+      "text": "ClickHouse can scale across multiple nodes.",
+      "sources": [
+        {
+          "url": "https://tasrieit.com/blog/clickhouse-vs-duckdb-2026",
+          "title": "ClickHouse vs DuckDB 2026: Analytical Database Comparison | Tasrie IT Services",
+          "accessed_date": "2026-06-15",
+          "source_date": "2026-01-27",
+          "locator": {
+            "type": "char_span",
+            "start": 2506,
+            "end": 2545
+          },
+          "display_quote": "ClickHouse scales across multiple nodes"
+        }
+      ],
+      "dimension": "m14",
+      "track": "BUILD",
+      "cost_tagged": false,
+      "status": "SUPPORTED",
+      "flags": []
+    },
+    {
+      "id": "5e8677",
+      "text": "Unlike client-server architectures, DuckDB is an in-process engine with zero external dependencies.",
+      "sources": [
+        {
+          "url": "https://tasrieit.com/blog/clickhouse-vs-duckdb-2026",
+          "title": "ClickHouse vs DuckDB 2026: Analytical Database Comparison | Tasrie IT Services",
+          "accessed_date": "2026-06-15",
+          "source_date": "2026-01-27",
+          "locator": {
+            "type": "char_span",
+            "start": 890,
+            "end": 916
+          },
+          "display_quote": "Zero external dependencies"
+        }
+      ],
+      "dimension": "m14",
+      "track": "BUILD",
+      "cost_tagged": false,
+      "status": "PARTIAL",
+      "flags": [
+        "partial_evidence"
+      ]
+    },
+    {
+      "id": "5d773c",
+      "text": "DuckDB is free and open source.",
+      "sources": [
+        {
+          "url": "https://tasrieit.com/blog/clickhouse-vs-duckdb-2026",
+          "title": "ClickHouse vs DuckDB 2026: Analytical Database Comparison | Tasrie IT Services",
+          "accessed_date": "2026-06-15",
+          "source_date": "2026-01-27",
+          "locator": {
+            "type": "char_span",
+            "start": 5760,
+            "end": 5780
+          },
+          "display_quote": "Free and open source"
+        }
+      ],
+      "dimension": "m3",
+      "track": "BUILD",
+      "cost_tagged": true,
+      "status": "SUPPORTED",
+      "flags": []
+    },
+    {
+      "id": "5879dd",
+      "text": "The StockHouse streaming market analytics app optimizes query times by using ClickHouse materialized views to pre-aggregate data at ingestion.",
+      "sources": [
+        {
+          "url": "https://clickhouse.com/blog/building-stockhouse",
+          "title": "Building StockHouse: Real-time market analytics with ClickHouse",
+          "accessed_date": "2026-06-15",
+          "source_date": "2025-11-13",
+          "locator": {
+            "type": "char_span",
+            "start": 5257,
+            "end": 5331
+          },
+          "display_quote": "StockHouse uses materialized views to pre-aggregate data as it's ingested."
+        }
+      ],
+      "dimension": "m14",
+      "track": "BUILD",
+      "cost_tagged": false,
+      "status": "SUPPORTED",
+      "flags": []
+    },
+    {
+      "id": "9dda2d",
+      "text": "The default Apache Superset installation does not include a ClickHouse driver.",
+      "sources": [
+        {
+          "url": "https://www.artigencetech.com/post/building-a-real-time-data-pipeline-with-go-kafka-clickhouse-and-apache-superset",
+          "title": "Building a Real-time Data Pipeline with Go, Kafka, ClickHouse, and Apache Superset",
+          "accessed_date": "2026-06-15",
+          "source_date": "2025-01-29",
+          "locator": {
+            "type": "char_span",
+            "start": 3679,
+            "end": 3742
+          },
+          "display_quote": "By default apache doesn't come with Clickhouse driver installed"
+        }
+      ],
+      "dimension": "m14",
+      "track": "BUILD",
+      "cost_tagged": false,
+      "status": "SUPPORTED",
+      "flags": []
+    },
+    {
+      "id": "49305c",
+      "text": "Indian market data is licensed rather than owned, remaining the intellectual property of the stock exchanges.",
+      "sources": [
+        {
+          "url": "https://www.truedata.in/market-data-apis",
+          "title": "Market Data API | Live, SnapChat, Options Chain, Option Greeks",
+          "accessed_date": "2026-06-15",
+          "source_date": "2025-01-01",
+          "locator": {
+            "type": "char_span",
+            "start": 1228,
+            "end": 1294
+          },
+          "display_quote": "All market data remains the intellectual property of the exchanges"
+        }
+      ],
+      "dimension": "m9",
+      "track": "BUILD",
+      "cost_tagged": false,
+      "status": "SUPPORTED",
+      "flags": []
+    },
+    {
+      "id": "24da7d",
+      "text": "Redistributing, reselling, or sharing market data publicly is prohibited without explicit written authorization.",
+      "sources": [
+        {
+          "url": "https://www.truedata.in/market-data-apis",
+          "title": "Market Data API | Live, SnapChat, Options Chain, Option Greeks",
+          "accessed_date": "2026-06-15",
+          "source_date": "2025-01-01",
+          "locator": {
+            "type": "char_span",
+            "start": 1558,
+            "end": 1622
+          },
+          "display_quote": "Redistribution, resale, or public sharing of data is not allowed"
+        }
+      ],
+      "dimension": "m9",
+      "track": "BUILD",
+      "cost_tagged": false,
+      "status": "SUPPORTED",
+      "flags": []
+    },
+    {
+      "id": "ef96f5",
+      "text": "Investment advisors in India are governed under the SEBI (Investment Advisers) Regulations, 2013.",
+      "sources": [
+        {
+          "url": "https://www.sebi.gov.in/sebiweb/home/HomeAction.do?doListing=yes&sid=1&ssid=3&smid=0",
+          "title": "SEBI | Regulations",
+          "accessed_date": "2026-06-15",
+          "source_date": "2024-11-28",
+          "locator": {
+            "type": "char_span",
+            "start": 5188,
+            "end": 5266
+          },
+          "display_quote": "Securities and Exchange Board of India (Investment Advisers) Regulations, 2013"
+        }
+      ],
+      "dimension": "m9",
+      "track": "BUILD",
+      "cost_tagged": false,
+      "status": "SUPPORTED",
+      "flags": []
+    },
+    {
+      "id": "e680ad",
+      "text": "Research analysts in India are governed under the SEBI (Research Analysts) Regulations, 2014.",
+      "sources": [
+        {
+          "url": "https://www.sebi.gov.in/sebiweb/home/HomeAction.do?doListing=yes&sid=1&ssid=3&smid=0",
+          "title": "SEBI | Regulations",
+          "accessed_date": "2026-06-15",
+          "source_date": "2024-11-28",
+          "locator": {
+            "type": "char_span",
+            "start": 4970,
+            "end": 5046
+          },
+          "display_quote": "Securities and Exchange Board of India (Research Analysts) Regulations, 2014"
+        }
+      ],
+      "dimension": "m9",
+      "track": "BUILD",
+      "cost_tagged": false,
+      "status": "PARTIAL",
+      "flags": [
+        "partial_evidence"
+      ]
+    },
+    {
+      "id": "94b2b2",
+      "text": "SEBI's 2024 New Circular outlines a standardized policy for Market Infrastructure Institutions (MIIs) sharing data for academic and research publications.",
+      "sources": [
+        {
+          "url": "https://www.metalegal.in/post/sebi-data-sharing-policy-2024",
+          "title": "SEBI Data Sharing Policy 2024",
+          "accessed_date": "2026-06-15",
+          "source_date": "2024-12-26",
+          "locator": {
+            "type": "char_span",
+            "start": 1653,
+            "end": 1730
+          },
+          "display_quote": "standardized policy for MIIs to share separate data specifically for research"
+        }
+      ],
+      "dimension": "m9",
+      "track": "BUILD",
+      "cost_tagged": false,
+      "status": "PARTIAL",
+      "flags": [
+        "partial_evidence"
+      ]
+    },
+    {
+      "id": "9e8fa8",
+      "text": "Under the New Circular, SEBI segments market data into two distinct categories.",
+      "sources": [
+        {
+          "url": "https://www.metalegal.in/post/sebi-data-sharing-policy-2024",
+          "title": "SEBI Data Sharing Policy 2024",
+          "accessed_date": "2026-06-15",
+          "source_date": "2024-12-26",
+          "locator": {
+            "type": "char_span",
+            "start": 1875,
+            "end": 1924
+          },
+          "display_quote": "This policy divides the data into two categories:"
+        }
+      ],
+      "dimension": "m9",
+      "track": "BUILD",
+      "cost_tagged": false,
+      "status": "PARTIAL",
+      "flags": [
+        "partial_evidence"
+      ]
+    },
+    {
+      "id": "9f8c49",
+      "text": "Restricted data contains sensitive information and is not permitted to be shared under SEBI's guidelines.",
+      "sources": [
+        {
+          "url": "https://www.metalegal.in/post/sebi-data-sharing-policy-2024",
+          "title": "SEBI Data Sharing Policy 2024",
+          "accessed_date": "2026-06-15",
+          "source_date": "2024-12-26",
+          "locator": {
+            "type": "char_span",
+            "start": 2595,
+            "end": 2679
+          },
+          "display_quote": "Restricted Data (Second Basket)- This includes non-public data that cannot be shared"
+        }
+      ],
+      "dimension": "m9",
+      "track": "BUILD",
+      "cost_tagged": false,
+      "status": "PARTIAL",
+      "flags": [
+        "partial_evidence"
+      ]
+    },
+    {
+      "id": "ac073a",
+      "text": "The open-source database Dolt achieves a median PR merge time of roughly 30 minutes.",
+      "sources": [
+        {
+          "url": "https://motherduck.com/blog/git-for-data-part-2/",
+          "title": "Git for Data Applied",
+          "accessed_date": "2026-06-15",
+          "source_date": "2026-05-12",
+          "locator": {
+            "type": "char_span",
+            "start": 3966,
+            "end": 4031
+          },
+          "display_quote": "Dolt stands out with the fastest PR merge times (~30 min median)."
+        }
+      ],
+      "dimension": "m13",
+      "track": "BUILD",
+      "cost_tagged": false,
+      "status": "PARTIAL",
+      "flags": [
+        "partial_evidence"
+      ]
+    },
+    {
+      "id": "6ea050",
+      "text": "The open-source project lakeFS demonstrated broad community engagement with 178 total PR creators in February 2026.",
+      "sources": [
+        {
+          "url": "https://motherduck.com/blog/git-for-data-part-2/",
+          "title": "Git for Data Applied",
+          "accessed_date": "2026-06-15",
+          "source_date": "2026-05-12",
+          "locator": {
+            "type": "char_span",
+            "start": 4032,
+            "end": 4109
+          },
+          "display_quote": "lakeFS leads in total PR creators (178), reflecting a broad contributor base."
+        }
+      ],
+      "dimension": "m13",
+      "track": "BUILD",
+      "cost_tagged": false,
+      "status": "SUPPORTED",
+      "flags": []
+    },
+    {
+      "id": "a43f09",
+      "text": "DuckLake achieved general availability in April 2026.",
+      "sources": [
+        {
+          "url": "https://motherduck.com/blog/git-for-data-part-2/",
+          "title": "Git for Data Applied",
+          "accessed_date": "2026-06-15",
+          "source_date": "2026-05-12",
+          "locator": {
+            "type": "char_span",
+            "start": 18904,
+            "end": 18937
+          },
+          "display_quote": "DuckLake reached GA in April 2026"
+        }
+      ],
+      "dimension": "m13",
+      "track": "BUILD",
+      "cost_tagged": false,
+      "status": "SUPPORTED",
+      "flags": []
+    }
+  ],
+  "dropped": [],
+  "kept_count": 22,
+  "dropped_count": 0,
+  "priority_dimensions": [
+    {
+      "id": "m6",
+      "why": "Extremely tight 4-week timeline to get historical OHLCV and corporate actions working in staging before wealth manager onboarding."
+    },
+    {
+      "id": "m9",
+      "why": "Requires navigating strict SEBI compliance, exchange data authorization (NSE/BSE), and handling sensitive client portfolios."
+    },
+    {
+      "id": "m4",
+      "why": "Corporate actions (splits, mergers, dividends) require constant manual oversight and adjustment, leading to significant long-term maintenance bloat."
+    },
+    {
+      "id": "m3",
+      "why": "Evaluating the high cost of dedicating a 5-engineer team to build raw market data pipelines instead of core portfolio analytics."
+    },
+    {
+      "id": "m14",
+      "why": "Need to assess the complexity of integrating ClickHouse, DuckDB, or the market-data-warehouse pattern into their existing AWS EKS, Kafka, and TimescaleDB stack."
+    }
+  ],
+  "coverage": [
+    {
+      "id": "m1",
+      "name": "Strategic differentiation / moat",
+      "covered": false,
+      "claim_count": 0,
+      "priority": false
+    },
+    {
+      "id": "m2",
+      "name": "Proprietary-data generation",
+      "covered": false,
+      "claim_count": 0,
+      "priority": false
+    },
+    {
+      "id": "m3",
+      "name": "Total cost — build",
+      "covered": true,
+      "claim_count": 2,
+      "priority": true
+    },
+    {
+      "id": "m4",
+      "name": "Total cost — maintenance (the bloat curve)",
+      "covered": false,
+      "claim_count": 0,
+      "priority": true
+    },
+    {
+      "id": "m6",
+      "name": "Time-to-value",
+      "covered": false,
+      "claim_count": 0,
+      "priority": true
+    },
+    {
+      "id": "m7",
+      "name": "Resource & talent availability",
+      "covered": false,
+      "claim_count": 0,
+      "priority": false
+    },
+    {
+      "id": "m8",
+      "name": "Reversibility / switching cost",
+      "covered": true,
+      "claim_count": 1,
+      "priority": false
+    },
+    {
+      "id": "m9",
+      "name": "Data ownership / sensitivity / compliance",
+      "covered": true,
+      "claim_count": 7,
+      "priority": true
+    },
+    {
+      "id": "m10",
+      "name": "Customization need vs. availability",
+      "covered": false,
+      "claim_count": 0,
+      "priority": false
+    },
+    {
+      "id": "m11",
+      "name": "Focus / core-value alignment",
+      "covered": false,
+      "claim_count": 0,
+      "priority": false
+    },
+    {
+      "id": "m13",
+      "name": "Vendor viability / lock-in risk",
+      "covered": true,
+      "claim_count": 3,
+      "priority": false
+    },
+    {
+      "id": "m14",
+      "name": "Integration complexity",
+      "covered": true,
+      "claim_count": 9,
+      "priority": true
+    }
+  ],
+  "coverage_gaps": [
+    "fetch failed: https://altinity.com/webinarspage/using-dlt-to-move-data-from-duckdb-to-clickhouse (HTTPStatusError)",
+    "thin content: https://www.reddit.com/r/dataengineering/comments/1ao16gb/who_uses_duckdb_for_real/",
+    "fetch failed: https://towardsdev.com/building-a-financial-data-pipeline-with-alpha-vantage-and-clickhouse-5860d1e5a4be (HTTPStatusError)",
+    "fetch failed: https://medium.com/@keshavagrawal/building-a-real-time-data-pipeline-with-go-kafka-clickhouse-and-apache-superset-02a4d9c1529d (HTTPStatusError)",
+    "fetch failed: https://www.wikiwand.com/en/articles/Stock_exchange (HTTPStatusError)",
+    "fetch failed: https://wiki2.org/en/Stock_exchange (HTTPStatusError)",
+    "fetch failed: https://parthamajumdar.org/tag/india/page/34/ (HTTPStatusError)",
+    "thin content: https://www.bseindia.com/downloads1/SEBI_circular_Policy_Sharing_Data.pdf",
+    "no evidence for priority dimension m4 (Total cost — maintenance (the bloat curve))",
+    "no evidence for priority dimension m6 (Time-to-value)"
+  ]
+}

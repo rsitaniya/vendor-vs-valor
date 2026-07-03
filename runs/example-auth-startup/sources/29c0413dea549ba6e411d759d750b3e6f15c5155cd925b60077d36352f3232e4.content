@@ -1,0 +1,102 @@
+Open-source alternatives guide
+Logto vs Keycloak: Modern DX vs Enterprise Power 2026
+Compare Logto and Keycloak — the developer-friendly auth platform vs the enterprise identity standard. Which fits your project? See our top picks for 2026.
+Two very different philosophies for open source authentication. Logto is built for developers who want Auth0-like simplicity. Keycloak is built for enterprises that need every identity protocol under the sun. Here's how to choose.
+Quick Verdict
+Choose Logto for the best developer experience — fastest setup, prettiest UI, SDKs for every framework, ideal for startups and SaaS products. Choose Keycloak for maximum enterprise capability — SAML, LDAP, Active Directory, Kerberos, fine-grained authorization.
+The Comparison
+| Feature | Logto | Keycloak | 
+|---|---|---|
+| Language | TypeScript/Node.js | Java (Quarkus) | 
+| OIDC/OAuth 2.0 | ✅ | ✅ | 
+| SAML 2.0 | ✅ (basic) | ✅ (most complete) | 
+| LDAP | ❌ | ✅ (federation + outbound) | 
+| Active Directory | ❌ | ✅ (best support) | 
+| Kerberos | ❌ | ✅ | 
+| Social login | ✅ (30+ connectors) | ✅ | 
+| MFA/2FA | ✅ | ✅ | 
+| Passkeys/WebAuthn | ✅ | ✅ | 
+| Passwordless | ✅ | ✅ | 
+| Pre-built sign-in UI | ✅ (beautiful) | ✅ (functional) | 
+| SDKs | ✅ (15+ frameworks) | Client adapters | 
+| Management API | ✅ (REST) | ✅ (REST) | 
+| Management console | ✅ (modern) | ✅ (dated) | 
+| Organizations | ✅ | Realms | 
+| Machine-to-machine | ✅ | ✅ | 
+| Custom JWT claims | ✅ | ✅ | 
+| Webhooks | ✅ | Event listeners | 
+| Fine-grained authz | Basic RBAC | ✅ (UMA, policies) | 
+| User federation | ❌ | ✅ (best) | 
+| RAM usage | 512 MB–1 GB | 2–4 GB | 
+| Setup time | 15 minutes | 1–2 hours | 
+| Stars | 9K+ | 24K+ | 
+| License | MPL-2.0 | Apache 2.0 | 
+When to Choose Logto
+- Developer experience is the top priority
+- You're building a SaaS or consumer-facing product
+- You want pre-built, beautiful sign-in pages out of the box
+- Framework SDKs (Next.js, React, Vue, Express) matter
+- You're a startup or small team
+- Coming from Auth0 and want a similar experience
+- TypeScript/Node.js ecosystem fits your team
+- Low resource footprint needed
+When to Choose Keycloak
+- Enterprise is the primary use case
+- SAML 2.0 is a hard requirement
+- LDAP/Active Directory federation is needed
+- Fine-grained authorization (UMA, resource-based policies)
+- Kerberos SSO for Windows environments
+- Identity brokering across multiple IdPs
+- Government or regulated industry compliance
+- Java ecosystem is familiar
+The DX Gap
+Logto's standout is developer experience. Adding auth to a Next.js app:
+// Next.js — 3 files to complete auth
+// 1. Environment variables
+// LOGTO_ENDPOINT=https://your-logto.com
+// LOGTO_APP_ID=your-app-id
+// LOGTO_APP_SECRET=your-secret
+// 2. Auth configuration
+import LogtoClient from '@logto/next';
+export const logtoClient = new LogtoClient({
+  endpoint: process.env.LOGTO_ENDPOINT,
+  appId: process.env.LOGTO_APP_ID,
+  appSecret: process.env.LOGTO_APP_SECRET,
+});
+// 3. Protected route
+export default async function Dashboard() {
+  const { isAuthenticated, claims } = await logtoClient.getLogtoContext();
+  if (!isAuthenticated) redirect('/api/logto/sign-in');
+  return <h1>Welcome, {claims?.name}</h1>;
+}
+Keycloak requires more configuration but handles scenarios Logto can't — like federating users from Active Directory, setting up SAML SSO for enterprise clients, or implementing fine-grained resource-based authorization.
+The Bottom Line
+Logto is the right choice when developer experience matters most — startups, SaaS products, and teams that want to ship auth fast. Keycloak is the right choice when enterprise requirements matter most — SAML, LDAP, AD federation, and compliance.
+If you're building a consumer product or SaaS, start with Logto. If you're selling to enterprises that require SAML SSO, you'll eventually need Keycloak (or add SAML support to Logto's growing feature set).
+Self-Hosting Requirements and Infrastructure Planning
+The infrastructure gap between Logto and Keycloak is substantial and worth understanding before you commit to either.
+Logto is a TypeScript/Node.js application. At idle it consumes around 512 MB of RAM, rising to around 1 GB under active load for small-to-medium deployments. A Hetzner CX21 with 2 GB of RAM handles Logto comfortably alongside a PostgreSQL database. The setup process is genuinely fast: Docker Compose brings up the full stack in minutes, the initial admin configuration takes another five to ten minutes, and you can be issuing tokens to a test application within half an hour of starting. Logto's architecture is monolithic with a single Node.js process, making it straightforward to operate and monitor. Database requirements are PostgreSQL only — no alternatives — which is a clean constraint that simplifies backup and recovery planning.
+Keycloak runs on Java (Quarkus since version 17) and has a significantly different resource profile. A minimal Keycloak instance with a PostgreSQL backend needs at least 1.5 GB of RAM to start reliably, and production recommendations are 2 to 4 GB — sometimes more when running complex LDAP federation queries or processing many concurrent authentication flows. The Java startup time is also longer: a cold start takes 15 to 30 seconds, which matters for environments where containers restart frequently. The upside is that Keycloak is extremely well-tested at scale: major enterprises run it handling millions of authentications per day, and its performance characteristics under load are well-documented.
+Both tools support PostgreSQL as the primary production database. Keycloak also supports MySQL and MS SQL. For high-availability deployments, Keycloak has native clustering support through its Infinispan-based distributed cache, allowing active-active configurations across multiple nodes. Logto does not yet have native clustering, though stateless token validation means multiple Logto instances behind a load balancer can work in read-heavy scenarios.
+For most teams running a self-hosted application stack, Logto's lighter footprint is a meaningful advantage. If you are already running a one-click deploy platform like Coolify to manage your services, adding Logto to the stack costs you roughly $6-10 extra per month in VPS resources. Keycloak, by contrast, typically requires a dedicated instance or at minimum a server tier up from what you were already running.
+Security Considerations and Protocol Coverage
+Both tools implement OAuth 2.0 and OpenID Connect to spec, so the foundational security properties are equivalent for applications using these protocols. The differences emerge at the edges.
+Keycloak's SAML 2.0 implementation is among the most complete in any open source project. It handles signed assertions, encrypted assertions, artifact binding, POST binding, and most of the edge cases that enterprise SAML implementations throw at it. If you are building software sold to enterprise customers who require SAML SSO, Keycloak is the reliable choice — it will handle whatever SAML profile your customer's identity provider requires. Logto has added basic SAML support, but enterprise customers with unusual SAML configurations will occasionally hit limitations.
+Keycloak's LDAP/Active Directory federation deserves special attention. It can synchronize users from an Active Directory, allowing you to use existing corporate identities in your Keycloak realm. It supports attribute mapping, group synchronization, and federated authentication flows. For organizations where IT manages Windows environments with Active Directory as the source of truth for user identities, this is often non-negotiable. Logto does not support LDAP federation.
+Logto's security model is built for modern applications. Passkey/WebAuthn support is native and polished. The multi-factor authentication implementation is clean and end-user friendly. Machine-to-machine authentication (client credentials flow) is well-supported with a clean management API for creating and rotating client secrets. The custom JWT claims system lets you add organization metadata, user roles, or any other data to tokens without building a token enrichment middleware layer.
+Both tools store passwords hashed with bcrypt by default. Both support TLS termination at the reverse proxy layer. For hardening your identity platform, the same principles apply regardless of which you choose: put it behind a reverse proxy, enable rate limiting (both tools have this built in), enable audit logging, and restrict admin console access to your internal network or VPN. The authentik vs logto comparison adds a third option into the mix if your primary use case is securing existing applications via proxy authentication rather than building new apps.
+Community Health, Long-Term Viability, and Migration Paths
+Keycloak is maintained by Red Hat, which was acquired by IBM in 2019. This gives it one of the strongest long-term maintenance guarantees in open source: it is a core component of Red Hat's enterprise identity portfolio (Red Hat Single Sign-On is Keycloak under the hood). The project has 24,000+ GitHub stars and a contributor base in the hundreds. Deprecating Keycloak would have downstream consequences across the entire Red Hat ecosystem, making it effectively certain to remain maintained. If you build on Keycloak today, your investment is protected.
+Logto is a venture-backed startup with a growing team and clear commercial incentives — the cloud-hosted Logto product funds development of the open source core. With 9,000+ GitHub stars and a rapidly growing contributor community, it has strong momentum. The MPL-2.0 license is permissive enough to use freely in commercial applications while ensuring improvements to the core must be contributed back. The risk profile is higher than Keycloak's IBM-backed maintenance guarantee, but the development velocity is also much higher: Logto ships new features weekly.
+For teams evaluating a migration from a managed Auth0 account, Logto is the closest equivalent in philosophy, SDK patterns, and management console UX. The migration path involves exporting users from Auth0, importing to Logto with hashed password migration, and updating SDK configuration. Auth0's SDK patterns are similar enough to Logto's that application code changes are minimal. For teams currently running Keycloak who want to reduce operational complexity for new applications, running both simultaneously — Keycloak for enterprise/LDAP needs, Logto for new SaaS products — is a practical hybrid approach that many organizations adopt.
+The broader authentication and identity space on OSSAlt also includes Authentik, which covers the proxy-auth use case where neither Logto nor Keycloak is the right fit. Understanding all three tools gives you a complete picture of the modern open source identity landscape.
+Cost Analysis: Self-Hosted vs Auth0 and Okta
+The financial case for self-hosting your identity layer is compelling and often underestimated. Auth0's pricing scales by monthly active users: the free tier covers 7,500 MAUs, the Essentials plan runs $23/month for up to 10,000 MAUs, and costs escalate steeply from there. Enterprise features like SAML SSO, custom domains on all environments, and advanced MFA options are gated behind higher tiers that can run $3,000 to $6,000 per year for mid-sized applications. Okta's pricing is similarly structured and often more expensive.
+With Keycloak self-hosted on a $14 Hetzner CX32 instance (4 GB RAM), you pay infrastructure costs regardless of how many users or applications you have. A development team running Keycloak for three internal applications and two customer-facing SaaS products pays $168 per year in hosting — period. There are no per-MAU fees, no feature gating, and no surprise billing when a marketing campaign drives a surge in registrations. For applications with predictable small to medium active user counts (under 100,000 MAU), self-hosting nearly always beats SaaS pricing by a factor of 10 or more.
+Logto's economics are similar on the self-hosted side. A Hetzner CX21 at $6 per month handles moderate workloads comfortably. Logto also offers a cloud-hosted option with a generous free tier if you want to avoid infrastructure management — making it one of the few tools in this space where the self-hosted and cloud paths are both genuinely viable depending on your team's DevOps capability.
+For startups tracking their SaaS spend carefully, authentication is often an overlooked line item. Running a SaaS subscription audit frequently reveals Auth0 or Okta charges that have grown with the product without anyone noticing. Moving authentication to a self-hosted Logto or Keycloak instance early — before the Auth0 bill becomes painful — is far easier than migrating under pressure when the bill is already large.
+Compare authentication platforms on OSSAlt — protocol support, SDK coverage, and community health side by side.
+See open source alternatives to Logto on OSSAlt.
+The SaaS-to-Self-Hosted Migration Guide (Free PDF)
+Step-by-step: infrastructure setup, data migration, backups, and security for 15+ common SaaS replacements. Used by 300+ developers.
+Join 300+ self-hosters. Unsubscribe in one click.

@@ -1,0 +1,26 @@
+Tenants
+Descope supports a multi-tenancy architecture natively. Each project can have multiple tenants, and the end-users can belong to zero, one, or many tenants.
+In a multi-tenancy architecture, a single instance of a software application serves multiple customers, known as tenants. Each tenant is isolated and has its own data, configuration, user management, and functionality. This architecture is particularly beneficial for B2B applications where each customer can have multiple users. In Descope, tenants can be used in any situation in which you may need to group users together.
+To learn more about multi-tenancy, check out our Multi-Tenant vs. Single-Tenant blog.
+Tenant User Isolation
+By default, users in a Descope project share a single identity record. A user can belong to multiple tenants, but their login ID, credentials, and MFA state are shared across all of them. For example, if alice@company.com signs up in Tenant A and is later added to Tenant B, she uses the same password and MFA enrollment in both tenants.
+Enable Tenant User Isolation in Project Settings when the same login ID should represent a separate identity in each tenant, with independent credentials and MFA state. This is useful for B2B applications where the same email address may belong to different organizations—for instance, a consultant who uses alice@company.com with both Customer A and Customer B should have distinct accounts, passwords, and MFA enrollment in each tenant.
+Authentication with tenant user isolation
+When tenant user isolation is enabled, you must pass in a tenant ID at authentication time to scope identity resolution to a specific tenant.
+When using flows, you should pass in the tenant as a flow input.
+When using SDKs, pass the tenant directly into the authentication function. Refer to the specific SDK documentation for further details.
+Note
+tenantId in login or sign-up options scopes identity at authentication time. This is different from tenant selection, which switches the active tenant on an already-authenticated session.
+Managing Tenants
+Descope admins can create, update, activate, and disable tenants either manually on the Tenants page of the Descope Console, or using the tenant management SDKs and APIs.
+To manage an existing tenant in the Console, click the three-dot menu in the tenant's row. From there, you can edit tenant details, activate or disable the tenant, or delete it.
+Tenant Admins
+Users assigned to the Tenant Admin role for a specific tenant inherit the required permissions to manage SSO and Users for the tenant, and impersonate users associated with the tenant.
+Custom Tenant Attributes
+Descope allows you to create custom attributes that can store further details about your tenants. You can manage custom attributes from the Custom Attributes tab of the Tenants page of the Descope Console.
+Custom attributes can be of type "text", "numeric", "boolean", "single select", "multi select", or "date". You can utilize the "multi select" type as an array.
+Custom attributes can be used to store any data you want for the tenant. For example, this data could be a tenant's paid tier, geographical location, etc. You can later utilize these attributes within custom claims or load them for a tenant and display them within your application.
+SSO Settings
+Any Project-Level SSO Settings (like redirect URLs, mandatory user attributes, SSO Setup Suite configurations, etc) will apply to all tenants in your project. For SSO configuration with the tenant's external IdP, refer to our Tenant SSO doc.
+Widgets
+You can use Widgets to delegate tenant management actions to your Tenant Admins. Widgets are client-side components that you can embed in your website using our SDKs. To learn more about delegating management using Widgets, refer to our Admin Widgets doc.

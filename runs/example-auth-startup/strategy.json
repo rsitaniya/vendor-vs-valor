@@ -1,0 +1,639 @@
+{
+  "recommendation": {
+    "path": "buy",
+    "thesis": "Licensing a managed identity provider like Descope maximizes deployment speed and eliminates infrastructure overhead, perfectly fitting the strict two-week timeline and 2-person team constraints. By leveraging startup programs, the company can secure essential multi-tenancy and RBAC features at zero initial cost without sacrificing their four-month runway."
+  },
+  "decisive_factors": [
+    {
+      "dimension": "Speed of Implementation",
+      "why": "The strict two-week hard stop completely eliminates custom builds, heavily favoring off-the-shelf SaaS platforms that deploy in minutes."
+    },
+    {
+      "dimension": "Runway Preservation",
+      "why": "Descope's startup plan secures required enterprise features for zero initial cost in the first year, protecting the startup's critical four-month runway."
+    },
+    {
+      "dimension": "Out-of-the-box Alignment",
+      "why": "The immediate native availability of B2B multi-tenancy and RBAC via SaaS perfectly resolves the core problem without requiring extra self-hosted orchestration."
+    }
+  ],
+  "dossiers": [
+    {
+      "path": "build",
+      "pros": [],
+      "cons": [
+        {
+          "text": "Custom development of an authentication system requires several weeks of engineering work, heavily violating the strict two-week timeline constraint.",
+          "cited_claim_ids": [
+            "73166a"
+          ]
+        }
+      ],
+      "key_risks": [
+        {
+          "text": "Dedicating weeks to a non-differentiating foundational requirement consumes critical runway for the two-person bootstrapped team.",
+          "cited_claim_ids": [
+            "73166a"
+          ]
+        }
+      ],
+      "reversibility": {
+        "text": "Abandoning a custom build sacrifices several weeks of intensive engineering effort that could have been spent on core IP.",
+        "cited_claim_ids": [
+          "73166a"
+        ]
+      },
+      "cited_claim_ids": [
+        "73166a"
+      ]
+    },
+    {
+      "path": "buy",
+      "pros": [
+        {
+          "text": "Descope natively supports the required role-based access control and B2B multi-tenancy features out-of-the-box.",
+          "cited_claim_ids": [
+            "4eeec6",
+            "68ceb3"
+          ]
+        },
+        {
+          "text": "Early-stage startups can apply for Descope's Hello World Startup Plan to access the Pro Tier free of charge for one year.",
+          "cited_claim_ids": [
+            "d6373a"
+          ]
+        },
+        {
+          "text": "Descope's free forever plan supports up to 7,500 monthly active users and up to 10 tenants without upfront cost.",
+          "cited_claim_ids": [
+            "4e35cf",
+            "2679e7"
+          ]
+        },
+        {
+          "text": "FusionAuth Cloud provides a managed commercial alternative starting at $37 per month.",
+          "cited_claim_ids": [
+            "f444f2"
+          ]
+        }
+      ],
+      "cons": [
+        {
+          "text": "Following the expiration of startup benefits, Descope's Pro tier sharply increases to $249 per month with annual billing.",
+          "cited_claim_ids": [
+            "0c21c2"
+          ]
+        },
+        {
+          "text": "Descope charges overage fees of $0.05 per monthly active user on its paid plans.",
+          "cited_claim_ids": [
+            "048a1a"
+          ]
+        }
+      ],
+      "key_risks": [
+        {
+          "text": "The free plan's limit of 10 tenants may quickly become a bottleneck for a multi-tenant B2B SaaS platform if the startup plan is not granted.",
+          "cited_claim_ids": [
+            "2679e7"
+          ]
+        }
+      ],
+      "reversibility": {
+        "text": "Migrating away from Descope involves friction, as accessing hashed passwords requires submitting a support request, though basic user export to CSV is natively available.",
+        "cited_claim_ids": [
+          "fb8a60",
+          "00f8a1"
+        ]
+      },
+      "cited_claim_ids": [
+        "4eeec6",
+        "68ceb3",
+        "d6373a",
+        "4e35cf",
+        "2679e7",
+        "f444f2",
+        "0c21c2",
+        "048a1a",
+        "fb8a60",
+        "00f8a1"
+      ]
+    },
+    {
+      "path": "buy_then_extend",
+      "pros": [
+        {
+          "text": "Descope provides robust API primitives for RBAC and B2B multi-tenancy that can be extended if advanced customized logic becomes necessary.",
+          "cited_claim_ids": [
+            "4eeec6",
+            "68ceb3"
+          ]
+        }
+      ],
+      "cons": [
+        {
+          "text": "Descope limits the base free tier to 10 tenants, constraining multi-tenant extensibility limits without upgrading to the $249/month Pro tier.",
+          "cited_claim_ids": [
+            "2679e7",
+            "0c21c2"
+          ]
+        }
+      ],
+      "key_risks": [
+        {
+          "text": "Building a custom differentiating layer over a commercial API may unnecessarily complicate a purely enabling requirement that should only take minutes to deploy via a fully prebuilt solution.",
+          "cited_claim_ids": [
+            "73166a"
+          ]
+        }
+      ],
+      "reversibility": {
+        "text": "Inherits deep vendor lock-in risks, heavily relying on Descope's support team to release hashed passwords during an exit or migration.",
+        "cited_claim_ids": [
+          "fb8a60"
+        ]
+      },
+      "cited_claim_ids": [
+        "4eeec6",
+        "68ceb3",
+        "2679e7",
+        "0c21c2",
+        "73166a",
+        "fb8a60"
+      ]
+    },
+    {
+      "path": "adopt_self_host",
+      "pros": [
+        {
+          "text": "Prebuilt authentication platforms like Logto reduce integration time from weeks to just 15 minutes.",
+          "cited_claim_ids": [
+            "73166a",
+            "d4aac2"
+          ]
+        },
+        {
+          "text": "Self-hosting Logto on a VPS or Coolify is highly cost-effective, incurring only $5 to $20 in monthly resource expenses.",
+          "cited_claim_ids": [
+            "ef78b5",
+            "8cb033"
+          ]
+        },
+        {
+          "text": "Logto and SuperTokens require minimal hardware, functioning smoothly on 256MB to 512MB of RAM.",
+          "cited_claim_ids": [
+            "ac0229",
+            "70b87d",
+            "a9d6e0"
+          ]
+        },
+        {
+          "text": "FusionAuth Community provides a fully free-to-use self-hosted plan backed by ongoing maintenance and feature additions.",
+          "cited_claim_ids": [
+            "275a3a",
+            "207844"
+          ]
+        }
+      ],
+      "cons": [
+        {
+          "text": "Self-hosting SuperTokens requires purchasing a paid feature add-on to enable multi-tenancy, contradicting the low-cost constraint.",
+          "cited_claim_ids": [
+            "7aa94c"
+          ]
+        },
+        {
+          "text": "Keycloak deployments require up to 2 hours of setup and demand significantly heavier resources, including 2 to 4 GB of RAM and 1GB of disk space.",
+          "cited_claim_ids": [
+            "d4aac2",
+            "1b90e2",
+            "012d19"
+          ]
+        }
+      ],
+      "key_risks": [
+        {
+          "text": "Although established tools like Keycloak are backed by Red Hat, their high resource requirements could introduce unwanted operational burden for a two-person team.",
+          "cited_claim_ids": [
+            "1b90e2",
+            "4ac080"
+          ]
+        }
+      ],
+      "reversibility": {
+        "text": "Excellent reversibility and data ownership are maintained as SuperTokens and FusionAuth store authentication details directly in your own managed PostgreSQL database.",
+        "cited_claim_ids": [
+          "a2cbe3",
+          "e090e5",
+          "d5d6c3"
+        ]
+      },
+      "cited_claim_ids": [
+        "73166a",
+        "d4aac2",
+        "ef78b5",
+        "8cb033",
+        "ac0229",
+        "70b87d",
+        "a9d6e0",
+        "275a3a",
+        "207844",
+        "7aa94c",
+        "1b90e2",
+        "012d19",
+        "4ac080",
+        "a2cbe3",
+        "e090e5",
+        "d5d6c3"
+      ]
+    }
+  ],
+  "runner_up": {
+    "path": "adopt_self_host",
+    "wins_when": [
+      "Strict long-term cost control and avoidance of SaaS vendor lock-in are prioritized over the zero-maintenance convenience of a fully managed service.",
+      "The team prefers to maximize their existing Railway and PostgreSQL infrastructure rather than adding third-party dependencies with potential data portability hurdles."
+    ],
+    "case": "While a managed identity provider minimizes maintenance, adopting and self-hosting a prebuilt solution like FusionAuth or Logto prevents vendor lock-in and protects a tight four-month runway from future subscription costs. The startup's existing Railway and Postgres stack perfectly supports self-hosting FusionAuth's Community Edition for free [275a3a, e090e5]. Alternatively, a self-hosted Logto instance can be integrated in roughly 15 minutes [73166a] with negligible hosting resource costs of around $6 to $10 monthly [8cb033]. This approach easily satisfies the strict two-week timeline while shielding the bootstrapped company from a managed provider's steep paid tiers [0c21c2], future overage fees [048a1a], and data portability restrictions like gated access to hashed user passwords [fb8a60].",
+    "cited_claim_ids": [
+      "275a3a",
+      "e090e5",
+      "73166a",
+      "8cb033",
+      "0c21c2",
+      "048a1a",
+      "fb8a60"
+    ],
+    "from_challenger": true
+  },
+  "open_questions": [
+    "Will Descope automatically grant the early-stage Startup Plan given the bootstrapped nature of the company, or is there an approval delay that threatens the two-week timeline?",
+    "If the startup scales past the 10-tenant free limit and does not secure the startup plan, can they afford the $249/mo upgrade on their current runway?"
+  ],
+  "claims_index": {
+    "7aa94c": {
+      "text": "Enabling multi-tenancy inside a self-hosted SuperTokens setup connected to a physical Postgres instance requires a paid feature add-on.",
+      "status": "SUPPORTED",
+      "flags": [
+        "stale_cost"
+      ],
+      "dimension": "m3",
+      "track": "BUILD",
+      "source": {
+        "url": "https://github.com/supertokens/jackson-supertokens-express/blob/main/README.md",
+        "title": "jackson-supertokens-express/README.md at main · supertokens/jackson-supertokens-express",
+        "display_quote": "you will have to enable the multi tenancy paid feature",
+        "source_date": "2022-04-11"
+      }
+    },
+    "4eeec6": {
+      "text": "Descope supports role-based access control.",
+      "status": "SUPPORTED",
+      "flags": [],
+      "dimension": "m10",
+      "track": "BUY",
+      "source": {
+        "url": "https://www.descope.com/pricing",
+        "title": "Pricing | Descope",
+        "display_quote": "Role-Based Access Control (RBAC)",
+        "source_date": "2024-09-26"
+      }
+    },
+    "4ac080": {
+      "text": "Keycloak's open-source viability is backed by active maintenance from Red Hat.",
+      "status": "SUPPORTED",
+      "flags": [],
+      "dimension": "m13",
+      "track": "BUILD",
+      "source": {
+        "url": "https://ossalt.com/guides/logto-vs-keycloak-2026",
+        "title": "Logto vs Keycloak: Modern DX vs Enterprise Power 2026",
+        "display_quote": "Keycloak is maintained by Red Hat, which was acquired by IBM",
+        "source_date": "2026-03-08"
+      }
+    },
+    "a9d6e0": {
+      "text": "At idle, Logto's self-hosted application process consumes approximately 512 MB of RAM.",
+      "status": "SUPPORTED",
+      "flags": [],
+      "dimension": "m3",
+      "track": "BUILD",
+      "source": {
+        "url": "https://ossalt.com/guides/logto-vs-keycloak-2026",
+        "title": "Logto vs Keycloak: Modern DX vs Enterprise Power 2026",
+        "display_quote": "At idle it consumes around 512 MB of RAM",
+        "source_date": "2026-03-08"
+      }
+    },
+    "048a1a": {
+      "text": "Descope charges overage fees of $0.05 per monthly active user on its paid plans.",
+      "status": "PARTIAL",
+      "flags": [
+        "partial_evidence",
+        "price_conflict"
+      ],
+      "dimension": "m5",
+      "track": "BUY",
+      "source": {
+        "url": "https://supertokens.com/blog/descope-pricing",
+        "title": "Descope Pricing – The Complete Guide",
+        "display_quote": "Overages are charged at $0.05 per MAU",
+        "source_date": "2025-08-08"
+      }
+    },
+    "e090e5": {
+      "text": "Self-hosting FusionAuth requires deploying it alongside either a MySQL or PostgreSQL database.",
+      "status": "SUPPORTED",
+      "flags": [],
+      "dimension": "m14",
+      "track": "BUY",
+      "source": {
+        "url": "https://fusionauth.io/docs/get-started/core-concepts/plans-features",
+        "title": "Plans and Features | FusionAuth Docs",
+        "display_quote": "run it together with a MySQL or PostgreSQL server",
+        "source_date": "2000-01-01"
+      }
+    },
+    "012d19": {
+      "text": "Keycloak requires a minimum allocation of 1GB of disk space to deploy successfully.",
+      "status": "SUPPORTED",
+      "flags": [
+        "stale_cost"
+      ],
+      "dimension": "m3",
+      "track": "BUILD",
+      "source": {
+        "url": "https://wjw465150.gitbooks.io/keycloak-documentation/content/server_installation/topics/installation/system-requirements.html",
+        "title": "keycloak-documentation",
+        "display_quote": "At least 1G of diskspace",
+        "source_date": "2017-06-30"
+      }
+    },
+    "00f8a1": {
+      "text": "Descope allows users to be exported to a CSV file using its administrative console.",
+      "status": "SUPPORTED",
+      "flags": [],
+      "dimension": "m8",
+      "track": "BUY",
+      "source": {
+        "url": "https://www.auth0alternatives.com/descope",
+        "title": "Descope: Drag & drop customer identity platform for any app – Auth0Alternatives",
+        "display_quote": "Users can be exported via the console to a CSV file",
+        "source_date": "2025-07-04"
+      }
+    },
+    "1b90e2": {
+      "text": "Production deployments of Keycloak are recommended to have between 2 and 4 GB of RAM.",
+      "status": "SUPPORTED",
+      "flags": [],
+      "dimension": "m3",
+      "track": "BUILD",
+      "source": {
+        "url": "https://ossalt.com/guides/logto-vs-keycloak-2026",
+        "title": "Logto vs Keycloak: Modern DX vs Enterprise Power 2026",
+        "display_quote": "production recommendations are 2 to 4 GB",
+        "source_date": "2026-03-08"
+      }
+    },
+    "0c21c2": {
+      "text": "Descope's Pro tier is priced at $249 per month when billed annually.",
+      "status": "SUPPORTED",
+      "flags": [
+        "price_conflict"
+      ],
+      "dimension": "m5",
+      "track": "BUY",
+      "source": {
+        "url": "https://supertokens.com/blog/descope-pricing",
+        "title": "Descope Pricing – The Complete Guide",
+        "display_quote": "The Pro tier is $249/month (billed annually)",
+        "source_date": "2025-08-08"
+      }
+    },
+    "207844": {
+      "text": "FusionAuth committed to maintaining a free-to-use Community plan with feature additions and bug fixes.",
+      "status": "SUPPORTED",
+      "flags": [
+        "stale_cost"
+      ],
+      "dimension": "m5",
+      "track": "BUY",
+      "source": {
+        "url": "https://fusionauth.io/docs/get-started/core-concepts/plans-features",
+        "title": "Plans and Features | FusionAuth Docs",
+        "display_quote": "FusionAuth will always have a powerful, full featured free-to-use Community plan.",
+        "source_date": "2000-01-01"
+      }
+    },
+    "f444f2": {
+      "text": "FusionAuth Cloud plans start at $37 per month when billed annually.",
+      "status": "SUPPORTED",
+      "flags": [
+        "price_conflict"
+      ],
+      "dimension": "m5",
+      "track": "BUY",
+      "source": {
+        "url": "https://supertokens.com/blog/auth0-vs-fusionauth",
+        "title": "Auth0 vs FusionAuth (2025): Pricing, Hosting, Use Cases",
+        "display_quote": "FusionAuth’s cloud plans start at $37/month",
+        "source_date": "2025-10-15"
+      }
+    },
+    "ac0229": {
+      "text": "Self-hosting Logto requires a minimum baseline of 512MB RAM.",
+      "status": "SUPPORTED",
+      "flags": [],
+      "dimension": "m3",
+      "track": "BUILD",
+      "source": {
+        "url": "https://servercompass.app/templates/logto",
+        "title": "Logto - Self-Hosted Deployment | Server Compass",
+        "display_quote": "Logto requires a minimum of 512MB RAM.",
+        "source_date": "2026-01-01"
+      }
+    },
+    "ef78b5": {
+      "text": "Self-hosting Logto on a VPS typically incurs hosting expenses ranging from $5 to $20 per month.",
+      "status": "SUPPORTED",
+      "flags": [
+        "price_conflict"
+      ],
+      "dimension": "m3",
+      "track": "BUILD",
+      "source": {
+        "url": "https://servercompass.app/templates/logto",
+        "title": "Logto - Self-Hosted Deployment | Server Compass",
+        "display_quote": "You only pay for your VPS hosting (typically $5-20/month)",
+        "source_date": "2026-01-01"
+      }
+    },
+    "d6373a": {
+      "text": "Early-stage startups can apply for Descope's Hello World Startup Plan to access the Pro Tier free of charge for one year.",
+      "status": "SUPPORTED",
+      "flags": [
+        "stale_cost"
+      ],
+      "dimension": "m5",
+      "track": "BUY",
+      "source": {
+        "url": "https://www.descope.com/pricing",
+        "title": "Pricing | Descope",
+        "display_quote": "Apply for our Hello World Startup Plan to get Descope's Pro Tier free",
+        "source_date": "2024-09-26"
+      }
+    },
+    "fb8a60": {
+      "text": "Hashed passwords are only available from Descope upon making a request to their support.",
+      "status": "SUPPORTED",
+      "flags": [],
+      "dimension": "m8",
+      "track": "BUY",
+      "source": {
+        "url": "https://www.auth0alternatives.com/descope",
+        "title": "Descope: Drag & drop customer identity platform for any app – Auth0Alternatives",
+        "display_quote": "Hashed passwords are only available upon request to support",
+        "source_date": "2025-07-04"
+      }
+    },
+    "8cb033": {
+      "text": "Adding Logto to a pre-existing self-hosted deployment platform such as Coolify requires roughly $6 to $10 monthly in VPS resource costs.",
+      "status": "SUPPORTED",
+      "flags": [
+        "price_conflict"
+      ],
+      "dimension": "m3",
+      "track": "BUILD",
+      "source": {
+        "url": "https://ossalt.com/guides/logto-vs-keycloak-2026",
+        "title": "Logto vs Keycloak: Modern DX vs Enterprise Power 2026",
+        "display_quote": "adding Logto to the stack costs you roughly $6-10 extra per month",
+        "source_date": "2026-03-08"
+      }
+    },
+    "275a3a": {
+      "text": "FusionAuth's Community edition is free and can be self-hosted on your own infrastructure.",
+      "status": "SUPPORTED",
+      "flags": [],
+      "dimension": "m5",
+      "track": "BUY",
+      "source": {
+        "url": "https://fusionauth.io/pricing",
+        "title": "FusionAuth Pricing | Free and Flexible Plans for Your Authentication Needs",
+        "display_quote": "Self-host FusionAuth on your own infrastructure for free.",
+        "source_date": "2026-01-01"
+      }
+    },
+    "2679e7": {
+      "text": "Descope's free forever plan includes up to 10 tenants.",
+      "status": "SUPPORTED",
+      "flags": [],
+      "dimension": "m5",
+      "track": "BUY",
+      "source": {
+        "url": "https://devtune.ai/verticals/agent-authentication-identity-for-ai/descope/pricing",
+        "title": "DevTune - The developer tool growth platform for the AI-dev era.",
+        "display_quote": "Free Forever ($0): 7,500 MAUs, 10 tenants",
+        "source_date": "2026-01-01"
+      }
+    },
+    "d4aac2": {
+      "text": "Integrating Logto is estimated to require about 15 minutes, whereas configuring Keycloak demands 1 to 2 hours of setup time.",
+      "status": "PARTIAL",
+      "flags": [
+        "partial_evidence"
+      ],
+      "dimension": "m6",
+      "track": "BUILD",
+      "source": {
+        "url": "https://ossalt.com/guides/logto-vs-keycloak-2026",
+        "title": "Logto vs Keycloak: Modern DX vs Enterprise Power 2026",
+        "display_quote": "Setup time | 15 minutes | 1–2 hours |",
+        "source_date": "2026-03-08"
+      }
+    },
+    "68ceb3": {
+      "text": "Descope supports B2B multi-tenancy where a single user identity can be associated with multiple tenants.",
+      "status": "SUPPORTED",
+      "flags": [],
+      "dimension": "m10",
+      "track": "BUY",
+      "source": {
+        "url": "https://docs.descope.com/b2b/multi-tenancy",
+        "title": "Business to Business (B2B) | Descope Documentation",
+        "display_quote": "Descope allows a single user to be associated with multiple tenants.",
+        "source_date": "1995-01-01"
+      }
+    },
+    "70b87d": {
+      "text": "The minimum hardware allocation for a SuperTokens Core container includes 256 MB of RAM.",
+      "status": "SUPPORTED",
+      "flags": [],
+      "dimension": "m3",
+      "track": "BUILD",
+      "source": {
+        "url": "https://railway.com/deploy/supertokens",
+        "title": "Deploy SuperTokens | Open Source Auth0, AWS Cognito, Okta Alternative",
+        "display_quote": "RAM | 256 MB",
+        "source_date": "2026-03-17"
+      }
+    },
+    "a2cbe3": {
+      "text": "SuperTokens operates as a stateless service, persisting all user authentication details directly in PostgreSQL.",
+      "status": "SUPPORTED",
+      "flags": [],
+      "dimension": "m9",
+      "track": "BUILD",
+      "source": {
+        "url": "https://railway.com/deploy/supertokens",
+        "title": "Deploy SuperTokens | Open Source Auth0, AWS Cognito, Okta Alternative",
+        "display_quote": "SuperTokens Core is stateless; all auth data lives in Postgres",
+        "source_date": "2026-03-17"
+      }
+    },
+    "d5d6c3": {
+      "text": "SuperTokens requires PostgreSQL version 13.0 or higher for database storage.",
+      "status": "SUPPORTED",
+      "flags": [],
+      "dimension": "m14",
+      "track": "BUILD",
+      "source": {
+        "url": "https://supertokens.com/docs/deployment/self-host-supertokens",
+        "title": "Self-host SuperTokens | SuperTokens Docs",
+        "display_quote": "The supported database is PostgreSQL. The minimum required version is 13.0.",
+        "source_date": null
+      }
+    },
+    "4e35cf": {
+      "text": "Descope offers a free plan that supports up to 7,500 monthly active users.",
+      "status": "SUPPORTED",
+      "flags": [
+        "stale_cost"
+      ],
+      "dimension": "m5",
+      "track": "BUY",
+      "source": {
+        "url": "https://www.descope.com/pricing",
+        "title": "Pricing | Descope",
+        "display_quote": "7,500 Monthly active users (MAUs)",
+        "source_date": "2024-09-26"
+      }
+    },
+    "73166a": {
+      "text": "Adopting prebuilt authentication platforms like Logto can shrink integration time from several weeks of custom work to 15 minutes.",
+      "status": "SUPPORTED",
+      "flags": [],
+      "dimension": "m6",
+      "track": "BUILD",
+      "source": {
+        "url": "https://blog.logto.io/build-multi-tenant-saas-application",
+        "title": "Build a multi-tenant SaaS application: A complete guide from design to implementation · Logto blog",
+        "display_quote": "From weeks of development to 15 minutes of setup",
+        "source_date": "2025-01-23"
+      }
+    }
+  },
+  "challenger_ran": true,
+  "challenger_status": "mounted",
+  "challenger_note": "the engine's own second-best and the challenger independently converged on this path"
+}

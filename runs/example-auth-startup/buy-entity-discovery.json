@@ -1,0 +1,37 @@
+{
+  "selected": [
+    {
+      "name": "Descope",
+      "rationale": "Descope is highly suited for a 2-person bootstrapped startup with limited runway. It is multi-tenant by design and provides visual, no-code workflows that dramatically reduce development time compared to traditional auth providers. It easily supports email/password, role-based access control, and seamless eventual upgrades to enterprise SSO without requiring significant code refactoring.",
+      "commercial_twin": null
+    },
+    {
+      "name": "FusionAuth",
+      "rationale": "FusionAuth offers a flexible, self-hosted CIAM platform with robust multi-tenant capabilities. For a bootstrapped startup watching its runway, FusionAuth's self-hosted deployment model provides a highly cost-effective path to scale authentication, roles, and SSO support without escalating third-party licensing costs.",
+      "commercial_twin": null
+    }
+  ],
+  "excluded": [
+    "Auth0",
+    "Okta",
+    "Keycloak",
+    "SSOJet",
+    "Buildium",
+    "AppFolio Property Manager",
+    "Propertyware",
+    "Rentec Direct",
+    "TenantCloud",
+    "DoorLoop",
+    "Yardi Breeze",
+    "ResMan",
+    "RealPage",
+    "MRI Software"
+  ],
+  "source_urls": [
+    "https://clerk.com/blog/multi-tenant-vs-single-tenant",
+    "https://ssojet.com/blog/b2b-authentication-provider-comparison-features-pricing-sso-support",
+    "https://ssojet.com/blog/most-customizable-b2b-authentication-solutions-white-label-login-branded-auth-enterprise-sso",
+    "https://www.descope.com/descope-vs-auth0",
+    "https://gitnux.org/best/tenant-in-software/"
+  ]
+}

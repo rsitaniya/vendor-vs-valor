@@ -1,0 +1,366 @@
+{
+  "BUILD": {
+    "labeled": [
+      {
+        "id": "c9e439",
+        "status": "SUPPORTED"
+      },
+      {
+        "id": "d5d6c3",
+        "status": "SUPPORTED"
+      },
+      {
+        "id": "ef78b5",
+        "status": "SUPPORTED"
+      },
+      {
+        "id": "ac0229",
+        "status": "SUPPORTED"
+      },
+      {
+        "id": "70b87d",
+        "status": "SUPPORTED"
+      },
+      {
+        "id": "a2cbe3",
+        "status": "SUPPORTED"
+      },
+      {
+        "id": "114bde",
+        "status": "SUPPORTED"
+      },
+      {
+        "id": "012d19",
+        "status": "SUPPORTED"
+      },
+      {
+        "id": "d4aac2",
+        "status": "PARTIAL"
+      },
+      {
+        "id": "a9d6e0",
+        "status": "SUPPORTED"
+      },
+      {
+        "id": "1b90e2",
+        "status": "SUPPORTED"
+      },
+      {
+        "id": "8cb033",
+        "status": "SUPPORTED"
+      },
+      {
+        "id": "4ac080",
+        "status": "SUPPORTED"
+      },
+      {
+        "id": "e01a52",
+        "status": "UNSUPPORTED"
+      },
+      {
+        "id": "7aa94c",
+        "status": "SUPPORTED"
+      },
+      {
+        "id": "73166a",
+        "status": "SUPPORTED"
+      }
+    ],
+    "dropped_unsupported": [
+      {
+        "id": "e01a52"
+      }
+    ],
+    "assert_rejected": [],
+    "priority_dimensions": [
+      {
+        "id": "m6",
+        "why": "With a strict 2-week hard stop for engineering, evaluating the exact time-to-value for setting up these open-source auth systems is critical."
+      },
+      {
+        "id": "m3",
+        "why": "With a 4-month runway and a sub-$50/month target budget, self-hosting infrastructure costs and initial build effort are make-or-break factors."
+      },
+      {
+        "id": "m14",
+        "why": "The system must integrate seamlessly with Node.js, Express, React, Postgres, and deploy easily on Railway/Vercel within the time limit."
+      },
+      {
+        "id": "m11",
+        "why": "As a non-core 'enabling' capability for a 2-person logistics startup, building auth must not distract from core route-planning IP."
+      },
+      {
+        "id": "m13",
+        "why": "Evaluating the viability and maintenance health of open-source projects like SuperTokens, Logto, and Keycloak is necessary for long-term stability."
+      }
+    ],
+    "coverage": [
+      {
+        "id": "m1",
+        "name": "Strategic differentiation / moat",
+        "covered": false,
+        "claim_count": 0,
+        "priority": false
+      },
+      {
+        "id": "m2",
+        "name": "Proprietary-data generation",
+        "covered": false,
+        "claim_count": 0,
+        "priority": false
+      },
+      {
+        "id": "m3",
+        "name": "Total cost — build",
+        "covered": true,
+        "claim_count": 9,
+        "priority": true
+      },
+      {
+        "id": "m4",
+        "name": "Total cost — maintenance (the bloat curve)",
+        "covered": false,
+        "claim_count": 0,
+        "priority": false
+      },
+      {
+        "id": "m6",
+        "name": "Time-to-value",
+        "covered": true,
+        "claim_count": 2,
+        "priority": true
+      },
+      {
+        "id": "m7",
+        "name": "Resource & talent availability",
+        "covered": false,
+        "claim_count": 0,
+        "priority": false
+      },
+      {
+        "id": "m8",
+        "name": "Reversibility / switching cost",
+        "covered": false,
+        "claim_count": 0,
+        "priority": false
+      },
+      {
+        "id": "m9",
+        "name": "Data ownership / sensitivity / compliance",
+        "covered": true,
+        "claim_count": 1,
+        "priority": false
+      },
+      {
+        "id": "m10",
+        "name": "Customization need vs. availability",
+        "covered": false,
+        "claim_count": 0,
+        "priority": false
+      },
+      {
+        "id": "m11",
+        "name": "Focus / core-value alignment",
+        "covered": false,
+        "claim_count": 0,
+        "priority": true
+      },
+      {
+        "id": "m13",
+        "name": "Vendor viability / lock-in risk",
+        "covered": true,
+        "claim_count": 1,
+        "priority": true
+      },
+      {
+        "id": "m14",
+        "name": "Integration complexity",
+        "covered": true,
+        "claim_count": 2,
+        "priority": true
+      }
+    ],
+    "coverage_gaps": [
+      "thin content: https://www.youtube.com/watch?v=Fz_csjJAxUI",
+      "fetch failed: https://medium.com/@mercicodes/implementing-user-authentication-in-react-with-supertokens-fb91a29b338 (HTTPStatusError)",
+      "thin content: https://www.keycloak.org/high-availability/concepts-memory-and-cpu-sizing",
+      "fetch failed: https://www.baeldung.com/spring-boot-keycloak (HTTPStatusError)",
+      "fetch failed: https://logto.medium.com/build-a-multi-tenant-saas-application-a-complete-guide-from-design-to-implementation-d109d041f253 (HTTPStatusError)",
+      "fetch failed: https://logto.medium.com/how-to-use-logto-for-your-encore-application-bad7e6a05fd4 (HTTPStatusError)",
+      "no evidence for priority dimension m11 (Focus / core-value alignment)"
+    ]
+  },
+  "BUY": {
+    "labeled": [
+      {
+        "id": "4e35cf",
+        "status": "SUPPORTED"
+      },
+      {
+        "id": "2679e7",
+        "status": "SUPPORTED"
+      },
+      {
+        "id": "d6373a",
+        "status": "SUPPORTED"
+      },
+      {
+        "id": "0c21c2",
+        "status": "SUPPORTED"
+      },
+      {
+        "id": "048a1a",
+        "status": "PARTIAL"
+      },
+      {
+        "id": "4eeec6",
+        "status": "SUPPORTED"
+      },
+      {
+        "id": "00f8a1",
+        "status": "SUPPORTED"
+      },
+      {
+        "id": "fb8a60",
+        "status": "SUPPORTED"
+      },
+      {
+        "id": "68ceb3",
+        "status": "SUPPORTED"
+      },
+      {
+        "id": "275a3a",
+        "status": "SUPPORTED"
+      },
+      {
+        "id": "207844",
+        "status": "SUPPORTED"
+      },
+      {
+        "id": "e090e5",
+        "status": "SUPPORTED"
+      },
+      {
+        "id": "f444f2",
+        "status": "SUPPORTED"
+      }
+    ],
+    "dropped_unsupported": [],
+    "assert_rejected": [],
+    "priority_dimensions": [
+      {
+        "id": "m5",
+        "why": "With a bootstrapped budget under $50/mo and pre-revenue status, avoiding unexpected usage-based bill shock is critical."
+      },
+      {
+        "id": "m6",
+        "why": "A hard 2-week engineering timeline means the solution must offer instant, working authentication flows out-of-the-box."
+      },
+      {
+        "id": "m8",
+        "why": "For a pre-revenue startup, keeping switching costs low is vital to prevent vendor lock-in if pricing tiers change as they scale."
+      },
+      {
+        "id": "m10",
+        "why": "The solution must support specific multi-tenant logistics roles (drivers, dispatchers) with custom permission levels."
+      },
+      {
+        "id": "m14",
+        "why": "The single engineer has limited time and must seamlessly integrate the service with their existing React, Express, and Railway stack."
+      }
+    ],
+    "coverage": [
+      {
+        "id": "m1",
+        "name": "Strategic differentiation / moat",
+        "covered": false,
+        "claim_count": 0,
+        "priority": false
+      },
+      {
+        "id": "m2",
+        "name": "Proprietary-data generation",
+        "covered": false,
+        "claim_count": 0,
+        "priority": false
+      },
+      {
+        "id": "m4",
+        "name": "Total cost — maintenance (the bloat curve)",
+        "covered": false,
+        "claim_count": 0,
+        "priority": false
+      },
+      {
+        "id": "m5",
+        "name": "Total cost — buy (short + long term)",
+        "covered": true,
+        "claim_count": 8,
+        "priority": true
+      },
+      {
+        "id": "m6",
+        "name": "Time-to-value",
+        "covered": false,
+        "claim_count": 0,
+        "priority": true
+      },
+      {
+        "id": "m7",
+        "name": "Resource & talent availability",
+        "covered": false,
+        "claim_count": 0,
+        "priority": false
+      },
+      {
+        "id": "m8",
+        "name": "Reversibility / switching cost",
+        "covered": true,
+        "claim_count": 2,
+        "priority": true
+      },
+      {
+        "id": "m9",
+        "name": "Data ownership / sensitivity / compliance",
+        "covered": false,
+        "claim_count": 0,
+        "priority": false
+      },
+      {
+        "id": "m10",
+        "name": "Customization need vs. availability",
+        "covered": true,
+        "claim_count": 2,
+        "priority": true
+      },
+      {
+        "id": "m11",
+        "name": "Focus / core-value alignment",
+        "covered": false,
+        "claim_count": 0,
+        "priority": false
+      },
+      {
+        "id": "m13",
+        "name": "Vendor viability / lock-in risk",
+        "covered": false,
+        "claim_count": 0,
+        "priority": false
+      },
+      {
+        "id": "m14",
+        "name": "Integration complexity",
+        "covered": true,
+        "claim_count": 1,
+        "priority": true
+      }
+    ],
+    "coverage_gaps": [
+      "fetch failed: https://www.g2.com/products/descope/pricing (HTTPStatusError)",
+      "fetch failed: https://www.g2.com/products/fusionauth/pricing (HTTPStatusError)",
+      "fetch failed: https://www.capterra.com/p/182987/FusionAuth/ (HTTPStatusError)",
+      "fetch failed: https://ngrok.com/docs/integrations/airship/ (HTTPStatusError)",
+      "no evidence for priority dimension m6 (Time-to-value)"
+    ]
+  }
+}

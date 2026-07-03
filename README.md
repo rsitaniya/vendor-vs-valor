@@ -56,7 +56,7 @@ The three gates are LangGraph `interrupt()` points. The pipeline parks, writes i
 ```
 vendor-vs-valor/
 ├── graph.py                  # LangGraph pipeline: nodes, edges, gate interrupts, checkpointer
-├── run.py                    # CLI entry point — reads input2.md, drives graph end-to-end
+├── run.py                    # CLI entry point — reads input-market-data-india.md, drives graph end-to-end
 │
 ├── stages/
 │   ├── intake.py             # Stage 1: elicit and validate profile.json / profile.md
@@ -151,7 +151,7 @@ for m in genai.Client().models.list():
 
 ## Usage
 
-Write your capability need as a markdown file (see `input2.md` for a full example):
+Write your capability need as a markdown file (see `input-market-data-india.md` for a full example):
 
 ```markdown
 # Capability need — <short title>
@@ -169,11 +169,15 @@ Write your capability need as a markdown file (see `input2.md` for a full exampl
 Run the pipeline:
 
 ```bash
-uv run python run.py                  # reads ./input2.md by default
+uv run python run.py                  # reads ./input-market-data-india.md by default
 uv run python run.py path/to/need.md  # explicit path
 ```
 
 The engine auto-approves all three human gates and opens the HTML report on completion. Intermediate artifacts are written to `runs/<timestamp-id>/` as the pipeline progresses.
+
+Two full committed example runs, including `strategy.md` and `report.html`:
+- [`runs/example-market-data-india/`](runs/example-market-data-india/) — `input-market-data-india.md`, the capital-markets scenario walked through in the [companion writeup](https://sitaniya-com.pages.dev/blog/vendor-vs-valor)
+- [`runs/example-auth-startup/`](runs/example-auth-startup/) — `input-auth-startup.md`, the auth/access-management scenario
 
 ### Run artifacts
 

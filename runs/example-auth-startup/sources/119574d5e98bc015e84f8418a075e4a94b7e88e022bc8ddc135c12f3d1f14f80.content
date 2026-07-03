@@ -1,0 +1,52 @@
+supertokens-postgresql
+Docker image for SuperTokens with PostgreSQL
+1M+
+# This will start with an in memory database.
+$ docker run -p 3567:3567 -d registry.supertokens.io/supertokens/supertokens-postgresql
+You can use your own config.yaml file as a shared volume or pass the key-values as environment variables.
+If you do both, only the shared config.yaml file will be considered.
+Available environment variables
+docker run \
+	-p 3567:3567 \
+	-e POSTGRESQL_CONNECTION_URI="postgresql://username:password@host:port/dbName" \
+	-d registry.supertokens.io/supertokens/supertokens-postgresql
+# OR
+docker run \
+	-p 3567:3567 \
+	-e POSTGRESQL_USER="postgresqlUser" \
+	-e POSTGRESQL_HOST="192.168.1.2" \
+	-e POSTGRESQL_PORT="5432" \
+	-e POSTGRESQL_PASSWORD="password" \
+	-d registry.supertokens.io/supertokens/supertokens-postgresql
+config.yaml file, please make sure you store the following key / values:
+core_config_version: 0host: "0.0.0.0"postgresql_config_version: 0info_log_path: null (to log in docker logs)error_log_path: null (to log in docker logs)config.yaml file in the container is /usr/lib/supertokens/config.yamldocker run \
+	-p 3567:3567 \
+	-v /path/to/config.yaml:/usr/lib/supertokens/config.yaml \
+	-d registry.supertokens.io/supertokens/supertokens-postgresql
+docker logs <container-name> command.info_log_path and error_log_path variables in your config.yaml file (or passing the values asn env variables).docker run \
+	-p 3567:3567 \
+	-v /path/to/logsFolder:/home/logsFolder \
+	-e INFO_LOG_PATH="/home/logsFolder/info.log" \
+	-e ERROR_LOG_PATH="/home/logsFolder/error.log" \
+	-e POSTGRESQL_USER="postgresqlUser" \
+	-e POSTGRESQL_PASSWORD="password" \
+	-d registry.supertokens.io/supertokens/supertokens-postgresql
+POSTGRESQL_USER, POSTGRESQL_PASSWORD, POSTGRESQL_PASSWORD_FILE and POSTGRESQL_CONNECTION_URI are not provided, then SuperTokens will use an in memory database./lib/supertokens/temp/docker run \
+	-p 3567:3567 \
+	--mount source=/path/on/host/machine,destination=/lib/supertokens/temp/,type=bind \
+	--read-only \
+	-d registry.supertokens.io/supertokens/supertokens-postgresql
+docker run \
+	-p 3567:3567 \
+	--tmpfs=/lib/supertokens/temp/:exec \
+	--read-only \
+	-d registry.supertokens.io/supertokens/supertokens-postgresql
+Content type
+Image
+Digest
+sha256:fb8604956…
+Size
+182.9 MB
+Last updated
+3 days ago
+Requires Docker Desktop 4.37.1 or later.

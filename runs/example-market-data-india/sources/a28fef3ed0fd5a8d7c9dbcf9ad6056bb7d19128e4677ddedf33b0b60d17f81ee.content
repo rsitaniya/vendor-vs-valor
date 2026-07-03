@@ -1,0 +1,44 @@
+with one click
+databento
+Professional market data access via DataBento API for all asset classes
+Menu
+Professional market data access via DataBento API for all asset classes
+| name | databento | 
+| description | Professional market data access via DataBento API for all asset classes | 
+| version | 1.0.0 | 
+| triggers | ["databento","market data","futures quote","historical bars","symbol resolution"] | 
+Access professional market data across all asset classes through the DataBento API. This skill provides real-time quotes, historical data, symbol resolution, batch downloads, metadata discovery, and reference data.
+DATABENTO_API_KEY environment variable)Get current price quotes for ES (E-mini S&P 500) or NQ (E-mini Nasdaq-100) futures.
+Usage: "Get current ES quote" or "What's the NQ price?"
+Retrieve OHLCV historical data for futures contracts.
+Usage: "Get 50 daily bars for ES" or "Show me last 20 hourly NQ candles"
+Identify current trading session (Asian/London/NY) based on UTC time.
+Usage: "What trading session is it?" or "Check current market session"
+Convert symbols between different types (raw_symbol, instrument_id, continuous, etc.).
+Usage: "Resolve AAPL to instrument ID" or "Convert ESM4 symbol"
+Stream any market data schema (trades, MBP, OHLCV) across date ranges.
+Usage: "Get trades for SPY on 2024-01-15" or "Fetch MBP-1 data for TSLA"
+Submit jobs for large historical dataset downloads.
+Usage: "Submit batch job for ES daily data" or "List my batch jobs"
+Explore datasets, schemas, fields, and pricing information.
+Usage: "List available datasets" or "What schemas does GLBX.MDP3 have?" or "Get cost for data query"
+Access security master database, corporate actions, and price adjustments.
+Usage: "Search securities for AAPL" or "Get dividends for MSFT" or "Fetch adjustment factors"
+Set your DataBento API key:
+export DATABENTO_API_KEY="db-your-api-key-here"
+Or add to your .env file:
+DATABENTO_API_KEY=db-your-api-key-here
+DATABENTO_DATASET=GLBX.MDP3
+Get real-time quote:
+"Show me the current ES futures quote"
+Historical analysis:
+"Get the last 100 daily bars for NQ"
+Symbol resolution:
+"Resolve symbols ['ESM4', 'NQM4'] in GLBX.MDP3 dataset for June 2024"
+Batch download:
+"Submit a batch job for ES daily OHLCV data from Jan 1 to Dec 31, 2024"
+Metadata query:
+"What's the cost to download trade data for SPY from Jan-Mar 2024?"
+Reference data:
+"Get all dividend payments for AAPL in 2024"
+All operations include graceful error handling with clear messages:

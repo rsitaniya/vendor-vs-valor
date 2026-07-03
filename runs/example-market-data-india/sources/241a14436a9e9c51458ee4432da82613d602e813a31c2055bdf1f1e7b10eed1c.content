@@ -1,0 +1,47 @@
+EODHD × Notion Integration
+Pulsn pulls live market data from EODHD and writes it directly into your Notion database properties — automatically, at a frequency determined by your plan.
+Free forever for 1 database · No EODHD account needed
+What this integration does
+Reads from EODHD
+Pulsn fetches live market data from EODHD's API — price, 24h change, and volume — for any stock, ETF, fund, or forex pair you configure.
+Writes into Notion
+The values are written directly into your Notion database's Number properties, exactly as you've mapped them.
+Runs automatically
+You configure it once. Pulsn handles the scheduling, polling, and updating from that point on — no action needed from you.
+Supported EODHD metrics
+Each metric maps to a separate Notion Number property.
+| Metric | Asset types | Notes | 
+|---|---|---|
+| Current price | Stocks, ETFs, funds, forex | |
+| 24h price change (%) | Stocks, ETFs, funds | Positive or negative percentage | 
+| 24h trading volume | Stocks, ETFs, funds | 
+How to connect EODHD to Notion
+Authorize Pulsn
+Connect Pulsn to your Notion workspace via the official OAuth flow. Select the database you want to keep updated.
+Configure an EODHD sync flow
+Choose EODHD, search for a ticker (e.g. AAPL, VOO, EUR/USD), pick a metric (e.g. Price), and map it to a Notion property.
+Done — it runs itself
+Pulsn syncs the data on your schedule. No API keys, no code, no cron jobs needed.
+Why use Pulsn instead of the EODHD API directly?
+No coding required
+Using the raw EODHD API requires writing and hosting code. Pulsn does all of that for you.
+Writes directly to Notion
+The API gives you data. Turning that into Notion property updates requires building a second integration. Pulsn handles both sides.
+Automatic scheduling
+You'd need a cron job or scheduler to run your API calls on a schedule. Pulsn manages this for you.
+Free tier available
+Start at no cost. Upgrade only when you need more databases or faster sync frequencies.
+Frequently asked questions
+Do I need an EODHD API key?
+No. Pulsn handles the EODHD API connection on your behalf — you don't need to create an account with EODHD or manage any API keys.
+How often is EODHD data updated in Notion?
+Pulsn syncs based on your plan: every 24 hours on the free plan, every hour on Growth, and every 15 minutes on Power.
+Which EODHD metrics are supported?
+Current price, 24h change, and 24h trading volume. More metrics are planned.
+Which asset types does EODHD support?
+EODHD covers stocks (US and international), ETFs, mutual funds, and forex pairs. If a ticker is listed on EODHD, Pulsn can sync it.
+Does Pulsn use the official EODHD API?
+Yes. Pulsn pulls data from EODHD's official API, ensuring reliable and accurate market data for your Notion databases.
+Connect EODHD to Notion today
+Set up your first EODHD sync flow in under 5 minutes. Free, forever, for one database.
+Connect Notion for free →Also see: Notion investment tracker guide · How to track investments in Notion
