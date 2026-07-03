@@ -1,7 +1,7 @@
-"""Full pipeline runner — reads need from input.md and drives the graph end-to-end.
+"""Full pipeline runner — reads need from input2.md and drives the graph end-to-end.
 
 Usage:
-    uv run python run.py [path/to/input.md]   # defaults to ./input.md
+    uv run python run.py [path/to/input2.md]   # defaults to ./input2.md
 
 Mirrors cp5_demo.py but parameterised: reads the need from a markdown file
 (everything after the first # heading is the raw need text), auto-approves all
@@ -34,7 +34,7 @@ def _load_need(path: Path) -> str:
 
 
 def main() -> int:
-    input_path = Path(sys.argv[1]) if len(sys.argv) > 1 else Path("input.md")
+    input_path = Path(sys.argv[1]) if len(sys.argv) > 1 else Path("input2.md")
     if not input_path.exists():
         print(f"ERROR: input file not found: {input_path}", file=sys.stderr)
         return 2

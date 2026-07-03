@@ -4,6 +4,14 @@ An advisory intelligence engine for capability-sourcing decisions. Given a natur
 
 Output is advisory only. Every claim is independently cited and verified against cached source content. No scores, no weighted rubrics.
 
+Companion writeup: [sitaniya-com.pages.dev/blog/vendor-vs-valor](https://sitaniya-com.pages.dev/blog/vendor-vs-valor)
+Sample report (Indian capital markets use case): [vendor-vs-valor-sample-report.html](https://sitaniya-com.pages.dev/vendor-vs-valor-sample-report.html)
+
+> **Status:** MVP, built solo, in the open. It's had more thought put into its citation discipline than its uptime. Treat it like a research assistant you're still training, not a system you'd bet a quarter on.
+
+### What it won't do
+It won't approve a purchase, replace your legal/security/procurement review, or paper over a vendor's missing price with a guess: a hidden price is a finding, not a gap to fill in. And it won't make the final call: research is the part it automates, judgment about where the money goes stays with a person.
+
 ---
 
 ## How it works
@@ -48,7 +56,7 @@ The three gates are LangGraph `interrupt()` points. The pipeline parks, writes i
 ```
 vendor-vs-valor/
 ├── graph.py                  # LangGraph pipeline: nodes, edges, gate interrupts, checkpointer
-├── run.py                    # CLI entry point — reads input.md, drives graph end-to-end
+├── run.py                    # CLI entry point — reads input2.md, drives graph end-to-end
 │
 ├── stages/
 │   ├── intake.py             # Stage 1: elicit and validate profile.json / profile.md
@@ -115,7 +123,7 @@ vendor-vs-valor/
 **Prerequisites:** Python 3.11+, [`uv`](https://docs.astral.sh/uv/)
 
 ```bash
-git clone <repo>
+git clone https://github.com/rsitaniya/vendor-vs-valor.git
 cd vendor-vs-valor
 uv sync
 cp .env.example .env
@@ -143,7 +151,7 @@ for m in genai.Client().models.list():
 
 ## Usage
 
-Write your capability need as a markdown file (see `input.md` for a full example):
+Write your capability need as a markdown file (see `input2.md` for a full example):
 
 ```markdown
 # Capability need — <short title>
@@ -161,7 +169,7 @@ Write your capability need as a markdown file (see `input.md` for a full example
 Run the pipeline:
 
 ```bash
-uv run python run.py                  # reads ./input.md by default
+uv run python run.py                  # reads ./input2.md by default
 uv run python run.py path/to/need.md  # explicit path
 ```
 
@@ -213,3 +221,11 @@ The test suite covers `grounded_claim`, `schema_stage`, the graph topology (park
 | `docs/mvp-hld-and-build-spec.md` | Primary spec: data contracts, stage interfaces, hash guard, build order |
 | `docs/design-v2.md` | Decision model, four-path reasoning, engine design rationale |
 | `docs/target-architecture.md` | Production-scale design (portfolio memory, fan-out, served dashboard) — context only, not built |
+
+---
+
+## License
+MIT, see [LICENSE](LICENSE).
+
+## Author
+Built by [Rohan Sitaniya](https://github.com/rsitaniya).
