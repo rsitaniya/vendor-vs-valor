@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html data-theme="dark" lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vendor vs Valor &mdash; Buy-then-Extend</title>
+<style>*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  font-size:15px;line-height:1.6;
+  background:var(--bg);color:var(--text);
+  transition:background .2s,color .2s;
+}
+
+:root{
+  --bg:#0d0f18;--surface:#141724;--surface2:#1c2033;--border:#252a3d;
+  --text:#c9d1e0;--muted:#7a8599;--heading:#eef0f8;
+  --accent:#6366f1;--shadow:0 1px 6px rgba(0,0,0,.55);
+}
+[data-theme=light]{
+  --bg:#f2f4fb;--surface:#ffffff;--surface2:#eef0f8;--border:#dde1ef;
+  --text:#374151;--muted:#6b7280;--heading:#111827;
+  --accent:#4f46e5;--shadow:0 1px 4px rgba(0,0,0,.08);
+}
+
+header{
+  position:sticky;top:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:.7rem 1.5rem;
+  background:var(--surface);border-bottom:1px solid var(--border);
+  box-shadow:var(--shadow);
+}
+.brand{font-weight:800;font-size:.95rem;color:var(--heading);letter-spacing:-.02em}
+.brand em{color:var(--accent);font-style:normal}
+#theme-btn{
+  cursor:pointer;background:var(--surface2);border:1px solid var(--border);
+  color:var(--muted);border-radius:6px;padding:.28rem .8rem;font-size:.78rem;
+  font-weight:600;letter-spacing:.03em;transition:all .15s;
+}
+#theme-btn:hover{border-color:var(--accent);color:var(--accent)}
+
+main{max-width:1100px;margin:0 auto;padding:2rem 1.5rem 3rem}
+
+.hero{
+  border-radius:12px;padding:2rem 2.25rem;margin-bottom:2rem;
+  background:var(--surface);border:1px solid var(--border);
+  box-shadow:var(--shadow);
+  background-image:linear-gradient(135deg,var(--surface) 60%,var(--surface2));
+}
+.rec-pill{
+  display:inline-flex;align-items:center;gap:.5rem;
+  font-size:.72rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+  padding:.3rem 1rem;border-radius:999px;margin-bottom:1.1rem;border:1px solid;
+}
+.hero h1{font-size:1.45rem;color:var(--heading);margin-bottom:.6rem;font-weight:800;letter-spacing:-.02em}
+.thesis{color:var(--text);margin-bottom:1.5rem;font-size:.95rem;max-width:72ch}
+.need-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.75rem;
+  border-top:1px solid var(--border);padding-top:1.25rem;margin-top:.25rem;
+}
+.need-item h5{
+  font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:.3rem;font-weight:700;
+}
+.need-item p{font-size:.83rem;color:var(--text);line-height:1.5}
+
+.section{margin-bottom:2.5rem}
+.section>h2{
+  font-size:1rem;font-weight:800;color:var(--heading);letter-spacing:-.01em;
+  margin-bottom:1rem;padding-bottom:.5rem;
+  border-bottom:2px solid var(--border);
+  display:flex;align-items:center;gap:.6rem;
+}
+
+.factor-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.875rem}
+.factor-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  padding:1.1rem 1.2rem;box-shadow:var(--shadow);transition:border-color .15s;
+}
+.factor-card:hover{border-color:var(--accent)}
+.factor-card h4{font-size:.82rem;font-weight:700;color:var(--heading);margin-bottom:.35rem}
+.factor-card p{font-size:.8rem;color:var(--muted);line-height:1.55}
+
+.tab-nav{
+  display:flex;gap:0;flex-wrap:wrap;
+  border-bottom:2px solid var(--border);margin-bottom:0;
+}
+.tab-btn{
+  cursor:pointer;background:none;border:none;
+  padding:.55rem 1.1rem;font-size:.83rem;font-weight:600;
+  color:var(--muted);border-bottom:2px solid transparent;
+  margin-bottom:-2px;transition:color .15s,border-color .15s;
+  display:flex;align-items:center;gap:.4rem;
+}
+.tab-btn:hover{color:var(--heading)}
+.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
+.rec-dot{
+  width:7px;height:7px;border-radius:50%;
+  display:inline-block;flex-shrink:0;
+}
+.tab-content{
+  background:var(--surface);border:1px solid var(--border);border-top:none;
+  border-radius:0 0 10px 10px;padding:1.5rem 1.75rem;box-shadow:var(--shadow);
+  min-height:180px;
+}
+.tab-panel{display:none}
+
+.dossier{}
+.dos-hdr{display:flex;align-items:center;gap:.65rem;margin-bottom:1.25rem;flex-wrap:wrap}
+.chip{
+  font-size:.72rem;font-weight:700;padding:.25rem .75rem;border-radius:999px;
+  letter-spacing:.04em;
+}
+.rec-badge{
+  font-size:.68rem;font-weight:700;padding:.2rem .6rem;border-radius:4px;
+  letter-spacing:.04em;
+}
+.ds{margin-bottom:1.1rem}
+.dsh{
+  font-size:.7rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:.45rem;
+}
+.blist{list-style:none;padding:0;display:flex;flex-direction:column;gap:.4rem}
+.blist li{
+  display:flex;align-items:baseline;gap:.5rem;
+  font-size:.858rem;color:var(--text);line-height:1.55;
+}
+.bi{font-style:normal;flex-shrink:0;width:1rem;font-size:.72rem;font-weight:700}
+.rev{font-size:.85rem;color:var(--muted);font-style:italic;line-height:1.55}
+.empty{color:var(--muted);font-size:.85rem;font-style:italic}
+sup.cites{font-size:.62rem;margin-left:.1rem;line-height:1}
+a.cite{
+  color:var(--accent);text-decoration:none;margin:0 .05rem;
+  padding:.05rem .22rem;background:var(--surface2);border-radius:3px;
+  font-variant-numeric:tabular-nums;transition:background .12s;
+}
+a.cite:hover{background:var(--border);text-decoration:underline}
+
+.challenger-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-left:3px solid var(--accent);
+  border-radius:10px;padding:1.4rem 1.6rem;box-shadow:var(--shadow);
+}
+.ch-hdr{display:flex;align-items:center;gap:.65rem;flex-wrap:wrap;margin-bottom:.75rem}
+.ch-tag{
+  font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  padding:.15rem .5rem;border-radius:4px;
+  background:#f59e0b22;color:#f59e0b;border:1px solid #f59e0b44;
+}
+.wins-label{font-size:.75rem;color:var(--muted);font-weight:700;margin-bottom:.3rem}
+.wins-list{
+  margin:.15rem 0 .85rem 1.1rem;
+  font-size:.83rem;color:var(--muted);display:flex;flex-direction:column;gap:.2rem;
+}
+.ch-body{font-size:.858rem;color:var(--text);line-height:1.65}
+
+.oq-list{list-style:none;padding:0;display:flex;flex-direction:column;gap:.55rem}
+.oq-list li{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:8px;padding:.7rem 1rem .7rem 2.1rem;
+  font-size:.858rem;color:var(--text);position:relative;
+  box-shadow:var(--shadow);
+}
+.oq-list li::before{
+  content:"?";position:absolute;left:.75rem;top:.72rem;
+  color:var(--accent);font-weight:900;font-size:.8rem;
+}
+
+.ev-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--border);box-shadow:var(--shadow)}
+.ev-table{width:100%;border-collapse:collapse;font-size:.8rem}
+.ev-table th{
+  text-align:left;padding:.5rem .8rem;
+  font-size:.67rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--muted);background:var(--surface2);
+  border-bottom:1px solid var(--border);position:sticky;top:0;
+}
+.ev-table td{
+  padding:.6rem .8rem;border-bottom:1px solid var(--border);
+  vertical-align:top;color:var(--text);
+}
+.ev-table tr:last-child td{border-bottom:none}
+.ev-table tr:target td{background:var(--surface2)}
+.ev-table tr:hover td{background:var(--surface2);transition:background .1s}
+.cid{
+  font-family:monospace;font-size:.75rem;color:var(--muted);
+  padding:.1rem .35rem;background:var(--surface2);border-radius:3px;
+}
+.ct{font-size:.8rem;color:var(--text);margin-bottom:.2rem;line-height:1.45}
+.cq{font-size:.75rem;color:var(--muted);font-style:italic;margin-bottom:.2rem}
+.cs a{
+  font-size:.72rem;color:var(--accent);text-decoration:none;
+  display:block;max-width:380px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.cs a:hover{text-decoration:underline}
+.cdate{font-size:.68rem;color:var(--muted);margin-top:.15rem}
+.sbadge{
+  font-size:.65rem;font-weight:700;padding:.15rem .45rem;
+  border-radius:4px;white-space:nowrap;
+}
+.trk{
+  font-size:.68rem;font-weight:700;padding:.15rem .4rem;border-radius:4px;
+  text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;
+}
+.tbuild{background:#14b8a622;color:#14b8a6}
+.tbuy{background:#3b82f622;color:#3b82f6}
+.dim{font-size:.72rem;color:var(--muted);font-family:monospace}
+.flags{font-size:.68rem;color:var(--muted)}
+
+footer{
+  text-align:center;padding:1.5rem;font-size:.72rem;color:var(--muted);
+  border-top:1px solid var(--border);margin-top:1rem;
+}
+footer code{font-family:monospace;font-size:.7rem;
+  background:var(--surface2);padding:.1rem .3rem;border-radius:3px}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">Vendor <em>vs</em> Valor</div>
+  <button id="theme-btn" onclick="toggleTheme()">&#9728; Light</button>
+</header>
+<main>
+
+  <div class="hero">
+    <div class="rec-pill" style="background:#6366f122;color:#6366f1;border-color:#6366f144">
+      &#10003; Recommendation &mdash; Buy-then-Extend
+    </div>
+    <h1>Strategy Report</h1>
+    <p class="thesis">Given the strict 4-week timeline and severe legal liability regarding adjusted corporate actions, licensing a commercial API for compliant market data ingestion is necessary. The startup can securely satisfy SEBI and NSE data regulations by buying the raw feed, and then extend this foundation by building its proprietary institutional-grade analytics using local query engines over portable data formats.</p>
+    <div class="need-grid">
+      <div class="need-item"><h5>Capability</h5><p>A market data infrastructure layer providing clean historical OHLCV data, accurate machine-readable corporate actions, index compositions, real-time/delayed feeds, and mutual fund NAVs.</p></div>
+      <div class="need-item"><h5>Context</h5><p>A Series A fintech startup building an institutional-grade portfolio analytics and compliance platform for Indian wealth managers (boutiques, family offices, and RIAs).</p></div>
+      <div class="need-item"><h5>Problem</h5><p>Unadjusted or inaccurate corporate action historical data leads to incorrect IRR and P&amp;L calculations, creating legal liability risks. Additionally, obtaining legally compliant, authorized exchange feeds to avoid unauthorized scraping is difficult and costly.</p></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Decisive Factors</h2>
+    <div class="factor-grid"><div class="factor-card"><h4>Timeline and Staging Deadlines</h4><p>A 4-week hard stop renders building direct, compliant exchange feeds from scratch impossible; a commercial API is needed immediately to populate the data warehouse.</p></div><div class="factor-card"><h4>Regulatory Licensing and Data Accuracy</h4><p>SEBI and NSE strictly prohibit unauthorized market data redistribution. Paying for an authorized API prevents legal liability regarding inaccurate, scraped corporate actions.</p></div><div class="factor-card"><h4>Architectural Decoupling</h4><p>The buy-then-extend approach allows the startup to cleanly decouple the purchased API feed from their proprietary analytics logic by storing the ingested data in an open Parquet format.</p></div></div>
+  </div>
+
+  <div class="section">
+    <h2>Path Analysis</h2>
+    <div class="tab-nav"><button class="tab-btn active" onclick="showTab('buy_then_extend')" data-path="buy_then_extend"><span class="rec-dot" style="background:#6366f1"></span>Buy-then-Extend</button><button class="tab-btn" onclick="showTab('build')" data-path="build">Build</button><button class="tab-btn" onclick="showTab('buy')" data-path="buy">Buy</button><button class="tab-btn" onclick="showTab('adopt_self_host')" data-path="adopt_self_host">Adopt &amp; Self-host</button></div>
+    <div class="tab-content"><div class="tab-panel" id="tab-buy_then_extend" style="display:block"><div class="dossier"><div class="dos-hdr"><span class="chip" style="background:#6366f122;color:#6366f1;border:1px solid #6366f144">Buy-then-Extend</span><span class="rec-badge" style="background:#6366f122;color:#6366f1">&#9733; Recommended</span></div><div class="ds"><h4 class="dsh">Pros</h4><ul class="blist"><li><span class="bi">✓</span>The startup can license EODHD&#x27;s APIs to ingest compliant adjusted close and mutual fund data, while maintaining analytical independence by using Parquet as the system of record.<sup class="cites"><a href="#claim-388b7c" class="cite" title="388b7c">388b7c</a><a href="#claim-c72106" class="cite" title="c72106">c72106</a><a href="#claim-d282cb" class="cite" title="d282cb">d282cb</a></sup></li><li><span class="bi">✓</span>The differentiating portfolio analytics layer can be aggressively optimized by extending the ingested data using ClickHouse for production benchmarking or DuckDB for local querying.<sup class="cites"><a href="#claim-a18c10" class="cite" title="a18c10">a18c10</a><a href="#claim-ffd90a" class="cite" title="ffd90a">ffd90a</a></sup></li></ul></div><div class="ds"><h4 class="dsh">Cons</h4><ul class="blist"><li><span class="bi">✕</span>Commercial APIs impose rate limits (EODHD limits paid users to 100,000 calls/day; Alpha Vantage caps free users at 500 calls/day), which may bottleneck historical data backfills for staging.<sup class="cites"><a href="#claim-52d0ba" class="cite" title="52d0ba">52d0ba</a><a href="#claim-0ea9ac" class="cite" title="0ea9ac">0ea9ac</a></sup></li><li><span class="bi">✕</span>There is a notable conflict in vendor pricing tiers, ranging from EODHD at $19.99/month to Alpha Vantage scaling up to $249.99/month.<sup class="cites"><a href="#claim-f834a5" class="cite" title="f834a5">f834a5</a><a href="#claim-797767" class="cite" title="797767">797767</a></sup></li></ul></div><div class="ds"><h4 class="dsh">Key Risks</h4><ul class="blist"><li><span class="bi">!</span>Building analytical models and custom indices on top of the purchased API feed still legally requires acquiring a separate index creation license from the NSE.<sup class="cites"><a href="#claim-7b83f1" class="cite" title="7b83f1">7b83f1</a></sup></li></ul></div><div class="ds"><h4 class="dsh">Reversibility</h4><p class="rev">&#8617; Moderate; relying on APIs for raw materials while cleanly abstracting the storage layer into Parquet means the core portfolio logic is portable across future data providers.<sup class="cites"><a href="#claim-c72106" class="cite" title="c72106">c72106</a><a href="#claim-d282cb" class="cite" title="d282cb">d282cb</a></sup></p></div></div></div><div class="tab-panel" id="tab-build" style="display:none"><div class="dossier"><div class="dos-hdr"><span class="chip" style="background:#14b8a622;color:#14b8a6;border:1px solid #14b8a644">Build</span></div><div class="ds"><h4 class="dsh">Pros</h4><ul class="blist"><li><span class="bi">✓</span>Building in-house analytics with DuckDB leverages a free, open-source local query engine that has zero external dependencies.<sup class="cites"><a href="#claim-5d773c" class="cite" title="5d773c">5d773c</a><a href="#claim-5e8677" class="cite" title="5e8677">5e8677</a><a href="#claim-ffd90a" class="cite" title="ffd90a">ffd90a</a></sup></li><li><span class="bi">✓</span>Running the IB Gateway on a Hetzner VPS allows for extremely cost-efficient direct data ingestion at roughly $4 to $6 per month.<sup class="cites"><a href="#claim-e58a3e" class="cite" title="e58a3e">e58a3e</a><a href="#claim-461520" class="cite" title="461520">461520</a></sup></li></ul></div><div class="ds"><h4 class="dsh">Cons</h4><ul class="blist"><li><span class="bi">✕</span>Indian market data is licensed rather than owned, and redistributing or sharing it publicly without explicit written authorization is prohibited.<sup class="cites"><a href="#claim-49305c" class="cite" title="49305c">49305c</a><a href="#claim-24da7d" class="cite" title="24da7d">24da7d</a></sup></li><li><span class="bi">✕</span>Native data ingestion requires the operational overhead of managing a running IB Gateway instance.<sup class="cites"><a href="#claim-461520" class="cite" title="461520">461520</a></sup></li></ul></div><div class="ds"><h4 class="dsh">Key Risks</h4><ul class="blist"><li><span class="bi">!</span>Relying on homegrown pipelines without explicit vendor data agreements risks violating SEBI&#x27;s regulations for investment advisors and restricted data sharing policies.<sup class="cites"><a href="#claim-ef96f5" class="cite" title="ef96f5">ef96f5</a><a href="#claim-9f8c49" class="cite" title="9f8c49">9f8c49</a></sup></li></ul></div><div class="ds"><h4 class="dsh">Reversibility</h4><p class="rev">&#8617; Moderate to difficult; custom ingestion infrastructure built around IB Gateway represents a sunk engineering investment if regulatory compliance later forces a pivot to licensed feeds.<sup class="cites"><a href="#claim-461520" class="cite" title="461520">461520</a></sup></p></div></div></div><div class="tab-panel" id="tab-buy" style="display:none"><div class="dossier"><div class="dos-hdr"><span class="chip" style="background:#3b82f622;color:#3b82f6;border:1px solid #3b82f644">Buy</span></div><div class="ds"><h4 class="dsh">Pros</h4><ul class="blist"><li><span class="bi">✓</span>Commercial APIs like EODHD provide ready-to-use endpoints for mutual fund fundamentals, adjusted close prices, and EOD OHLCV data across over 60 global exchanges.<sup class="cites"><a href="#claim-388b7c" class="cite" title="388b7c">388b7c</a><a href="#claim-c72106" class="cite" title="c72106">c72106</a><a href="#claim-e70d8d" class="cite" title="e70d8d">e70d8d</a></sup></li><li><span class="bi">✓</span>Alpha Vantage is an officially licensed market data provider for US exchanges like NASDAQ.<sup class="cites"><a href="#claim-0b3263" class="cite" title="0b3263">0b3263</a></sup></li></ul></div><div class="ds"><h4 class="dsh">Cons</h4><ul class="blist"><li><span class="bi">✕</span>SEBI rules strictly prohibit market intermediaries from sharing real-time price data with third parties unless formal agreements are in place.<sup class="cites"><a href="#claim-904a1c" class="cite" title="904a1c">904a1c</a><a href="#claim-9aa35d" class="cite" title="9aa35d">9aa35d</a></sup></li><li><span class="bi">✕</span>Trading members are explicitly prohibited by the NSE data policy from redistributing market data without formal permission.<sup class="cites"><a href="#claim-2f5382" class="cite" title="2f5382">2f5382</a></sup></li></ul></div><div class="ds"><h4 class="dsh">Key Risks</h4><ul class="blist"><li><span class="bi">!</span>Even with a paid feed, NSE data cannot be used to build custom or composite financial indices without obtaining a completely separate license, which could block the startup&#x27;s core platform value.<sup class="cites"><a href="#claim-7b83f1" class="cite" title="7b83f1">7b83f1</a></sup></li></ul></div><div class="ds"><h4 class="dsh">Reversibility</h4><p class="rev">&#8617; High; adopting a commercial vendor like EODHD solely for data ingestion makes it relatively simple to swap providers if data quality or licensing terms become unfavorable.<sup class="cites"><a href="#claim-c72106" class="cite" title="c72106">c72106</a></sup></p></div></div></div><div class="tab-panel" id="tab-adopt_self_host" style="display:none"><div class="dossier"><div class="dos-hdr"><span class="chip" style="background:#8b5cf622;color:#8b5cf6;border:1px solid #8b5cf644">Adopt &amp; Self-host</span></div><div class="ds"><h4 class="dsh">Pros</h4><ul class="blist"><li><span class="bi">✓</span>The platform can leverage the free, open-source DuckDB engine for local analysis, or scale real-time analytics using a distributed open-source ClickHouse architecture.<sup class="cites"><a href="#claim-5d773c" class="cite" title="5d773c">5d773c</a><a href="#claim-c838ba" class="cite" title="c838ba">c838ba</a><a href="#claim-2b475a" class="cite" title="2b475a">2b475a</a></sup></li><li><span class="bi">✓</span>Git-like versioning and community-backed primitives can be integrated by adopting open-source tools such as Dolt, lakeFS, or DuckLake.<sup class="cites"><a href="#claim-ac073a" class="cite" title="ac073a">ac073a</a><a href="#claim-6ea050" class="cite" title="6ea050">6ea050</a><a href="#claim-a43f09" class="cite" title="a43f09">a43f09</a></sup></li></ul></div><div class="ds"><h4 class="dsh">Cons</h4><ul class="blist"><li><span class="bi">✕</span>Self-hosting analytics pipelines requires significant setup time, such as configuring ClickHouse materialized views to optimize ingestion times.<sup class="cites"><a href="#claim-5879dd" class="cite" title="5879dd">5879dd</a></sup></li><li><span class="bi">✕</span>While tools like DuckDB are free and open-source, the evidence does not highlight any managed commercial twins to alleviate the operational burden of self-hosting them at scale.<sup class="cites"><a href="#claim-5d773c" class="cite" title="5d773c">5d773c</a></sup></li></ul></div><div class="ds"><h4 class="dsh">Key Risks</h4><ul class="blist"><li><span class="bi">!</span>Self-hosting robust database software does not circumvent the fundamental prohibition against sharing real-time price data without SEBI compliant formal agreements.<sup class="cites"><a href="#claim-904a1c" class="cite" title="904a1c">904a1c</a><a href="#claim-9aa35d" class="cite" title="9aa35d">9aa35d</a></sup></li></ul></div><div class="ds"><h4 class="dsh">Reversibility</h4><p class="rev">&#8617; Hard; hardening a distributed database like ClickHouse natively requires a steep operations investment that cannot be easily unwound to meet a 4-week staging deadline.<sup class="cites"><a href="#claim-c838ba" class="cite" title="c838ba">c838ba</a></sup></p></div></div></div></div>
+  </div>
+
+<div class="section"><h2>Second Opinion <span class="ch-tag">Challenger</span></h2><div class="challenger-card"><div class="ch-hdr"><span class="chip" style="background:#3b82f622;color:#3b82f6;border:1px solid #3b82f644">Buy</span></div><p class="wins-label">Wins when:</p><ul class="wins-list"><li>if meeting the strict 4-week timeline by piping data directly into the existing TimescaleDB stack is prioritized over the architectural overhead of building custom data warehouse extensions</li></ul><p class="ch-body">A pure &#x27;buy&#x27; approach avoids the engineering overhead of building a custom data warehouse extension, cleanly meeting the strict 4-week staging deadline. By licensing a commercial API like EODHD, the startup gains immediate access to global equities across more than 60 exchanges [e70d8d], mutual fund fundamentals [388b7c], and end-of-day OHLCV data with pre-adjusted close prices [c72106]—directly solving the corporate action liability risk. With up to 100,000 API calls per day on paid tiers [52d0ba], the team can simply ingest this managed feed into their existing PostgreSQL and TimescaleDB infrastructure rather than taking on the burden of engineering new local query capabilities.<sup class="cites"><a href="#claim-e70d8d" class="cite" title="e70d8d">e70d8d</a><a href="#claim-388b7c" class="cite" title="388b7c">388b7c</a><a href="#claim-c72106" class="cite" title="c72106">c72106</a><a href="#claim-52d0ba" class="cite" title="52d0ba">52d0ba</a></sup></p></div></div>
+
+  <div class="section">
+    <h2>Open Questions</h2>
+    <ul class="oq-list"><li>Does EODHD possess explicit NSE/BSE authorization allowing its customers to redistribute corporate actions and historical OHLCV data to wealth management end-clients?</li><li>Are there specific vendor data processing agreements available with EODHD to protect client portfolio data when mapping against historical prices?</li><li>What is the exact financial and timeline cost to acquire an NSE license for creating custom financial indices out of vendor-supplied data?</li></ul>
+  </div>
+
+  <div class="section">
+    <h2>Evidence Index</h2>
+    <div class="ev-wrap">
+      <table class="ev-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Claim / Source</th>
+            <th>Status</th>
+            <th>Track</th>
+            <th>Dim</th>
+            <th>Flags</th>
+          </tr>
+        </thead>
+        <tbody><tr id="claim-24da7d"><td><code class="cid">24da7d</code></td><td class="ctd"><p class="ct">Redistributing, reselling, or sharing market data publicly is prohibited without explicit written authorization.</p><p class="cq">&ldquo;Redistribution, resale, or public sharing of data is not allowed&rdquo;</p><p class="cs"><a href="https://www.truedata.in/market-data-apis" target="_blank" rel="noopener">Market Data API | Live, SnapChat, Options Chain, Option Greeks</a></p><p class="cdate">2025-01-01</p></td><td><span class="sbadge" style="background:#22c55e22;color:#22c55e">SUPPORTED</span></td><td><span class="trk tbuild">BUILD</span></td><td class="dim">m9</td><td class="flags"></td></tr>
+<tr id="claim-2b475a"><td><code class="cid">2b475a</code></td><td class="ctd"><p class="ct">ClickHouse can scale across multiple nodes.</p><p class="cq">&ldquo;ClickHouse scales across multiple nodes&rdquo;</p><p class="cs"><a href="https://tasrieit.com/blog/clickhouse-vs-duckdb-2026" target="_blank" rel="noopener">ClickHouse vs DuckDB 2026: Analytical Database Comparison | Tasrie IT Services</a></p><p class="cdate">2026-01-27</p></td><td><span class="sbadge" style="background:#22c55e22;color:#22c55e">SUPPORTED</span></td><td><span class="trk tbuild">BUILD</span></td><td class="dim">m14</td><td class="flags"></td></tr>
+<tr id="claim-461520"><td><code class="cid">461520</code></td><td class="ctd"><p class="ct">Ingesting data within the market-data-warehouse requires a running instance of IB Gateway.</p><p class="cq">&ldquo;You need a running IB Gateway for ingestion.&rdquo;</p><p class="cs"><a href="https://github.com/joemccann/market-data-warehouse" target="_blank" rel="noopener">GitHub - joemccann/market-data-warehouse: A local-first financial data warehouse for universe-scale market data.</a></p><p class="cdate">2026-03-08</p></td><td><span class="sbadge" style="background:#22c55e22;color:#22c55e">SUPPORTED</span></td><td><span class="trk tbuild">BUILD</span></td><td class="dim">m14</td><td class="flags"></td></tr>
+<tr id="claim-49305c"><td><code class="cid">49305c</code></td><td class="ctd"><p class="ct">Indian market data is licensed rather than owned, remaining the intellectual property of the stock exchanges.</p><p class="cq">&ldquo;All market data remains the intellectual property of the exchanges&rdquo;</p><p class="cs"><a href="https://www.truedata.in/market-data-apis" target="_blank" rel="noopener">Market Data API | Live, SnapChat, Options Chain, Option Greeks</a></p><p class="cdate">2025-01-01</p></td><td><span class="sbadge" style="background:#22c55e22;color:#22c55e">SUPPORTED</span></td><td><span class="trk tbuild">BUILD</span></td><td class="dim">m9</td><td class="flags"></td></tr>
+<tr id="claim-5879dd"><td><code class="cid">5879dd</code></td><td class="ctd"><p class="ct">The StockHouse streaming market analytics app optimizes query times by using ClickHouse materialized views to pre-aggregate data at ingestion.</p><p class="cq">&ldquo;StockHouse uses materialized views to pre-aggregate data as it&#x27;s ingested.&rdquo;</p><p class="cs"><a href="https://clickhouse.com/blog/building-stockhouse" target="_blank" rel="noopener">Building StockHouse: Real-time market analytics with ClickHouse</a></p><p class="cdate">2025-11-13</p></td><td><span class="sbadge" style="background:#22c55e22;color:#22c55e">SUPPORTED</span></td><td><span class="trk tbuild">BUILD</span></td><td class="dim">m14</td><td class="flags"></td></tr>
+<tr id="claim-5d773c"><td><code class="cid">5d773c</code></td><td class="ctd"><p class="ct">DuckDB is free and open source.</p><p class="cq">&ldquo;Free and open source&rdquo;</p><p class="cs"><a href="https://tasrieit.com/blog/clickhouse-vs-duckdb-2026" target="_blank" rel="noopener">ClickHouse vs DuckDB 2026: Analytical Database Comparison | Tasrie IT Services</a></p><p class="cdate">2026-01-27</p></td><td><span class="sbadge" style="background:#22c55e22;color:#22c55e">SUPPORTED</span></td><td><span class="trk tbuild">BUILD</span></td><td class="dim">m3</td><td class="flags"></td></tr>
+<tr id="claim-5e8677"><td><code class="cid">5e8677</code></td><td class="ctd"><p class="ct">Unlike client-server architectures, DuckDB is an in-process engine with zero external dependencies.</p><p class="cq">&ldquo;Zero external dependencies&rdquo;</p><p class="cs"><a href="https://tasrieit.com/blog/clickhouse-vs-duckdb-2026" target="_blank" rel="noopener">ClickHouse vs DuckDB 2026: Analytical Database Comparison | Tasrie IT Services</a></p><p class="cdate">2026-01-27</p></td><td><span class="sbadge" style="background:#f59e0b22;color:#f59e0b">PARTIAL</span></td><td><span class="trk tbuild">BUILD</span></td><td class="dim">m14</td><td class="flags">partial_evidence</td></tr>
+<tr id="claim-6ea050"><td><code class="cid">6ea050</code></td><td class="ctd"><p class="ct">The open-source project lakeFS demonstrated broad community engagement with 178 total PR creators in February 2026.</p><p class="cq">&ldquo;lakeFS leads in total PR creators (178), reflecting a broad contributor base.&rdquo;</p><p class="cs"><a href="https://motherduck.com/blog/git-for-data-part-2/" target="_blank" rel="noopener">Git for Data Applied</a></p><p class="cdate">2026-05-12</p></td><td><span class="sbadge" style="background:#22c55e22;color:#22c55e">SUPPORTED</span></td><td><span class="trk tbuild">BUILD</span></td><td class="dim">m13</td><td class="flags"></td></tr>
+<tr id="claim-9f8c49"><td><code class="cid">9f8c49</code></td><td class="ctd"><p class="ct">Restricted data contains sensitive information and is not permitted to be shared under SEBI&#x27;s guidelines.</p><p class="cq">&ldquo;Restricted Data (Second Basket)- This includes non-public data that cannot be shared&rdquo;</p><p class="cs"><a href="https://www.metalegal.in/post/sebi-data-sharing-policy-2024" target="_blank" rel="noopener">SEBI Data Sharing Policy 2024</a></p><p class="cdate">2024-12-26</p></td><td><span class="sbadge" style="background:#f59e0b22;color:#f59e0b">PARTIAL</span></td><td><span class="trk tbuild">BUILD</span></td><td class="dim">m9</td><td class="flags">partial_evidence</td></tr>
+<tr id="claim-a18c10"><td><code class="cid">a18c10</code></td><td class="ctd"><p class="ct">ClickHouse is used within the market-data-warehouse project for production benchmarking.</p><p class="cq">&ldquo;ClickHouse for production benchmarking&rdquo;</p><p class="cs"><a href="https://github.com/joemccann/market-data-warehouse/blob/main/CLAUDE.md" target="_blank" rel="noopener">market-data-warehouse/CLAUDE.md at main · joemccann/market-data-warehouse</a></p><p class="cdate">2010-01-04</p></td><td><span class="sbadge" style="background:#22c55e22;color:#22c55e">SUPPORTED</span></td><td><span class="trk tbuild">BUILD</span></td><td class="dim">m14</td><td class="flags"></td></tr>
+<tr id="claim-a43f09"><td><code class="cid">a43f09</code></td><td class="ctd"><p class="ct">DuckLake achieved general availability in April 2026.</p><p class="cq">&ldquo;DuckLake reached GA in April 2026&rdquo;</p><p class="cs"><a href="https://motherduck.com/blog/git-for-data-part-2/" target="_blank" rel="noopener">Git for Data Applied</a></p><p class="cdate">2026-05-12</p></td><td><span class="sbadge" style="background:#22c55e22;color:#22c55e">SUPPORTED</span></td><td><span class="trk tbuild">BUILD</span></td><td class="dim">m13</td><td class="flags"></td></tr>
+<tr id="claim-ac073a"><td><code class="cid">ac073a</code></td><td class="ctd"><p class="ct">The open-source database Dolt achieves a median PR merge time of roughly 30 minutes.</p><p class="cq">&ldquo;Dolt stands out with the fastest PR merge times (~30 min median).&rdquo;</p><p class="cs"><a href="https://motherduck.com/blog/git-for-data-part-2/" target="_blank" rel="noopener">Git for Data Applied</a></p><p class="cdate">2026-05-12</p></td><td><span class="sbadge" style="background:#f59e0b22;color:#f59e0b">PARTIAL</span></td><td><span class="trk tbuild">BUILD</span></td><td class="dim">m13</td><td class="flags">partial_evidence</td></tr>
+<tr id="claim-c838ba"><td><code class="cid">c838ba</code></td><td class="ctd"><p class="ct">ClickHouse is designed as a distributed columnar database for real-time analytics.</p><p class="cq">&ldquo;ClickHouse is a distributed columnar database&rdquo;</p><p class="cs"><a href="https://tasrieit.com/blog/clickhouse-vs-duckdb-2026" target="_blank" rel="noopener">ClickHouse vs DuckDB 2026: Analytical Database Comparison | Tasrie IT Services</a></p><p class="cdate">2026-01-27</p></td><td><span class="sbadge" style="background:#22c55e22;color:#22c55e">SUPPORTED</span></td><td><span class="trk tbuild">BUILD</span></td><td class="dim">m14</td><td class="flags"></td></tr>
+<tr id="claim-d282cb"><td><code class="cid">d282cb</code></td><td class="ctd"><p class="ct">In the market-data-warehouse architecture, Parquet serves as the system of record rather than DuckDB.</p><p class="cq">&ldquo;Parquet is the system of record, not DuckDB&rdquo;</p><p class="cs"><a href="https://github.com/joemccann/market-data-warehouse/blob/main/CLAUDE.md" target="_blank" rel="noopener">market-data-warehouse/CLAUDE.md at main · joemccann/market-data-warehouse</a></p><p class="cdate">2010-01-04</p></td><td><span class="sbadge" style="background:#22c55e22;color:#22c55e">SUPPORTED</span></td><td><span class="trk tbuild">BUILD</span></td><td class="dim">m8</td><td class="flags"></td></tr>
+<tr id="claim-e58a3e"><td><code class="cid">e58a3e</code></td><td class="ctd"><p class="ct">Running the IB Gateway on a Hetzner CPX11 VPS costs approximately $4 to $6 per month.</p><p class="cq">&ldquo;IB Gateway runs on a Hetzner CPX11 VPS (~$4-6/mo)&rdquo;</p><p class="cs"><a href="https://github.com/joemccann/market-data-warehouse/blob/main/CLAUDE.md" target="_blank" rel="noopener">market-data-warehouse/CLAUDE.md at main · joemccann/market-data-warehouse</a></p><p class="cdate">2010-01-04</p></td><td><span class="sbadge" style="background:#22c55e22;color:#22c55e">SUPPORTED</span></td><td><span class="trk tbuild">BUILD</span></td><td class="dim">m3</td><td class="flags">stale_cost, price_conflict</td></tr>
+<tr id="claim-ef96f5"><td><code class="cid">ef96f5</code></td><td class="ctd"><p class="ct">Investment advisors in India are governed under the SEBI (Investment Advisers) Regulations, 2013.</p><p class="cq">&ldquo;Securities and Exchange Board of India (Investment Advisers) Regulations, 2013&rdquo;</p><p class="cs"><a href="https://www.sebi.gov.in/sebiweb/home/HomeAction.do?doListing=yes&amp;sid=1&amp;ssid=3&amp;smid=0" target="_blank" rel="noopener">SEBI | Regulations</a></p><p class="cdate">2024-11-28</p></td><td><span class="sbadge" style="background:#22c55e22;color:#22c55e">SUPPORTED</span></td><td><span class="trk tbuild">BUILD</span></td><td class="dim">m9</td><td class="flags"></td></tr>
+<tr id="claim-ffd90a"><td><code class="cid">ffd90a</code></td><td class="ctd"><p class="ct">The market-data-warehouse system uses DuckDB as its local query engine for research and backtesting.</p><p class="cq">&ldquo;DuckDB is the local query engine for research and backtesting&rdquo;</p><p class="cs"><a href="https://github.com/joemccann/market-data-warehouse/blob/main/CLAUDE.md" target="_blank" rel="noopener">market-data-warehouse/CLAUDE.md at main · joemccann/market-data-warehouse</a></p><p class="cdate">2010-01-04</p></td><td><span class="sbadge" style="background:#22c55e22;color:#22c55e">SUPPORTED</span></td><td><span class="trk tbuild">BUILD</span></td><td class="dim">m14</td><td class="flags"></td></tr>
+<tr id="claim-0b3263"><td><code class="cid">0b3263</code></td><td class="ctd"><p class="ct">Alpha Vantage operates as an officially licensed US market data provider for NASDAQ.</p><p class="cq">&ldquo;NASDAQ celebrates Alpha Vantage as its officially licensed US market data provider&rdquo;</p><p class="cs"><a href="https://www.alphavantage.co/" target="_blank" rel="noopener">Free Stock APIs in JSON &amp; Excel</a></p><p class="cdate">2026-01-01</p></td><td><span class="sbadge" style="background:#22c55e22;color:#22c55e">SUPPORTED</span></td><td><span class="trk tbuy">BUY</span></td><td class="dim">m13</td><td class="flags"></td></tr>
+<tr id="claim-0ea9ac"><td><code class="cid">0ea9ac</code></td><td class="ctd"><p class="ct">Alpha Vantage&#x27;s free subscription tier limits users to 500 API calls per day.</p><p class="cq">&ldquo;Alpha Vantage caps you at 500 API calls per day on the free tier.&rdquo;</p><p class="cs"><a href="https://fcsapi.com/blog/alpha-vantage-vs-fcs-api-best-free-forex-crypto-stock-market-data-api-2026" target="_blank" rel="noopener">Alpha Vantage vs FCS API — Best Free Forex Crypto Stock Market Data API 2026 - FCSAPI</a></p><p class="cdate">2026-03-28</p></td><td><span class="sbadge" style="background:#22c55e22;color:#22c55e">SUPPORTED</span></td><td><span class="trk tbuy">BUY</span></td><td class="dim">m5</td><td class="flags"></td></tr>
+<tr id="claim-2f5382"><td><code class="cid">2f5382</code></td><td class="ctd"><p class="ct">Trading members and subscribers of the NSE are prohibited from redistributing market data unless permitted by a formal agreement.</p><p class="cq">&ldquo;Trading Members and Subscribers shall not be permitted to redistribute any Market Data&rdquo;</p><p class="cs"><a href="https://www.nseindia.com/static/market-data/nse-data-policy" target="_blank" rel="noopener">NSE Data Sharing &amp; Usage Policy</a></p><p class="cdate">2025-12-11</p></td><td><span class="sbadge" style="background:#22c55e22;color:#22c55e">SUPPORTED</span></td><td><span class="trk tbuy">BUY</span></td><td class="dim">m9</td><td class="flags"></td></tr>
+<tr id="claim-388b7c"><td><code class="cid">388b7c</code></td><td class="ctd"><p class="ct">EODHD offers a fund fundamentals endpoint that retrieves details for mutual funds.</p><p class="cq">&ldquo;Retrieves comprehensive fundamental data for mutual funds via EODHD API.&rdquo;</p><p class="cs"><a href="https://definable.ai/apps/eodhd_apis/" target="_blank" rel="noopener">EODHD APIs for AI agents — 11 tools, one platform | Definable</a></p><p class="cdate">2026-01-01</p></td><td><span class="sbadge" style="background:#22c55e22;color:#22c55e">SUPPORTED</span></td><td><span class="trk tbuy">BUY</span></td><td class="dim">m10</td><td class="flags"></td></tr>
+<tr id="claim-52d0ba"><td><code class="cid">52d0ba</code></td><td class="ctd"><p class="ct">The paid subscription plans for EODHD provide a rate limit of 100,000 calls per day.</p><p class="cq">&ldquo;100,000 calls/day&rdquo;</p><p class="cs"><a href="https://ml4trading.io/docs/data/providers/eodhd/" target="_blank" rel="noopener">EODHD Provider¶</a></p><p class="cdate">2024-01-01</p></td><td><span class="sbadge" style="background:#22c55e22;color:#22c55e">SUPPORTED</span></td><td><span class="trk tbuy">BUY</span></td><td class="dim">m5</td><td class="flags">stale_cost</td></tr>
+<tr id="claim-797767"><td><code class="cid">797767</code></td><td class="ctd"><p class="ct">Alpha Vantage&#x27;s scaled paid pricing tiers range from $49.99 per month to $249.99 per month.</p><p class="cq">&ldquo;Pricing ranges from $49.99/mo to $249.99/mo&rdquo;</p><p class="cs"><a href="https://www.abstractapi.com/guides/other/best-stock-apis" target="_blank" rel="noopener">Best Stock Market Data APIs of 2026 | Abstract API</a></p><p class="cdate">2026-03-30</p></td><td><span class="sbadge" style="background:#22c55e22;color:#22c55e">SUPPORTED</span></td><td><span class="trk tbuy">BUY</span></td><td class="dim">m5</td><td class="flags">price_conflict</td></tr>
+<tr id="claim-7b83f1"><td><code class="cid">7b83f1</code></td><td class="ctd"><p class="ct">NSE market data cannot be used to build custom or composite financial indices without obtaining a separate license.</p><p class="cq">&ldquo;use Market Data, in whole or in part to create any financial index&rdquo;</p><p class="cs"><a href="https://www.nseindia.com/static/market-data/nse-data-policy" target="_blank" rel="noopener">NSE Data Sharing &amp; Usage Policy</a></p><p class="cdate">2025-12-11</p></td><td><span class="sbadge" style="background:#22c55e22;color:#22c55e">SUPPORTED</span></td><td><span class="trk tbuy">BUY</span></td><td class="dim">m9</td><td class="flags"></td></tr>
+<tr id="claim-904a1c"><td><code class="cid">904a1c</code></td><td class="ctd"><p class="ct">SEBI rules prohibit market participants from sharing real-time price data with third parties unless specified conditions are met.</p><p class="cq">&ldquo;prohibiting stock market participants from sharing real-time price data with third parties&rdquo;</p><p class="cs"><a href="https://www.truedata.in/blog/sebi-norms-on-sharing-real-time-price-data" target="_blank" rel="noopener">New SEBI Rules on Sharing Real-time Stock Market Data</a></p><p class="cdate">2024-07-16</p></td><td><span class="sbadge" style="background:#22c55e22;color:#22c55e">SUPPORTED</span></td><td><span class="trk tbuy">BUY</span></td><td class="dim">m9</td><td class="flags"></td></tr>
+<tr id="claim-9aa35d"><td><code class="cid">9aa35d</code></td><td class="ctd"><p class="ct">Market intermediaries sharing real-time price data with third parties must execute formal agreements outlining the data&#x27;s intended use.</p><p class="cq">&ldquo;they must do so by entering into formal agreements with those entities.&rdquo;</p><p class="cs"><a href="https://www.truedata.in/blog/sebi-norms-on-sharing-real-time-price-data" target="_blank" rel="noopener">New SEBI Rules on Sharing Real-time Stock Market Data</a></p><p class="cdate">2024-07-16</p></td><td><span class="sbadge" style="background:#22c55e22;color:#22c55e">SUPPORTED</span></td><td><span class="trk tbuy">BUY</span></td><td class="dim">m9</td><td class="flags"></td></tr>
+<tr id="claim-c72106"><td><code class="cid">c72106</code></td><td class="ctd"><p class="ct">EODHD provides end-of-day OHLCV data alongside adjusted close prices.</p><p class="cq">&ldquo;Returns OHLCV (Open, High, Low, Close, Volume) data plus adjusted close prices&rdquo;</p><p class="cs"><a href="https://definable.ai/apps/eodhd_apis/" target="_blank" rel="noopener">EODHD APIs for AI agents — 11 tools, one platform | Definable</a></p><p class="cdate">2026-01-01</p></td><td><span class="sbadge" style="background:#22c55e22;color:#22c55e">SUPPORTED</span></td><td><span class="trk tbuy">BUY</span></td><td class="dim">m10</td><td class="flags"></td></tr>
+<tr id="claim-e70d8d"><td><code class="cid">e70d8d</code></td><td class="ctd"><p class="ct">EODHD provides market data covering global equities across more than 60 exchanges.</p><p class="cq">&ldquo;provides affordable access to global equities across 60+ exchanges&rdquo;</p><p class="cs"><a href="https://ml4trading.io/docs/data/providers/eodhd/" target="_blank" rel="noopener">EODHD Provider¶</a></p><p class="cdate">2024-01-01</p></td><td><span class="sbadge" style="background:#22c55e22;color:#22c55e">SUPPORTED</span></td><td><span class="trk tbuy">BUY</span></td><td class="dim">m10</td><td class="flags"></td></tr>
+<tr id="claim-f834a5"><td><code class="cid">f834a5</code></td><td class="ctd"><p class="ct">EODHD offers its global EOD All World subscription tier for $19.99 per month.</p><p class="cq">&ldquo;EOD All World | $19.99/mo&rdquo;</p><p class="cs"><a href="https://ml4trading.io/docs/data/providers/eodhd/" target="_blank" rel="noopener">EODHD Provider¶</a></p><p class="cdate">2024-01-01</p></td><td><span class="sbadge" style="background:#f59e0b22;color:#f59e0b">PARTIAL</span></td><td><span class="trk tbuy">BUY</span></td><td class="dim">m5</td><td class="flags">partial_evidence, stale_cost</td></tr>
+</tbody>
+      </table>
+    </div>
+  </div>
+
+</main>
+<footer>
+  Run&nbsp;<code>20260615-021109-7a9aae</code> &bull; Generated&nbsp;2026-06-15
+</footer>
+<script>function showTab(path) {
+  document.querySelectorAll('.tab-panel').forEach(function(p) {
+    p.style.display = 'none';
+  });
+  document.querySelectorAll('.tab-btn').forEach(function(b) {
+    b.classList.remove('active');
+  });
+  var panel = document.getElementById('tab-' + path);
+  if (panel) panel.style.display = 'block';
+  var btn = document.querySelector('[data-path="' + path + '"]');
+  if (btn) btn.classList.add('active');
+}
+
+function toggleTheme() {
+  var root = document.documentElement;
+  var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  root.setAttribute('data-theme', next);
+  var btn = document.getElementById('theme-btn');
+  if (btn) btn.textContent = next === 'dark' ? '☀ Light' : '☾ Dark';
+  try { localStorage.setItem('vvv-theme', next); } catch(e) {}
+}
+
+(function() {
+  try {
+    var saved = localStorage.getItem('vvv-theme');
+    if (saved && saved !== 'dark') {
+      document.documentElement.setAttribute('data-theme', saved);
+      var btn = document.getElementById('theme-btn');
+      if (btn) btn.textContent = saved === 'dark' ? '☀ Light' : '☾ Dark';
+    }
+  } catch(e) {}
+})();
+</script>
+</body>
+</html>

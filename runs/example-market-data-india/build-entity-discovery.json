@@ -1,0 +1,27 @@
+{
+  "selected": [
+    {
+      "name": "DuckDB",
+      "rationale": "An embedded analytical database used in the market data warehouse architecture for local, high-performance querying of Parquet-based financial data lakes. Highly suitable for local quant research and rapid backtesting of historical OHLCV data.",
+      "commercial_twin": "MotherDuck"
+    },
+    {
+      "name": "ClickHouse",
+      "rationale": "An open-source, column-oriented OLAP database used for large-scale financial data aggregation and concurrent queries, serving as the high-concurrency production warehouse layer for massive tick-level data.",
+      "commercial_twin": "ClickHouse Cloud"
+    },
+    {
+      "name": "market-data-warehouse",
+      "rationale": "A local-first, multi-asset financial data warehouse blueprint that utilizes Parquet, DuckDB, and ClickHouse to build structured data pipelines (Raw, Bronze, Silver, Gold), ideal for structuring a custom Indian market data lake.",
+      "commercial_twin": null
+    }
+  ],
+  "excluded": [
+    "Interactive Brokers Gateway",
+    "IBC",
+    "Tailscale"
+  ],
+  "source_urls": [
+    "https://github.com/joemccann/market-data-warehouse"
+  ]
+}

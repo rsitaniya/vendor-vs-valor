@@ -1,0 +1,56 @@
+{
+  "run_id": "20260615-021109-7a9aae",
+  "created_at": "2026-06-14T20:41:09.502828+00:00",
+  "model_id": "gemini-3.1-pro-preview",
+  "engine_version": null,
+  "stages": {
+    "profile": {
+      "status": "done",
+      "recorded_hash": "183e8a30ce0f70513a32852911001d535425074b9dad58a9e2fd9356fc42f091",
+      "artifacts": [
+        "profile.json",
+        "profile.md"
+      ],
+      "updated_at": "2026-06-14T20:41:20.964055+00:00"
+    },
+    "build-research": {
+      "status": "done",
+      "recorded_hash": "0656b5c953700375185416eb396f92f6a8c50e290475b896450367d0a470c897",
+      "artifacts": [
+        "build-research.json",
+        "build-research.md",
+        "build-verify-report.json",
+        "build-entity-discovery.json"
+      ],
+      "updated_at": "2026-06-14T20:44:51.166920+00:00"
+    },
+    "buy-research": {
+      "status": "done",
+      "recorded_hash": "e8b430b7f65e5b202ce54bf59b3508711ced5f355a506759d90252e745784afb",
+      "artifacts": [
+        "buy-research.json",
+        "buy-research.md",
+        "buy-verify-report.json",
+        "buy-entity-discovery.json"
+      ],
+      "updated_at": "2026-06-14T20:44:56.313783+00:00"
+    },
+    "research": {
+      "status": "done",
+      "recorded_hash": null,
+      "artifacts": [
+        "verify-report.json"
+      ],
+      "updated_at": "2026-06-14T20:44:56.320813+00:00"
+    },
+    "strategy": {
+      "status": "done",
+      "recorded_hash": "55e1d960cc67b05d47e346c6dfba60be195aa9c3c7119d7b1a4fef04525a8d7c",
+      "artifacts": [
+        "strategy.md",
+        "strategy.json"
+      ],
+      "updated_at": "2026-06-14T20:46:39.197081+00:00"
+    }
+  }
+}

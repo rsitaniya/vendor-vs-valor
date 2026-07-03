@@ -1,0 +1,46 @@
+{
+  "run_id": "20260615-021109-7a9aae",
+  "need": {
+    "capability": "A market data infrastructure layer providing clean historical OHLCV data, accurate machine-readable corporate actions, index compositions, real-time/delayed feeds, and mutual fund NAVs.",
+    "business_context": "A Series A fintech startup building an institutional-grade portfolio analytics and compliance platform for Indian wealth managers (boutiques, family offices, and RIAs).",
+    "problem": "Unadjusted or inaccurate corporate action historical data leads to incorrect IRR and P&L calculations, creating legal liability risks. Additionally, obtaining legally compliant, authorized exchange feeds to avoid unauthorized scraping is difficult and costly."
+  },
+  "intent": {
+    "core_value_proximity": "enabling",
+    "rationale": "The market data feed serves as the critical underlying plumbing and raw material that enables the startup's core portfolio analytics and compliance calculations."
+  },
+  "resources": {
+    "eng_headcount": 5,
+    "relevant_skills": [
+      "Python",
+      "distributed systems",
+      "SQL",
+      "Kafka",
+      "Airflow",
+      "TimescaleDB"
+    ],
+    "budget_note": "Can spend ₹3–5 lakh per month (~$3,600–6,000/month) at launch, scaling to ₹8–10 lakh/month (~$9,600–12,000/month). Bloomberg is out of scope.",
+    "runway_note": "Series A funded with ~$3.2M raised and 22 months of runway."
+  },
+  "constraints": {
+    "compliance": [
+      "SEBI Research Analyst and Investment Advisor regulations",
+      "Exchange authorization for market data redistribution (NSE/BSE)"
+    ],
+    "data_sensitivity": "Price data is not sensitive, but client portfolio data mapped to prices is. Need to know if vendors train models on ingested data or have strict data processing agreements.",
+    "existing_stack": [
+      "Python",
+      "FastAPI",
+      "AWS EKS (Kubernetes)",
+      "PostgreSQL",
+      "TimescaleDB",
+      "AWS S3",
+      "Kafka (MSK)",
+      "AWS (ap-south-1 Mumbai region)",
+      "Airflow"
+    ],
+    "timeline_hard_stop": "4 weeks to have historical OHLCV and corporate actions working in staging before wealth manager onboarding begins in week 6."
+  },
+  "customization_need": "medium",
+  "soft_steer": "Data quality, accuracy, regulatory licensing, and avoiding proprietary vendor lock-in with portable APIs matter most, even if it requires a premium over cut-rate, unlicenced feeds."
+}

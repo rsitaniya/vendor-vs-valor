@@ -1,0 +1,26 @@
+Alpha Vantage API provides access to real-time and historical financial market data, including stock prices, technical indicators, and more.
+Overview
+Get API Key
+Generate your Alpha Vantage API key
+Copy into Anything
+Add your API key to Anything’s secrets
+Generate API Key
+Access API Keys
+- Go to alphavantage.co/support/#api-key
+- Fill out the application to get your free API Key
+The free tier has usage limits. Keep an eye on how many requests you’re making.
+Add to Anything project
+Add the integration
+- In your Anything project, type /in the chat
+- Select “Alpha Vantage” from the menu
+Add your API key
+- Paste your API key into the “ALPHA_VANTAGE_API_KEY” field
+Need a new key? Generate one in your Alpha Vantage dashboard.
+Start using
+You can now use prompts with the integration to access financial data.Example prompts:
+- Get stock prices for AAPL using /AlphaVantage
+- Retrieve historical data for MSFT using /AlphaVantage
+- Build a stock analysis tool using /AlphaVantage
+The API has rate limits. Avoid making too many requests in a short time.
+When using /AlphaVantage, save the stock data so it loads faster next time
+ Your Alpha Vantage integration is ready! Use /AlphaVantage in chat to access financial data.

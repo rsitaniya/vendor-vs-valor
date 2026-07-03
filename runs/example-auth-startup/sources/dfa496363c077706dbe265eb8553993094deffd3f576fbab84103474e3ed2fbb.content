@@ -1,0 +1,16 @@
+Keycloak vs Auth0
+Learn how Keycloak and Auth0 differ in their key features like authentication, enterprise auth, security, user management and compliance, so you can decide which of these authentication providers is best for you.
+Keycloak
+Feature Comparison
+Auth0 has significantly broader feature support than Keycloak, with 42 supported features versus 30. Auth0 fully covers enterprise authentication and security and more, and both tools fully cover authentication and machine to machine (m2m) authentication and more.
+Session idle and max lifespans and offline sessions can be adjusted to keep sessions alive for longer periods
+Up to 100 days for inactivity timeout and 365 days for forced logout
+Admins can view and revoke user and client sessions, sign out all sessions, and configure session lifespans in the admin console
+The UI is internationalized. Administrators can enable multiple languages and users can choose their language at login or in the account/admin consoles
+| Keycloak | Auth0 | |
+|---|---|---|
+| Session idle and max lifespans and offline sessions can be adjusted to keep sessions alive for longer periods | Up to 100 days for inactivity timeout and 365 days for forced logout | |
+| Admins can view and revoke user and client sessions, sign out all sessions, and configure session lifespans in the admin console | ||
+| The UI is internationalized. Administrators can enable multiple languages and users can choose their language at login or in the account/admin consoles | 
+Compliance Comparison
+Auth0 offers significantly broader coverage than Keycloak, supporting 10 certifications and regulatory frameworks compared to 0 for Keycloak. Since Keycloak is open source and does not include compliance certifications, you’ll need to manage compliance yourself.

@@ -1,0 +1,107 @@
+Docker Compose in 20 Minutes: Your First Self-Hosted Stack
+A step-by-step walkthrough of setting up Docker Compose and running your first self-hosted services. No prior Docker experience required.
+Docker Compose is how most self-hosted services are deployed on home servers. Instead of typing long docker run commands every time, you write a simple YAML file describing your services, and Docker handles the rest.
+This guide walks through installing Docker, understanding the basics of Compose, and running your first stack. By the end, you’ll have a working Vaultwarden ↗ (self-hosted password manager) instance running, and you’ll understand the pattern well enough to add other services.
+Prerequisites
+- A Linux server (Ubuntu 22.04 or Debian 12 recommended). This can be a mini PC ↗, a Raspberry Pi, a cloud VPS, or anything else.
+- SSH access or a keyboard and monitor attached.
+- Basic comfort with a terminal.
+These instructions assume Ubuntu. Adjust package manager commands for other distros.
+Step 1: Install Docker
+Docker provides an official install script that handles everything:
+curl -fsSL https://get.docker.com | shAfter it finishes, add your user to the docker group so you don’t need sudo for every command:
+sudo usermod -aG docker $USERLog out and back in for the group change to take effect, then verify the install:
+docker run hello-worldYou should see a success message. Docker is working.
+Docker Compose is included with modern Docker installs as docker compose (with a space). You can verify with:
+docker compose versionStep 2: Understand the Basic Compose File Structure
+A Docker Compose file (docker-compose.yml) describes one or more services. Here’s the minimal structure:
+services:
+  service-name:
+    image: image-name:tag
+    container_name: my-container
+    ports:
+      - "host-port:container-port"
+    volumes:
+      - ./local-path:/container-path
+    environment:
+      - VARIABLE=value
+    restart: unless-stoppedKey concepts:
+image — The Docker image to use. Pulled from Docker Hub by default.
+ports — Maps a port on your host machine to a port inside the container. "8080:80" means your host port 8080 reaches container port 80.
+volumes — Mounts a directory from your host into the container. This is how data persists when the container restarts. The data lives on your host at ./local-path.
+environment — Environment variables passed into the container. Used for configuration (database passwords, secret keys, etc.).
+restart: unless-stopped — Tells Docker to restart the container automatically if it crashes or if the host reboots, unless you explicitly stop it.
+Step 3: Create Your First Stack
+We’ll set up Vaultwarden, a self-hosted Bitwarden-compatible password manager. It’s a good first service because it’s widely used, has one container, and demonstrates the pattern clearly.
+Create a directory for your services:
+mkdir -p ~/services/vaultwarden
+cd ~/services/vaultwardenCreate the Compose file:
+nano docker-compose.ymlPaste this content:
+services:
+  vaultwarden:
+    image: vaultwarden/server:latest
+    container_name: vaultwarden
+    volumes:
+      - ./data:/data
+    ports:
+      - "8080:80"
+    environment:
+      - WEBSOCKET_ENABLED=true
+      - SIGNUPS_ALLOWED=true
+    restart: unless-stoppedSave and exit (Ctrl+X, Y, Enter in nano).
+Step 4: Start the Stack
+From the directory containing your docker-compose.yml:
+docker compose up -dThe -d flag runs the containers in the background (detached mode). Docker will pull the Vaultwarden image and start the container.
+Check that it’s running:
+docker compose psYou should see the vaultwarden container with a status of “Up”.
+Step 5: Access the Service
+Open a browser and navigate to http://your-server-ip:8080. You should see the Vaultwarden web vault.
+Create an account. This is your personal instance — you’re the only one on it, so the initial account you create has full access.
+Step 6: Common Operations
+View logs:
+docker compose logs -fThe -f flag follows the log output in real time. Useful for troubleshooting.
+Stop the stack:
+docker compose downThis stops and removes the containers. Your data is preserved in the ./data volume.
+Start again:
+docker compose up -dUpdate to a newer image:
+docker compose pull
+docker compose up -dThis pulls the latest image and restarts the container.
+Step 7: Adding More Services
+The power of Compose is running multiple services in the same file. Here’s a Compose file that adds Pi-hole alongside Vaultwarden:
+services:
+  vaultwarden:
+    image: vaultwarden/server:latest
+    container_name: vaultwarden
+    volumes:
+      - ./vaultwarden-data:/data
+    ports:
+      - "8080:80"
+    environment:
+      - WEBSOCKET_ENABLED=true
+    restart: unless-stopped
+  pihole:
+    image: pihole/pihole:latest
+    container_name: pihole
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "8081:80"
+    environment:
+      - WEBPASSWORD=changethis
+    volumes:
+      - ./pihole-etc:/etc/pihole
+      - ./pihole-dnsmasq:/etc/dnsmasq.d
+    restart: unless-stoppedNote that we’ve put each service’s data in its own subdirectory (./vaultwarden-data, ./pihole-etc, etc.) to keep things organized.
+What’s Next
+Once you’re comfortable with this pattern, the next steps are:
+HTTPS/TLS — Vaultwarden requires HTTPS for the browser extension to work. A reverse proxy like Caddy or Nginx Proxy Manager handles this, and both run in Docker. This is worth setting up before relying on Vaultwarden for your actual passwords.
+Automated backups — Your data directories need to be backed up. A simple cron job that copies ~/services to an external drive or cloud storage is enough for most cases.
+More services — The same pattern applies to Nextcloud, Jellyfin, Home Assistant, and everything else in the homelab ecosystem. Find the Docker image, find or write a Compose file, run it.
+The Compose file is a configuration file you can version control, share, and restore from. That’s the real advantage over running containers manually.
+Related
+Best Docker Containers for Your Home Server in 2026
+A practical homelab operator's guide to the best docker containers for home server use — Jellyfin, Vaultwarden, Nextcloud, Tailscale, and a dozen more with real resource notes and compose tips.
+Portainer: The Best GUI for Managing Docker on Your Homelab
+Install and configure Portainer CE to manage Docker containers, images, networks, and volumes through a browser-based dashboard — no command line required.
+Docker Compose Networking: Bridge, Host, and Custom Networks
+Understand Docker Compose networking — how containers find each other, how to isolate services, and how to expose only what needs exposing.

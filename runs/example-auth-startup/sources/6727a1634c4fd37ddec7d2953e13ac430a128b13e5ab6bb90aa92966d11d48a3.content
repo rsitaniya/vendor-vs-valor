@@ -1,0 +1,18 @@
+Pricing
+Descope pricing context
+Human-reviewed pricing summary paired with DevTune’s public AI search visibility benchmark.
+Reviewed pricing summary
+- Descope offers four published tiers.
+- Free Forever ($0): 7,500 MAUs, 10 tenants, 3 SSO connections, 1 federated OIDC app, all auth methods, RBAC, adaptive MFA, connectors, and community support with a 99% SLA—no Descope watermark.
+- Pro (starts at $249/mo, billed annually): 10,000 MAUs, 35 tenants, 5 SSO connections; adds custom domain, Google One Tap, CI/CD integration, localization, self-service SSO setup, compliance reports, and a 99.99% SLA.
+- Growth (starts at $799/mo, billed annually): 25,000 MAUs, 100 tenants, 10 SSO connections; adds bot protection, 1M anonymous users, SCIM provisioning, fine-grained authorization (FGA), zero-downtime SSO migration, external audit connectors, and multi-region/FedRAMP High deployments.
+- Enterprise: custom pricing with tiered discounts, unlimited test/anonymous users, dedicated CS engineer, and premium support.
+- Usage-based overages apply on paid plans ($0.05/MAU, $1/tenant, $50/SSO connection).
+- A Hello World Startup Plan offers one year of Pro tier at no charge for qualifying early-stage startups.
+Benchmark context
+#8
+of 13 in Agent Authentication & Identity for AI
+6.4%
+AI search visibility
+Sources and verification
+Pricing changes often. Treat this page as evaluation context and verify contract terms, usage limits, and add-ons against the vendor’s current materials before making a buying decision.

@@ -1,0 +1,157 @@
+In India’s fast-moving financial markets, every tick counts — and so does regulatory compliance.
+ When you build trading systems, fintech platforms, or analytics tools, your data source must be both fast and exchange-authorised.
+That’s where TrueData stands apart.
+As an Authorised Data Vendor for NSE, BSE, and MCX, TrueData delivers real-time and charting-compatible market data APIs, along with corporate data feeds — all in strict accordance with exchange guidelines.
+Whether you’re an algo trader, fintech developer, or institutional analyst, TrueData APIs give you authorised, accurate, and ultra-low-latency data designed for professional use.
+The TrueData Market Data API provides direct, authorised access to real-time streaming and charting-ready market data from NSE, BSE, and MCX.
+It delivers:
+Live tick-by-tick data with ultra-low latency
+Streaming feeds for OHLC, bid/ask, volume, and open interest
+Market Depth (where available)
+Options Chain with Greeks (Delta, Theta, Vega, Gamma, etc.)
+Corporate Data APIs offering real-time insights on company disclosures
+All data is delivered via secure, scalable APIs, purpose-built for traders, fintech firms, and institutions who require speed, accuracy, and compliance.
+All market data remains the intellectual property of the exchanges (NSE, BSE, MCX).
+ Data is licensed, not owned. Users must follow exchange and SEBI-approved data policies at all times.
+Data is licensed for individual or institutional internal use only.
+You may analyse or visualise the data within your own systems or products.
+Redistribution, resale, or public sharing of data is not allowed without prior written permission.
+If you plan to:
+Display data on a website or app for public or client access
+Integrate live feeds into a commercial platform
+You must first obtain written approval from the exchanges and TrueData.
+ Redistribution requires separate licensing and exchange documentation.
+Only exchange-approved intervals can be offered:
+ Tick, 1-Minute, 2-Minute, 5-Minute, 15-Minute (Delayed), and End-of-Day (EOD).
+ Any changes to these intervals must be pre-approved by the exchange.
+TrueData maintains detailed logs to monitor usage and prevent misuse.
+ Any unauthorised use, redistribution, or non-compliance may result in immediate suspension or termination of access.
+List of Prohibited or Non-Permitted Activities
+(As per SEBI and Stock Exchange Compliance Requirements)
+As per the compliance requirements of the stock exchanges and the market regulator SEBI, the following activities are strictly prohibited and must not be included, promoted, or facilitated in any application or platform:
+1. Gamification and Trading-Based Competitions
+Any form of gamification, contest, league, or sport-based activity that involves trading or investment behavior, whether for educational, entertainment, or marketing purposes.
+Activities that simulate trading decisions or reward users based on market movements or trading outcomes.
+2. Virtual and Simulated Trading
+Virtual trading, paper trading, trading simulators, mock trading environments, virtual money setups, or model portfolios that replicate trading behavior.
+Such features are not allowed, including for use by educational institutions or training platforms.
+3. Promotion of Speculative or Manipulative Trading
+Any content, tool, or activity that promotes or enables speculative trading practices, or could lead to market manipulation, including pump and dump schemes.
+Promotion or advertisement of trading activities, profit probabilities, or potential returns to attract users.
+Displaying or sharing client profit percentages, earnings, or trading success stories—directly or indirectly.
+Providing a direct trading option without proper broker integration, or advertising backtested results or profit claims.
+4. Unregistered Advisory or Investment Services
+Offering advisory, investment, or educational services without a valid SEBI registration/license, such as RA, RIA, IA, or other approved certifications.
+Platforms must clearly display their SEBI registration number and comply with related regulatory requirements, including:
+Complaint tracking and resolution mechanisms
+A direct and visible link to the SEBI SCORES platform
+5. Use of Real-Time Market Data for Educational Purposes
+Displaying or using real-time market feeds in applications or platforms providing trading education is strictly prohibited under SEBI guidelines.
+Such platforms may only display delayed data (minimum one-day delay) after obtaining the necessary approval or license from the respective stock exchanges.
+In case of access termination due to non-compliance or misuse, no refund will be issued.
+ Exchange fees, if applicable, are separate from TrueData subscription costs.
+Deliver live, exchange-authorised tick or minute-level data with OHLC, LTP, bid/ask quotes, and open interest.
+Ideal for:
+ Algo systems, fintech dashboards, and analytics tools requiring high-speed data.
+Shows top 5 bid and ask levels, quantities, and traded volumes — providing full transparency of order-book activity.
+Ideal for:
+ Liquidity analysis and advanced order-flow analytics.
+Delivers the complete live options chain with strike prices, expiries, IV, and Greeks.
+Ideal for:
+ Options analytics, risk models, and derivatives research.
+Provide clean, exchange-authorised datasets compatible with charting and analytical displays.
+Ideal for:
+ Market analysis tools, dashboards, and fintech applications.
+Push-based real-time streams for continuous tick data delivery with ultra-low latency.
+Ideal for:
+ Algorithmic systems and real-time visualisations.
+Fetches and updates reference data such as instrument lists, expiry dates, and contract specifications.
+Ideal for:
+ Developers managing large symbol universes.
+Provides a wide range of real-time company-level information:
+Real-time corporate announcements (mergers, board meetings, etc.)
+AI-powered analysis of market-moving disclosures
+Financial results and ratio insights
+Shareholding patterns and ownership structure
+Corporate actions (dividends, splits, rights, mergers)
+News feeds linked to company events
+Coming soon: fundamental & technical screeners
+Ideal for:
+ Fintech apps, institutional data systems, and market analysis tools that require integrated fundamental and corporate data.
+Provide authorised daily OHLC and volume summaries.
+Ideal for:
+ Trend analysis, daily reporting, and portfolio dashboards.
+TrueData provides a single authorised source for comprehensive, low-latency market and corporate data.
+Exchange-Approved Feeds: Direct from NSE, BSE & MCX
+Ultra-Low Latency: Built for performance-critical environments
+Comprehensive Coverage: Equities, derivatives, commodities, and corporate events
+Secure & Monitored: Strict exchange-level compliance and oversight
+Scalable Infrastructure: From individual users to enterprise systems
+TrueData APIs are trusted by traders, fintech startups, and institutions across India for reliable and regulation-safe market connectivity.
+Broker APIs focus primarily on trade execution, not data reliability or compliance.
+ TrueData is dedicated exclusively to providing exchange-certified market data.
+Market Replay: Revisit market movements as they happened — ideal for analysis and study.
+Continuous Futures & Adjusted Series: Seamless long-term data continuity.
+Full-Precision Ticks: Every price movement captured, without data loss.
+TrueData offers dedicated developer support for seamless integration and troubleshooting.
+Expert technical assistance during trading hours
+Email and phone support for quick issue resolution
+Integration help for REST & WebSocket APIs
+SDKs and documentation for Python, Node.js, C#, Java, and C++
+Depends on:
+Exchange selection (NSE/BSE/MCX)
+Number of symbols/instruments
+Type of data (Streaming, Charting, Corporate)
+Exchange data fees, if applicable, are separate from TrueData’s pricing.
+A limited-period evaluation account may be provided for testing API functionality.
+ Trial access is subject to exchange compliance approval and fair-use policy.
+No refunds once API access is activated.
+Misuse or breach of compliance results in immediate termination without refund.
+TrueData APIs cover all major Indian exchanges and their active segments:
+NSE (National Stock Exchange): Equities, Indices, Futures & Options
+BSE (Bombay Stock Exchange): Equities, Indices, Futures & Options
+MCX (Multi Commodity Exchange): Commodities
+All feeds are delivered through exchange-approved, licensed channels.
+JSON: Default for live feeds and REST endpoints
+CSV: Available for analytical outputs on request
+Ultra-Low Latency: Data delivered within milliseconds — suitable for high-speed analytical and algorithmic applications.
+TrueData APIs are developer-first, integrating seamlessly with all major programming environments.
+Python: TrueData Python Library on PyPI
+Node.js: TrueData Node.js Library on npm
+C# / .NET: TrueData .NET Package on NuGet
+Also compatible with Java, C++, and PHP, using REST and WebSocket endpoints.
+ Comprehensive documentation and examples are provided for quick implementation.
+99.995% uptime through redundant data centres
+24×7 network monitoring by TrueData NOC
+Automatic failover ensures uninterrupted data delivery
+Compliance-aligned operations with exchange standards
+TrueData provides custom-built institutional APIs and private connectivity options.
+Dedicated channels for secure, high-speed data access
+Bulk and multi-user API setups
+Custom corporate and market data combinations
+Secure delivery for PMS, AIFs, and large-scale fintech deployments
+Over 90% client renewal rate year after year
+17+ years of service as an authorised vendor
+Trusted by traders, fintechs, PMS firms, and institutions across India
+This long-standing trust underscores our reliability and compliance record.
+To begin, please fill out the Market Data API Form here >> https://www.truedata.in/products/marketdataapi and email your details to [email protected].
+ Our sales team will provide pricing, onboarding, and next steps.
+Yes. You may integrate TrueData APIs into your internal trading or analytics systems.
+ Redistribution to external parties requires exchange approval.
+Yes, TrueData provides authorised charting data for visual and analytical use.
+ Redistribution or resale of this data is not permitted.
+Yes. Our REST and WebSocket APIs support Python, Node.js, Java, C#, C++, and more.
+ Official libraries are available on:
+PyPI (Python)
+npm (Node.js)
+NuGet (.NET)
+Please visit truedata.in/products/marketdataapi
+ or email [email protected] with your requirements (exchanges, symbols, and data type).
+A limited-period trial is available for testing. Trial access is subject to exchange approval and compliance review.
+Access will be terminated immediately and may be reported to the exchange as per policy.
+ No refund will be issued for violations.
+All data remains the property of respective exchanges (NSE, BSE, MCX).
+ TrueData is an Authorised Data Vendor, and usage is governed by exchange licensing and SEBI regulations.
+ Unauthorised redistribution or resale is strictly prohibited.
+www.truedata.in/market-data-apis
+[email protected]

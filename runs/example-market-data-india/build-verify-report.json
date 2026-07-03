@@ -1,0 +1,214 @@
+{
+  "labeled": [
+    {
+      "id": "d282cb",
+      "status": "SUPPORTED"
+    },
+    {
+      "id": "ffd90a",
+      "status": "SUPPORTED"
+    },
+    {
+      "id": "a18c10",
+      "status": "SUPPORTED"
+    },
+    {
+      "id": "e58a3e",
+      "status": "SUPPORTED"
+    },
+    {
+      "id": "461520",
+      "status": "SUPPORTED"
+    },
+    {
+      "id": "493956",
+      "status": "SUPPORTED"
+    },
+    {
+      "id": "c838ba",
+      "status": "SUPPORTED"
+    },
+    {
+      "id": "2b475a",
+      "status": "SUPPORTED"
+    },
+    {
+      "id": "5e8677",
+      "status": "PARTIAL"
+    },
+    {
+      "id": "5d773c",
+      "status": "SUPPORTED"
+    },
+    {
+      "id": "5879dd",
+      "status": "SUPPORTED"
+    },
+    {
+      "id": "9dda2d",
+      "status": "SUPPORTED"
+    },
+    {
+      "id": "49305c",
+      "status": "SUPPORTED"
+    },
+    {
+      "id": "24da7d",
+      "status": "SUPPORTED"
+    },
+    {
+      "id": "ef96f5",
+      "status": "SUPPORTED"
+    },
+    {
+      "id": "e680ad",
+      "status": "PARTIAL"
+    },
+    {
+      "id": "94b2b2",
+      "status": "PARTIAL"
+    },
+    {
+      "id": "9e8fa8",
+      "status": "PARTIAL"
+    },
+    {
+      "id": "9f8c49",
+      "status": "PARTIAL"
+    },
+    {
+      "id": "ac073a",
+      "status": "PARTIAL"
+    },
+    {
+      "id": "6ea050",
+      "status": "SUPPORTED"
+    },
+    {
+      "id": "a43f09",
+      "status": "SUPPORTED"
+    }
+  ],
+  "dropped_unsupported": [],
+  "assert_rejected": [],
+  "priority_dimensions": [
+    {
+      "id": "m6",
+      "why": "Extremely tight 4-week timeline to get historical OHLCV and corporate actions working in staging before wealth manager onboarding."
+    },
+    {
+      "id": "m9",
+      "why": "Requires navigating strict SEBI compliance, exchange data authorization (NSE/BSE), and handling sensitive client portfolios."
+    },
+    {
+      "id": "m4",
+      "why": "Corporate actions (splits, mergers, dividends) require constant manual oversight and adjustment, leading to significant long-term maintenance bloat."
+    },
+    {
+      "id": "m3",
+      "why": "Evaluating the high cost of dedicating a 5-engineer team to build raw market data pipelines instead of core portfolio analytics."
+    },
+    {
+      "id": "m14",
+      "why": "Need to assess the complexity of integrating ClickHouse, DuckDB, or the market-data-warehouse pattern into their existing AWS EKS, Kafka, and TimescaleDB stack."
+    }
+  ],
+  "coverage": [
+    {
+      "id": "m1",
+      "name": "Strategic differentiation / moat",
+      "covered": false,
+      "claim_count": 0,
+      "priority": false
+    },
+    {
+      "id": "m2",
+      "name": "Proprietary-data generation",
+      "covered": false,
+      "claim_count": 0,
+      "priority": false
+    },
+    {
+      "id": "m3",
+      "name": "Total cost — build",
+      "covered": true,
+      "claim_count": 2,
+      "priority": true
+    },
+    {
+      "id": "m4",
+      "name": "Total cost — maintenance (the bloat curve)",
+      "covered": false,
+      "claim_count": 0,
+      "priority": true
+    },
+    {
+      "id": "m6",
+      "name": "Time-to-value",
+      "covered": false,
+      "claim_count": 0,
+      "priority": true
+    },
+    {
+      "id": "m7",
+      "name": "Resource & talent availability",
+      "covered": false,
+      "claim_count": 0,
+      "priority": false
+    },
+    {
+      "id": "m8",
+      "name": "Reversibility / switching cost",
+      "covered": true,
+      "claim_count": 1,
+      "priority": false
+    },
+    {
+      "id": "m9",
+      "name": "Data ownership / sensitivity / compliance",
+      "covered": true,
+      "claim_count": 7,
+      "priority": true
+    },
+    {
+      "id": "m10",
+      "name": "Customization need vs. availability",
+      "covered": false,
+      "claim_count": 0,
+      "priority": false
+    },
+    {
+      "id": "m11",
+      "name": "Focus / core-value alignment",
+      "covered": false,
+      "claim_count": 0,
+      "priority": false
+    },
+    {
+      "id": "m13",
+      "name": "Vendor viability / lock-in risk",
+      "covered": true,
+      "claim_count": 3,
+      "priority": false
+    },
+    {
+      "id": "m14",
+      "name": "Integration complexity",
+      "covered": true,
+      "claim_count": 9,
+      "priority": true
+    }
+  ],
+  "coverage_gaps": [
+    "fetch failed: https://altinity.com/webinarspage/using-dlt-to-move-data-from-duckdb-to-clickhouse (HTTPStatusError)",
+    "thin content: https://www.reddit.com/r/dataengineering/comments/1ao16gb/who_uses_duckdb_for_real/",
+    "fetch failed: https://towardsdev.com/building-a-financial-data-pipeline-with-alpha-vantage-and-clickhouse-5860d1e5a4be (HTTPStatusError)",
+    "fetch failed: https://medium.com/@keshavagrawal/building-a-real-time-data-pipeline-with-go-kafka-clickhouse-and-apache-superset-02a4d9c1529d (HTTPStatusError)",
+    "fetch failed: https://www.wikiwand.com/en/articles/Stock_exchange (HTTPStatusError)",
+    "fetch failed: https://wiki2.org/en/Stock_exchange (HTTPStatusError)",
+    "fetch failed: https://parthamajumdar.org/tag/india/page/34/ (HTTPStatusError)",
+    "thin content: https://www.bseindia.com/downloads1/SEBI_circular_Policy_Sharing_Data.pdf",
+    "no evidence for priority dimension m4 (Total cost — maintenance (the bloat curve))",
+    "no evidence for priority dimension m6 (Time-to-value)"
+  ]
+}
