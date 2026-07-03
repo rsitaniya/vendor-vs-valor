@@ -10,7 +10,7 @@ Output is advisory only. Every claim is independently cited and verified against
 
 **Intake.** The engine elicits a structured need-profile from the raw input: capability description, team, stack, budget, timeline, constraints, compliance regime, and a soft qualitative steer. The profile is written to `profile.md` and surfaced to the operator at Gate 1 before research begins.
 
-**Research.** Two tracks run in parallel — BUILD (in-house economics, talent, OSS alternatives) and BUY (vendor landscape, pricing, integration, lock-in) — across 13 research dimensions drawn from `rubric/metrics.json`. Each factual claim is asserted with a source URL and a verbatim display quote, then independently verified by re-reading the cached page content. A claim's verification status (`SUPPORTED / PARTIAL / UNSUPPORTED`) can only be set by the verifier, never by the authoring LLM. Research artifacts (`build-research.md`, `buy-research.md`) and a verify report are surfaced at Gate 2.
+**Research.** Two tracks run in parallel — BUILD (in-house economics, talent, OSS alternatives) and BUY (vendor landscape, pricing, integration, lock-in) — across 14 research dimensions drawn from `rubric/metrics.json`. Each factual claim is asserted with a source URL and a verbatim display quote, then independently verified by re-reading the cached page content. A claim's verification status (`SUPPORTED / PARTIAL / UNSUPPORTED`) can only be set by the verifier, never by the authoring LLM. Research artifacts (`build-research.md`, `buy-research.md`) and a verify report are surfaced at Gate 2.
 
 **Synthesis.** Four strategic lenses (`build`, `buy`, `buy_then_extend`, `adopt_self_host`) are applied over the two evidence pools. A challenger pass then constructs the strongest cited case for an alternative path before the final strategy is committed. Output is `strategy.md`: recommendation, runner-up, "wins when" conditions, decisive factors, per-path dossiers, and explicit open questions. The HTML report is produced at Gate 3.
 
@@ -76,7 +76,7 @@ vendor-vs-valor/
 │   └── gemini.py             # Gemini implementation (Flash workhorse, Pro for synthesis)
 │
 ├── rubric/
-│   ├── metrics.json          # 13 research dimensions with per-track scoping hints
+│   ├── metrics.json          # 14 research dimensions with per-track scoping hints
 │   └── paths.json            # Four strategic paths and their evidence-pool mappings
 │
 ├── agents/                   # Prompt templates for each stage (markdown)
@@ -125,8 +125,8 @@ Edit `.env`:
 
 ```ini
 GEMINI_API_KEY=<your key from https://aistudio.google.com/apikey>
-GEMINI_MODEL_FLASH=gemini-2.5-flash        # workhorse: intake + research
-GEMINI_MODEL_PRO=gemini-2.5-pro-preview    # synthesis + challenger
+GEMINI_MODEL_FLASH=gemini-3.5-flash        # workhorse: intake + research
+GEMINI_MODEL_PRO=gemini-3.1-pro-preview    # synthesis + challenger
 LLM_PROVIDER=gemini
 ENGINE_VERSION=0.1.0
 ```

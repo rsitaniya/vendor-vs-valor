@@ -208,7 +208,7 @@ Grounding is the engine's core trust claim, so it is **one unified capability**,
 
 **Three operations, and the author can never bless its own claim:**
 - **`assert`** — creates a claim; *rejects if it has no source.* An unsourced claim is unconstructable, not merely discouraged. Authors may only cite URLs already in the run's **source cache** (the closed evidence pool).
-- **`verify`** — a structurally separate pass that resolves the locator against the **cached source content** and independently judges `SUPPORTED | PARTIAL | UNSUPPORTED`. It reads the bytes itself; it never trusts the author's summary. (This is the Amex model-gating pattern in miniature — the thing that *produces* an artifact is never the thing that *clears* it.)
+- **`verify`** — a structurally separate pass that resolves the locator against the **cached source content** and independently judges `SUPPORTED | PARTIAL | UNSUPPORTED`. It reads the bytes itself; it never trusts the author's summary. (A governance-rails pattern in miniature — the thing that *produces* an artifact is never the thing that *clears* it.)
 - **`filter`** — applies policy: `UNSUPPORTED` → dropped (logged for the gap view); `PARTIAL` → kept but **visibly flagged** in the report; `SUPPORTED` → flows to synthesis.
 
 **Source caching.** Each source is fetched **once** and its *content* cached per run. Verification re-reads the cached bytes — same network cost as one fetch, no verify-time flakiness, and the cache *is* the closed evidence pool. This makes within-run re-runs reproducible (verify and rescore read frozen bytes, not the live web).
