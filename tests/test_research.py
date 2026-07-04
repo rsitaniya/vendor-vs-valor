@@ -18,8 +18,28 @@ from stages.research import (
 
 URL_A = "https://ex.com/a"
 URL_B = "https://ex.com/b"
-CONTENT_A = "An open source option exists and is widely adopted for this capability."
-CONTENT_B = "Commercial pricing starts at $500 per month for the starter tier."
+# Padded past MIN_CONTENT_CHARS (400) — cache hits are now length-checked too,
+# so a fixture this short would otherwise be (correctly) treated as thin content.
+CONTENT_A = (
+    "An open source option exists and is widely adopted for this capability. "
+    "It has an active maintainer community, frequent releases, and is used in "
+    "production by several well-known companies. Documentation covers setup, "
+    "configuration, and common integration patterns for teams evaluating it "
+    "as a self-hosted alternative to commercial offerings in this space. The "
+    "project accepts external contributions, publishes a public roadmap, and "
+    "maintains a changelog going back several major versions, with a security "
+    "disclosure policy and a healthy issue-response cadence from maintainers."
+)
+CONTENT_B = (
+    "Commercial pricing starts at $500 per month for the starter tier. "
+    "Higher tiers add SSO, dedicated support, and higher usage limits. "
+    "The vendor publishes a public pricing page and offers annual billing "
+    "with a discount. Enterprise customers can request custom contracts "
+    "covering data residency, uptime SLAs, and volume-based pricing. The "
+    "vendor also lists supported integrations, a public status page, and "
+    "a documented API rate limit for each tier, along with an SLA credit "
+    "policy for extended downtime beyond the published availability target."
+)
 
 
 @pytest.fixture
@@ -123,6 +143,33 @@ def test_authoring_failure_is_a_gap_not_a_crash(run_dir):
     res = run_research("BUILD", run_dir, provider=prov, searcher=fake_searcher([URL_A]))
     assert res.kept == []
     assert any("claim authoring failed" in g for g in res.coverage_gaps)
+
+
+class RaisingVerifyProvider(FakeProvider):
+    """Simulates a provider failure (e.g. exhausted retries) during verify."""
+
+    def complete(self, prompt, *, response_schema=None, model=None):
+        if response_schema is VerificationJudgment:
+            raise RuntimeError("simulated API failure")
+        return super().complete(prompt, response_schema=response_schema, model=model)
+
+
+def test_verify_failure_is_a_gap_not_a_crash(run_dir):
+    prov = RaisingVerifyProvider([_draft(URL_A, "open source option")])
+    res = run_research("BUILD", run_dir, provider=prov, searcher=fake_searcher([URL_A]))
+    assert res.kept == []
+    assert any("verification failed" in g for g in res.coverage_gaps)
+
+
+def test_thin_cached_content_is_not_admitted_on_cache_hit(run_dir):
+    # A URL cached with thin content (e.g. by entity discovery sharing this
+    # same cache) must not be treated as valid evidence just because it's
+    # already present — length is re-checked on cache hits, not just fetches.
+    SourceCache(run_dir).add(URL_A, "too short to count as real content", source_date="2025-10-01")
+    prov = FakeProvider([_draft(URL_A, "too short to count as real content")])
+    res = run_research("BUILD", run_dir, provider=prov, searcher=fake_searcher([URL_A]))
+    assert res.kept == []
+    assert any("thin content" in g for g in res.coverage_gaps)
 
 
 def test_research_is_idempotent_and_skips_reauthoring(run_dir):
