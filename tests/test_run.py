@@ -4,9 +4,11 @@ from __future__ import annotations
 
 import json
 
+from graph import build_graph
 from engine.runstore import RunStore
 from run import (
     _MAX_CLARIFICATIONS,
+    _run_gates,
     apply_clarifications,
     apply_soft_steer,
     clarify_profile,
@@ -125,3 +127,33 @@ def test_clarify_profile_is_a_no_op_when_profile_is_complete(tmp_path, monkeypat
     monkeypatch.setattr("builtins.input", lambda _prompt: (_ for _ in ()).throw(
         AssertionError("should not prompt when there are no gaps")))
     clarify_profile(store)  # would raise if it prompted
+
+
+def test_run_gates_auto_approve_drives_graph_to_completion(tmp_path):
+    app = build_graph()  # in-memory checkpointer
+    store = RunStore(tmp_path)
+    config = {"configurable": {"thread_id": "t1"}}
+    app.invoke({"run_id": "t1", "run_dir": str(tmp_path)}, config)
+
+    _run_gates(app, config, store, auto_approve=True)
+
+    assert app.get_state(config).next == ()
+
+
+def test_run_gates_resumes_from_a_fresh_app_instance_via_sqlite(tmp_path):
+    # Simulates a process restart: a brand-new build_graph()/checkpointer pair
+    # backed by the same sqlite file must pick up the parked interrupt.
+    from graph import sqlite_checkpointer
+
+    db_path = tmp_path / "checkpoint.db"
+    store = RunStore(tmp_path)
+    config = {"configurable": {"thread_id": "t1"}}
+
+    app_before_restart = build_graph(sqlite_checkpointer(db_path))
+    app_before_restart.invoke({"run_id": "t1", "run_dir": str(tmp_path)}, config)
+    assert app_before_restart.get_state(config).interrupts, "expected to park at gate 1"
+
+    app_after_restart = build_graph(sqlite_checkpointer(db_path))
+    _run_gates(app_after_restart, config, store, auto_approve=True)
+
+    assert app_after_restart.get_state(config).next == ()
