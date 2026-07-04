@@ -10,6 +10,9 @@ emergence_portfolio.md
 runs/*
 !runs/example-market-data-india/
 !runs/example-market-data-india/**
+# ...except LangGraph/lock-file plumbing, even inside the committed example
+runs/example-market-data-india/checkpoint.db
+runs/example-market-data-india/run.json.lock
 
 # Python / uv
 .venv/

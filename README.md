@@ -173,6 +173,12 @@ By default the engine pauses at each gate for real review (approve/edit/abort â€
 uv run python run.py my-need.md --auto-approve   # unattended, old behavior
 ```
 
+Every run is checkpointed to `runs/<id>/checkpoint.db` (LangGraph's SQLite checkpointer). If the process is killed or aborted at a gate, resume it later instead of starting over:
+
+```bash
+uv run python run.py --resume 20260704-165040-683630
+```
+
 A full committed example run, including `strategy.md` and `report.html`:
 - [`runs/example-market-data-india/`](runs/example-market-data-india/) â€” `input-market-data-india.md`, the capital-markets scenario walked through in the [companion writeup](https://sitaniya-com.pages.dev/blog/vendor-vs-valor)
 
