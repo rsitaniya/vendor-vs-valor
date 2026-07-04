@@ -7,7 +7,7 @@ from pydantic import BaseModel
 
 import skills.schema_stage as schema_stage
 from engine.runstore import RunStore
-from skills.schema_stage import ContractError, OutputContract
+from skills.schema_stage import ContractError, OutputContract, ProviderCallError
 
 
 class Out(BaseModel):
@@ -95,3 +95,14 @@ def test_contract_violation_fails_loudly(tmp_path):
             output_contract=OutputContract(response_schema=Empty, required_fields=("value",)),
             render=lambda d: "x", provider=EmptyProvider(), model="m1",
         )
+
+
+def test_provider_call_failure_halts_with_a_clear_error(tmp_path):
+    RunStore(tmp_path).write_text("in.txt", "hello")
+
+    class FailingProvider:
+        def complete(self, prompt, *, response_schema=None, model=None):
+            raise RuntimeError("simulated API failure")
+
+    with pytest.raises(ProviderCallError, match="demo.*simulated API failure"):
+        _run(tmp_path, FailingProvider())

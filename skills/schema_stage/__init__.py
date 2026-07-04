@@ -33,6 +33,14 @@ class ContractError(ValueError):
     """Raised when a stage's output fails its output_contract (fail loudly)."""
 
 
+class ProviderCallError(RuntimeError):
+    """Raised when a stage's LLM call fails (retries exhausted, or a
+    non-retryable provider error). Stages using this wrapper are not
+    degradable — the run should halt with this clear, stage-scoped message
+    rather than a raw SDK traceback (spec §5.1: "fail -> halt with a precise
+    error")."""
+
+
 @dataclass
 class OutputContract:
     #: Pydantic model for structured output. None => prose stage (md is truth).
@@ -176,12 +184,15 @@ def run(
     # --- run: load -> LLM -> validate -> persist ---
     provider = provider or get_provider()
     context = _assemble_context(prompt, input_paths)
-    data = _complete_provider_call(
-        provider=provider,
-        context=context,
-        output_contract=output_contract,
-        model=model,
-    )
+    try:
+        data = _complete_provider_call(
+            provider=provider,
+            context=context,
+            output_contract=output_contract,
+            model=model,
+        )
+    except Exception as exc:
+        raise ProviderCallError(f"stage {stage_name!r} LLM call failed: {exc}") from exc
 
     _check_contract(data, output_contract)
 

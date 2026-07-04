@@ -109,6 +109,22 @@ def test_no_fetchable_sources_is_a_gap_not_a_crash(run_dir):
     assert any("no fetchable sources" in g for g in res.coverage_gaps)
 
 
+class RaisingAuthorProvider(FakeProvider):
+    """Simulates a provider failure (e.g. exhausted retries) during authoring."""
+
+    def complete(self, prompt, *, response_schema=None, model=None):
+        if response_schema is ResearchClaims:
+            raise RuntimeError("simulated API failure")
+        return super().complete(prompt, response_schema=response_schema, model=model)
+
+
+def test_authoring_failure_is_a_gap_not_a_crash(run_dir):
+    prov = RaisingAuthorProvider([_draft(URL_A, "open source option")])
+    res = run_research("BUILD", run_dir, provider=prov, searcher=fake_searcher([URL_A]))
+    assert res.kept == []
+    assert any("claim authoring failed" in g for g in res.coverage_gaps)
+
+
 def test_research_is_idempotent_and_skips_reauthoring(run_dir):
     prov = FakeProvider([_draft(URL_A, "open source option")])
     run_research("BUILD", run_dir, provider=prov, searcher=fake_searcher([URL_A]))
