@@ -208,6 +208,23 @@ Two full committed example runs, including `strategy.md` and `report.html`:
 
 ---
 
+## Configuration
+
+Every tunable value lives outside stage code, in one of three places: model IDs and provider selection in `.env`, search/verification thresholds in `engine/constants.py` (`MAX_SOURCES`, `STALE_DAYS`, per-domain caps, excerpt budgets), and the domain logic itself in `rubric/metrics.json` / `rubric/paths.json`. Swapping the LLM provider, resizing the evidence pool, or changing what counts as a stale price is a config edit, not a code change.
+
+---
+
+## Why grounded_claim, not a research agent
+
+Most deep-research agents ask one model to find sources, write claims, and cite them, then trust that model's own citations. Published audits of these agents find the same failure repeatedly: even strong models fully support their own citations only around half the time, and citation faithfulness measurably degrades over longer research sessions as the model loses track of what it actually read.
+
+`grounded_claim` avoids this by construction, not by prompting harder:
+- `assert_claim()` cannot create a citation to a URL outside the run's cache, or a quote it can't locate verbatim in the cached bytes. An ungrounded citation is a rejected claim, not a lucky one.
+- The author can never set a claim's verified status. Only `verify()` can, by re-reading the cached bytes at the claim's locator and judging a narrow question in isolation, with no view of the author's own reasoning.
+- Every run persists its full evidence pool (`runs/<id>/source_cache/`) alongside the claims, verify report, and strategy. A decision made today can be re-opened and checked against the exact bytes it was built on, months later.
+
+---
+
 ## Tests
 
 ```bash
