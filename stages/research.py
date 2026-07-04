@@ -666,7 +666,10 @@ def run_research(
     cached: list[str] = []
     for url in _discover(query_strings, searcher, max_sources, per_query, max_per_domain):
         if cache.has(url):
-            cached.append(url)
+            if len(cache.get_content(url).strip()) >= _MIN_CONTENT_CHARS:
+                cached.append(url)
+            else:
+                gaps.append(f"thin content: {url}")
             continue
         try:
             content = cache.fetch(url)
@@ -699,7 +702,12 @@ def run_research(
             assert_rejected.append({"text": draft.text, "reason": str(exc)})
 
     # 5) verify (re-reads cached bytes) + 6) filter
-    verified = [verify(c, cache, provider) for c in claims]
+    verified: list[Claim] = []
+    for c in claims:
+        try:
+            verified.append(verify(c, cache, provider))
+        except Exception as exc:  # noqa: BLE001 — a verify failure is a gap, not a crash
+            gaps.append(f"verification failed for claim {c.id}: {type(exc).__name__}: {exc}")
     filtered = filter_claims(verified)
 
     # 6b) per-dimension coverage; an empty PRIORITY dimension is a surfaced gap.

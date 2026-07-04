@@ -4,7 +4,7 @@ Public API: the Claim object, the author-facing draft shapes, the three
 operations (assert/verify/filter), and the per-run source cache.
 """
 
-from .cache import CacheError, SourceCache
+from .cache import CacheError, FetchError, SourceCache
 from .claim import (
     FilterPolicy,
     FilterResult,
@@ -38,6 +38,7 @@ __all__ = [
     "GroundingError",
     "SourceCache",
     "CacheError",
+    "FetchError",
     "locate",
     "Claim",
     "ClaimDraft",

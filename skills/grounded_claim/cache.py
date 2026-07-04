@@ -9,9 +9,12 @@ already live here. Tests seed the cache with :meth:`add` (no network).
 from __future__ import annotations
 
 import hashlib
+import ipaddress
 import json
+import socket
 from datetime import date, datetime, timezone
 from pathlib import Path
+from urllib.parse import urljoin, urlparse
 
 import httpx
 import trafilatura
@@ -25,9 +28,34 @@ _USER_AGENT = (
     "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
 )
 
+_MAX_REDIRECTS = 5
+
 
 class CacheError(RuntimeError):
     """Raised when cached content is requested for an un-cached URL."""
+
+
+class FetchError(RuntimeError):
+    """Raised when a URL is refused before fetching: unsupported scheme,
+    unresolvable host, or a host that resolves to a private/internal address
+    (SSRF guard — search results are untrusted third-party content)."""
+
+
+def _reject_private_targets(url: str) -> None:
+    parsed = urlparse(url)
+    if parsed.scheme not in ("http", "https"):
+        raise FetchError(f"unsupported URL scheme: {url}")
+    host = parsed.hostname
+    if not host:
+        raise FetchError(f"no host in URL: {url}")
+    try:
+        addrs = {info[4][0] for info in socket.getaddrinfo(host, None)}
+    except socket.gaierror as exc:
+        raise FetchError(f"could not resolve host: {host} ({exc})") from exc
+    for addr in addrs:
+        ip = ipaddress.ip_address(addr)
+        if ip.is_private or ip.is_loopback or ip.is_link_local or ip.is_reserved or ip.is_multicast:
+            raise FetchError(f"refusing to fetch private/internal host: {host} ({addr})")
 
 
 def _key(url: str) -> str:
@@ -73,6 +101,26 @@ class SourceCache:
         self._meta_path(url).write_text(json.dumps(meta, indent=2), encoding="utf-8")
         return content
 
+    def _get_validated(self, url: str, *, timeout: float) -> httpx.Response:
+        """GET with scheme/private-host checks re-applied at every redirect hop
+        (search results are untrusted; a hop could point at an internal
+        service). ``httpx``'s own ``follow_redirects`` only validates the
+        first URL, not where 3xx responses lead."""
+        current = url
+        for _ in range(_MAX_REDIRECTS + 1):
+            _reject_private_targets(current)
+            resp = httpx.get(current, follow_redirects=False, timeout=timeout,
+                             headers={"User-Agent": _USER_AGENT})
+            if resp.is_redirect:
+                location = resp.headers.get("location")
+                if not location:
+                    break
+                current = urljoin(current, location)
+                continue
+            resp.raise_for_status()
+            return resp
+        raise FetchError(f"too many redirects: {url}")
+
     def fetch(self, url: str, *, timeout: float = 30.0) -> str:
         """Fetch + extract main text once, then cache. Re-reads cache if present.
 
@@ -81,9 +129,7 @@ class SourceCache:
         """
         if self.has(url):
             return self.get_content(url)
-        resp = httpx.get(url, follow_redirects=True, timeout=timeout,
-                         headers={"User-Agent": _USER_AGENT})
-        resp.raise_for_status()
+        resp = self._get_validated(url, timeout=timeout)
         html = resp.text
         content = trafilatura.extract(html, include_comments=False, include_tables=True) or ""
         title, source_date = None, None
