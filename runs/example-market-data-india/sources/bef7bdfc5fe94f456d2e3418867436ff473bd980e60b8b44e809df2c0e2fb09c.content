@@ -1,0 +1,71 @@
+ClickHouse vs TimescaleDB
+A detailed comparison
+Compare ClickHouse and TimescaleDB for time series and OLAP workloads
+Updated September 13, 2023
+Learn About Time Series DatabasesChoosing the right database is a critical choice when building any software application. All databases have different strengths and weaknesses when it comes to performance, so deciding which database has the most benefits and the most minor downsides for your specific use case and data model is an important decision. Below you will find an overview of the key concepts, architecture, features, use cases, and pricing models of ClickHouse and TimescaleDB so you can quickly see how they compare against each other.
+The primary purpose of this article is to compare how ClickHouse and TimescaleDB perform for workloads involving time series data, not for all possible use cases. Time series data typically presents a unique challenge in terms of database performance. This is due to the high volume of data being written and the query patterns to access that data. This article doesn't intend to make the case for which database is better; it simply provides an overview of each database so you can make an informed decision.
+ClickHouse vs TimescaleDB Breakdown
+| Database Model | Columnar database | Time Series Database | 
+| Architecture | ClickHouse can be deployed on-premises, in the cloud, or as a managed service. | TimescaleDB is built on top of PostgreSQL and inherits its architecture. It extends PostgreSQL with time-series-specific optimizations and functions, allowing it to manage time series data efficiently. It can be deployed as a single node, in a multi-node setup, or in the cloud as a managed service. | 
+| License | Apache 2.0 | Timescale License (for TimescaleDB Community Edition); Apache 2.0 (for core PostgreSQL) | 
+| Use Cases | Real-time analytics, big data processing, event logging, monitoring, IoT, data warehousing | Monitoring, observability, IoT, real-time analytics, financial market data | 
+| Scalability | Horizontally scalable, supports distributed query processing and parallel execution | Horizontally scalable through native support for partitioning, replication, and sharding. Offers multi-node capabilities for distributing data and queries across nodes. | 
+Looking for the most efficient way to get started?
+Whether you are looking for cost savings, lower management overhead, or open source, InfluxDB can help.
+ClickHouse Overview
+ClickHouse is an open source columnar database management system designed for high-performance online analytical processing (OLAP) tasks. It was developed by Yandex, a leading Russian technology company. ClickHouse is known for its ability to process large volumes of data in real-time, providing fast query performance and real-time analytics. Its columnar storage architecture enables efficient data compression and faster query execution, making it suitable for large-scale data analytics and business intelligence applications.
+TimescaleDB Overview
+TimescaleDB is an open source time series database built on top of PostgreSQL. It was created to address the challenges of managing time series data, such as scalability, query performance, and data retention policies. TimescaleDB was first released in 2017 and has since become a popular choice for storing and analyzing time series data due to its PostgreSQL compatibility, performance optimizations, and flexible data retention policies.
+ClickHouse for Time Series Data
+ClickHouse can be used for storing and analyzing time series data effectively, although it is not explicitly optimized for working with time series data. While ClickHouse can query time series data very quickly once ingested, it tends to struggle with very high write scenarios where data needs to be ingested in smaller batches so it can be analyzed in real time.
+TimescaleDB for Time Series Data
+TimescaleDB is specifically designed for time series data, making it a natural choice for storing and querying such data. It provides several advantages for time series data management like horizontal scalability, columnar storage, and retention policy support. However, TimescaleDB may not be the best choice for all time series use cases. One example would be if an application requires very high write throughput or real-time analytics, other specialized time series databases like InfluxDB may be more suitable.
+ClickHouse Key Concepts
+- Columnar storage: ClickHouse stores data in a columnar format, which means that data for each column is stored separately. This enables efficient compression and faster query execution, as only the required columns are read during query execution.
+- Distributed processing: ClickHouse supports distributed processing, allowing queries to be executed across multiple nodes in a cluster, improving query performance and scalability.
+- Data replication: ClickHouse provides data replication, ensuring data availability and fault tolerance in case of hardware failures or node outages.
+- Materialized Views: ClickHouse supports materialized views, which are precomputed query results stored as tables. Materialized views can significantly improve query performance, as they allow for faster data retrieval by avoiding the need to recompute the results for each query.
+TimescaleDB Key Concepts
+- Hypertable: A hypertable is a distributed table that is partitioned by time and possibly other dimensions, such as device ID or location. It is the primary abstraction for storing time series data in TimescaleDB and is designed to scale horizontally across multiple nodes.
+- Chunk: A chunk is a partition of a hypertable, containing a subset of the hypertable’s data. Chunks are created automatically by TimescaleDB based on a specified time interval and can be individually compressed, indexed, and backed up for better performance and data management.
+- Distributed Hypertables: For large-scale deployments, TimescaleDB supports distributed hypertables, which partition data across multiple nodes for improved query performance and fault tolerance.
+ClickHouse Architecture
+ClickHouse’s architecture is designed to support high-performance analytics on large datasets. ClickHouse stores data in a columnar format. This enables efficient data compression and faster query execution, as only the required columns are read during query execution. ClickHouse also supports distributed processing, which allows for queries to be executed across multiple nodes in a cluster. ClickHouse uses the MergeTree storage engine as its primary table engine. MergeTree is designed for high-performance OLAP tasks and supports data replication, data partitioning, and indexing.
+TimescaleDB Architecture
+TimescaleDB is an extension built on PostgreSQL, inheriting its relational data model and SQL support. However, TimescaleDB extends PostgreSQL with custom data structures and optimizations for time series data, such as hypertables and chunks.
+Free Time-Series Database Guide
+Get a comprehensive review of alternatives and critical requirements for selecting yours.
+ClickHouse Features
+Real-time analytics
+ClickHouse is designed for real-time analytics and can process large volumes of data with low latency, providing fast query performance and real-time insights.
+Data compression
+ClickHouse’s columnar storage format enables efficient data compression, reducing storage requirements and improving query performance.
+Materialized views
+ClickHouse supports materialized views, which can significantly improve query performance by precomputing and storing query results as tables.
+TimescaleDB Features
+Partitioning
+TimescaleDB automatically partitions time series data tables using hypertables and chunks, which simplifies data management and improves query performance.
+Time series focused SQL functions
+TimescaleDB provides several specialized SQL functions and operators for time series data application scenarios, such as time_bucket, first, and last, which simplify querying and aggregating time series data.
+Query optimization
+As mentioned earlier, TimescaleDB extends PostgreSQL’s query planner for writing and querying time series data, including optimizations like time-based indexing and chunk pruning.
+ClickHouse Use Cases
+Large-scale data analytics
+ClickHouse’s high-performance query engine and columnar storage format make it suitable for large-scale data analytics and business intelligence applications.
+Real-time reporting
+ClickHouse’s real-time analytics capabilities enable organizations to generate real-time reports and dashboards, providing up-to-date insights for decision-making.
+Log and event data analysis
+ClickHouse’s ability to process large volumes of data in real-time makes it a suitable choice for log and event data analysis, such as analyzing web server logs or application events.
+TimescaleDB Use Cases
+Monitoring and metrics
+TimescaleDB is well-suited for storing and analyzing monitoring and metrics data, such as server performance metrics, application logs, and sensor data. Its hypertable structure and query optimizations make it easy to store, query, and visualize large volumes of time series data.
+IoT data storage
+TimescaleDB can be used to store and analyze IoT data, such as sensor readings and device status information. Its support for automatic partitioning and specialized SQL interfaces simplifies the management and querying of large-scale IoT datasets.
+Financial data
+TimescaleDB is suitable for storing and analyzing financial data, such as stock prices, exchange rates, and trading volumes. Its query optimizations and specialized SQL functions make it easy to perform time-based aggregations and analyze trends in financial data.
+ClickHouse Pricing Model
+ClickHouse is an open source database and can be deployed on your own hardware. The developers of ClickHouse have also recently created ClickHouse Cloud which is a managed service for deploying ClickHouse.
+TimescaleDB Pricing Model
+TimescaleDB is available in two editions: TimescaleDB Open Source and TimescaleDB Cloud. The open-source edition is free to use and can be self-hosted, while the cloud edition is a managed service with a pay-as-you-go pricing model based on storage, compute, and data transfer usage. TimescaleDB Cloud offers various pricing tiers with different levels of resources and features, such as continuous backups and high availability.
+Get started with InfluxDB for free
+InfluxDB Cloud is the fastest way to start storing and analyzing your time series data.

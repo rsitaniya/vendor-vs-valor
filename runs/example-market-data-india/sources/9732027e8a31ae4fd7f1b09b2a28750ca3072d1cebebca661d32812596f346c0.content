@@ -1,0 +1,250 @@
+ClickHouse and TimescaleDB are both excellent choices for time-series data, but with different architectural foundations. TimescaleDB extends PostgreSQL with time-series optimisations, while ClickHouse is purpose-built for analytical workloads. This comparison helps you choose the right database for your time-series requirements.
+Platform Overview
+ClickHouse
+ClickHouse is a columnar analytical database designed for fast aggregations on large datasets, with excellent performance for time-series workloads.
+Time-series strengths:
+- Blazing fast aggregations
+- Exceptional compression
+- Real-time ingestion
+- Horizontal scaling
+- Native time-series functions
+TimescaleDB
+TimescaleDB is a PostgreSQL extension that adds time-series capabilities while maintaining full PostgreSQL compatibility.
+Time-series strengths:
+- Full PostgreSQL compatibility
+- Automatic partitioning (hypertables)
+- Continuous aggregates
+- Native compression
+- Familiar SQL ecosystem
+Architecture Comparison
+ClickHouse Time-Series Architecture
+-- Optimised time-series table
+CREATE TABLE metrics (
+    timestamp DateTime64(3),
+    metric_name LowCardinality(String),
+    tags Map(LowCardinality(String), String),
+    value Float64
+) ENGINE = MergeTree()
+PARTITION BY toYYYYMM(timestamp)
+ORDER BY (metric_name, timestamp)
+TTL timestamp + INTERVAL 90 DAYKey features:
+- Columnar storage for efficient scans
+- Partitioning by time periods
+- Sorted data for range queries
+- Automatic TTL-based deletion
+TimescaleDB Time-Series Architecture
+-- Hypertable for time-series
+CREATE TABLE metrics (
+    timestamp TIMESTAMPTZ NOT NULL,
+    metric_name TEXT NOT NULL,
+    tags JSONB,
+    value DOUBLE PRECISION
+);
+SELECT create_hypertable('metrics', 'timestamp');
+-- Add compression
+ALTER TABLE metrics SET (
+    timescaledb.compress,
+    timescaledb.compress_segmentby = 'metric_name'
+);Key features:
+- Automatic time-based partitioning
+- Transparent chunk management
+- Native PostgreSQL compatibility
+- Built-in compression policies
+Performance Comparison
+Query Performance
+| Query Type | ClickHouse | TimescaleDB | 
+|---|---|---|
+| Simple aggregation (1B rows) | 0.5s | 3-5s | 
+| Time-bucket aggregation | 0.3s | 1-2s | 
+| Downsampling query | 0.8s | 2-4s | 
+| Last value per series | 0.2s | 0.5-1s | 
+| High-cardinality GROUP BY | 1s | 5-10s | 
+| Complex JOIN | 2s | 1-2s | 
+ClickHouse advantages:
+- 3-10x faster for pure analytical queries
+- Better performance at extreme scale
+- More efficient high-cardinality handling
+TimescaleDB advantages:
+- Better JOIN performance (PostgreSQL optimiser)
+- Continuous aggregates reduce query load
+- More efficient for mixed OLTP/OLAP
+Ingestion Performance
+| Metric | ClickHouse | TimescaleDB | 
+|---|---|---|
+| Ingestion rate | 1M+ rows/sec | 100K-500K rows/sec | 
+| Batch insert | Excellent | Good | 
+| Single-row insert | Good (batched) | Excellent | 
+| Write latency | <100ms | <10ms | 
+Compression Comparison
+| Data Type | ClickHouse | TimescaleDB | 
+|---|---|---|
+| Metrics data | 15-25x | 10-15x | 
+| IoT sensor data | 20-30x | 12-18x | 
+| Log data | 10-15x | 8-12x | 
+Feature Comparison
+| Feature | ClickHouse | TimescaleDB | 
+|---|---|---|
+| PostgreSQL compatibility | No | Full | 
+| Automatic partitioning | Manual config | Automatic (hypertables) | 
+| Continuous aggregates | Materialized views | Native support | 
+| Compression | Excellent | Very good | 
+| JOINs | Basic | Full PostgreSQL | 
+| Transactions | Limited | Full ACID | 
+| Extensions | Limited | PostgreSQL ecosystem | 
+| Horizontal scaling | Native | TimescaleDB multi-node | 
+| Managed services | ClickHouse Cloud | Timescale Cloud | 
+Use Case Recommendations
+Choose ClickHouse When:
+High-volume metrics and monitoring
+-- Fast aggregations on billions of data points
+SELECT
+    toStartOfMinute(timestamp) AS minute,
+    metric_name,
+    avg(value) AS avg_value,
+    max(value) AS max_value,
+    quantile(0.99)(value) AS p99
+FROM metrics
+WHERE timestamp >= now() - INTERVAL 1 HOUR
+GROUP BY minute, metric_name
+ORDER BY minute DESCLog analytics with time-series queries
+- Combined log and metrics analysis
+- High-cardinality tag dimensions
+- Long-term retention with compression
+Real-time dashboards at scale
+- Sub-second query response
+- High concurrent query load
+- Grafana integration
+Choose TimescaleDB When:
+PostgreSQL-based applications
+-- Leverage PostgreSQL features
+SELECT
+    time_bucket('1 hour', timestamp) AS hour,
+    device_id,
+    avg(temperature) AS avg_temp,
+    first(temperature, timestamp) AS first_temp,
+    last(temperature, timestamp) AS last_temp
+FROM sensor_readings
+WHERE timestamp > now() - interval '7 days'
+GROUP BY hour, device_id
+ORDER BY hour DESC;Mixed transactional and analytical workloads
+- Sensor data with device management
+- IoT applications with relational context
+- Applications requiring JOINs with reference data
+Continuous aggregates for common queries
+-- Pre-computed rollups
+CREATE MATERIALIZED VIEW hourly_metrics
+WITH (timescaledb.continuous) AS
+SELECT
+    time_bucket('1 hour', timestamp) AS hour,
+    metric_name,
+    avg(value) AS avg_value,
+    max(value) AS max_value
+FROM metrics
+GROUP BY hour, metric_name;
+-- Automatic refresh policy
+SELECT add_continuous_aggregate_policy('hourly_metrics',
+    start_offset => INTERVAL '3 hours',
+    end_offset => INTERVAL '1 hour',
+    schedule_interval => INTERVAL '1 hour');Familiar PostgreSQL ecosystem
+- Existing PostgreSQL tooling
+- PostGIS for geospatial
+- Full-text search integration
+Observability Integration
+ClickHouse for Observability
+ClickHouse powers several observability platforms:
+- SigNoz: Open-source APM using ClickHouse
+- Jaeger: Distributed tracing backend
+- Grafana: Native data source plugin
+-- Trace analysis query
+SELECT
+    trace_id,
+    span_name,
+    service_name,
+    duration_ms,
+    status_code
+FROM traces
+WHERE timestamp >= now() - INTERVAL 1 HOUR
+  AND duration_ms > 1000
+ORDER BY duration_ms DESC
+LIMIT 100TimescaleDB for Observability
+TimescaleDB integrates with PostgreSQL-based tools:
+- Promscale: Prometheus long-term storage
+- pg_prometheus: Prometheus metrics storage
+- Standard PostgreSQL monitoring tools
+For comprehensive observability options, see our observability platforms guide.
+Cost Comparison
+Storage Costs
+| Scenario | ClickHouse | TimescaleDB | 
+|---|---|---|
+| 1TB raw metrics | ~50GB stored | ~80GB stored | 
+| Monthly storage cost | ~$2 | ~$3-4 | 
+| 1 year retention | ~$24 | ~$40-48 | 
+Compute Costs
+| Workload | ClickHouse | TimescaleDB | 
+|---|---|---|
+| Light queries | $100-200/month | $150-300/month | 
+| Heavy analytics | $500-1000/month | $800-1500/month | 
+ClickHouse typically offers 30-50% cost savings for pure time-series analytics. For cost optimisation, see our cloud cost guide.
+Migration Considerations
+PostgreSQL to ClickHouse
+When analytics performance becomes critical:
+-- Export from PostgreSQL/TimescaleDB
+COPY (SELECT * FROM metrics WHERE timestamp > '2025-01-01')
+TO '/tmp/metrics.csv' WITH CSV HEADER;
+-- Import to ClickHouse
+INSERT INTO metrics
+SELECT * FROM file('/tmp/metrics.csv', CSVWithNames);ClickHouse to TimescaleDB
+When PostgreSQL compatibility is needed:
+-- ClickHouse export
+SELECT * FROM metrics
+INTO OUTFILE '/tmp/metrics.parquet'
+FORMAT Parquet;
+-- TimescaleDB import (via PostgreSQL)
+-- Use foreign data wrapper or ETL toolOperational Comparison
+ClickHouse Operations
+Strengths:
+- Simple architecture at scale
+- Predictable performance
+- Low operational overhead
+Challenges:
+- Schema changes require planning
+- Different SQL dialect
+- Smaller ecosystem
+TimescaleDB Operations
+Strengths:
+- Familiar PostgreSQL operations
+- Mature tooling and ecosystem
+- Easy for PostgreSQL teams
+Challenges:
+- PostgreSQL tuning knowledge required
+- Chunk management at scale
+- Resource-intensive for large deployments
+Hybrid Architecture
+Use both databases for different requirements:
+┌─────────────────────────────────────────┐
+│              Data Sources               │
+└─────────────────┬───────────────────────┘
+                  │
+    ┌─────────────┴─────────────┐
+    ▼                           ▼
+┌─────────┐               ┌───────────┐
+│ Click   │               │TimescaleDB│
+│ House   │               │           │
+└────┬────┘               └─────┬─────┘
+     │                          │
+     ▼                          ▼
+High-volume               PostgreSQL-integrated
+Analytics                 Applications
+Real-time Dashboards      Relational Context
+Long-term Storage         Transactional NeedsConclusion
+Both ClickHouse and TimescaleDB excel at time-series workloads with different strengths:
+Choose ClickHouse for high-volume analytics, real-time dashboards, and scenarios where query performance and compression are paramount. It’s ideal when you don’t need PostgreSQL compatibility.
+Choose TimescaleDB when PostgreSQL compatibility matters, you have mixed OLTP/OLAP workloads, or your team has strong PostgreSQL expertise. Continuous aggregates make it excellent for predictable query patterns.
+Consider your ecosystem: If you’re already running PostgreSQL, TimescaleDB is a natural extension. If you’re building a dedicated analytics platform, ClickHouse offers superior performance.
+For help selecting the right time-series database, contact our team to discuss your requirements.
+Related Resources
+- How Tasrie IT Services Uses ClickHouse
+- ClickHouse vs PostgreSQL 2026
+- Top 10 Observability Platforms
+- Cloud Native Database Guide 2026
+External Resources:

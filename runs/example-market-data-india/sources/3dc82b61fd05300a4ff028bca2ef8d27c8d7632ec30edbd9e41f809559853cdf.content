@@ -1,0 +1,403 @@
+vishnux
+                
+              
+                
+              
+                  
+                  
+              1
+              
+             
+            
+              Hi , Right now I am using kite api , Is there anyway I can get tick by tick data directly from NSE from their datacenters , even 100 ms faster data for me is useful for my algorithm, @nithin Kindly advice how do i get it and what will be the price , I need stocks, futures & options and indexes.
+Should I become advisory or broker to get the licence ?This is for my future use after 6 or 7 months after I earn 1 lakh per day.
+             
+            
+              
+              
+              1 Like
+            
+            
+                
+                
+              
+                
+           
+          
+            
+              
+                nithin
+                
+              
+                
+              
+                  
+                  
+              2
+              
+             
+            
+              
+Firstly, NSE has a data vending license for tick by tick data, it is just extremely expensive and a very tiny market, so no business is vending live tick by tick data. Otherwise you could have just subscribed to this data, like other forms of data. Check (real time tariff) on this
+https://www.nseindia.com/supra_global/content/dotex/data_products.htm
+Second issue is, it is almost impossible to consume/stream this data via internet. It is tens of GB’s worth of data and the cost/infra for streaming this is non-viable. Even if it were to be streamed, it would be delayed.
+The ideal solution for this is
+Ask the brokerage (we can help too) to take a rack on exchange colo. Within that rack ask for a server for yourself and ask the broker to subscribe to exchange TBT. You would then need a point to point leased line from exchange colo to another data center in Mumbai from where you would access your server. TBT data is today quite cheap, but the rack on the exchange along with server, leased line and another data center, might cost you a couple of lakhs a month. If the broker doesn’t have multiple clients for that particular rack, you would have to bear the entire cost, which would mean it can cost you upwards of 4lks a month.
+The alternative way is to take an alpha membership on the exchange yourself by putting up a 50lk deposit, and apply for the rack etc. But you would still need to go and get yourself a technology vendor, which can cost you atleast another couple of lakhs per month along with added compliance cost(over a lakh a month atleast, even if no outside clients) of being a broker/member.
+             
+            
+              
+              
+              8 Likes
+            
+            
+                
+                
+              
+                
+           
+          
+            
+              
+                vishnux
+                
+              
+              
+                  
+                  
+              3
+              
+             
+            
+              @nithin : wow it seems like lots of work to do , It would be great if you just address this tick speed delay in index , I have very fast internet connection and zerodha has faster tick data in equities and options , but its lagging only in index.If you fix this it will be really great for my option scalping algorithm.
+Also another question is I am using kite api ,if you increase speed of banknifty for zerodha dashboard , I can get the benefit in api too right (some one told both use same api)
+             
+            
+              
+              
+              
+            
+            
+                
+                
+              
+           
+          
+            
+              
+                nithin
+                
+              
+              
+                  
+                  
+              4
+              
+             
+            
+              
+hmm… we can’t selectively increase speeds for scrips. I will get it checked.
+             
+            
+              
+              
+              
+            
+            
+                
+                
+              
+           
+          
+            
+              
+                vishnux
+                
+              
+              
+                  
+                  
+              5
+              
+             
+            
+              I mean how do they get it fast  ? do they have datacenter nearby ?
+             
+            
+              
+              
+              1 Like
+            
+            
+                
+                
+              
+           
+          
+            
+              
+                nithin
+                
+              
+              
+                  
+                  
+              6
+              
+             
+            
+              
+Will get this checked. Everyone has data centers in Mumbai itself.
+             
+            
+              
+              
+              
+            
+            
+                
+                
+              
+           
+          
+            
+            
+              I know this is an old question, but Metastock provides Realtime Tick-by-Tick data for NSE, although this is expensive compared to TrueData or GlobalDataFeeds, but still much less compared to what @nithin has explained.
+Refer - Link
+             
+            
+              
+              
+              3 Likes
+            
+            
+                
+                
+              
+           
+          
+            
+            
+              
+The link I have shared is the cost for a data vendor, that is how much NSE charges a data vendor.
+The link you shared says $56 per user for capital market or around Rs 4000. NSE charges around 1400, which means Metastock charges Rs 2600 more than what NSE charges. But to give out this data, Metastock would have paid the fixed fees of 38.5lks and spent on infra.
+             
+            
+              
+              
+              3 Likes
+            
+            
+                
+                
+              
+           
+          
+            
+            
+              @nithin the cost for user is not just $56, but $150 + $56 + GST (per month). Reason being the user has to subscribe for XENITH Asia Pacific (almost like a bloomberg terminal) & the data feed.
+The reason I put this link is because, the cost of this option is still less than directly getting the connection from NSE.
+If Metastock did not force customers to subscribe to XENITH terminal ($150 / month) & just offered the data feed, would have been a good proposition. Hope some vendor provides real tick-by-tick data at a reasonable price.
+             
+            
+              
+              
+              3 Likes
+            
+            
+                
+                
+              
+           
+          
+            
+            
+              Isn’t it 38.5 lakhs plus 1400 rupees for each user per month
+I think its not just 1400 per user…
+             
+            
+              
+              
+              
+            
+            
+                
+                
+              
+           
+          
+            
+              
+                nithin
+                
+              
+              
+                  
+                  
+              12
+              
+             
+            
+              The cost is only if you want to be a vendor who wants to distribute this data as a business (So Bloomberg, etc will be paying this). As a customer wanting to consume, you don’t have to pay that much.
+             
+            
+              
+              
+              
+            
+            
+                
+                
+              
+           
+          
+            
+            
+              
+@vishnux @nithin
+I just watched this Moneylife video by Sucheta Dalal where she beautifully explains the architecture of how data flows between the data centers. 7:23 onwards she mentions how Index data is generated.
+While watching this, I was visualizing this building oh! I know. That building oh! yeah. And how digging keeps on happening in this city here and there all year around. 
+On a different note, we need such journalists and individuals who ask fearless, hard questions, file RTIs to figure out the truth.
+RTI is such a powerful tool. I remember when I had filed an RTI in BMC asking for the contract agreement between BMC and the Pothole Reporting App, and the invoices paid to the vendor since last 5 years. The owner of the vendor company was some distant relative of a minister. I paid Rs 10 for RTI. After a month, I received a 200 page document that revealed so much facts and data that the newspaper editors denied to publish. But on a good note, in few months Maharashtra Govt cancelled the contract with that vendor.
+             
+            
+              
+              
+              2 Likes
+            
+            
+                
+                
+              
+           
+          
+            
+            
+              @nithin Even a little help with Tick Data would be wonderful to a large number of traders, it simplifies the whole thing and brings the noise free attention to the data. Zerodha already publishes that data it’s just that if that gets made available via a long sidebar with all those prints recorded, that’s all! Zerodha’s CopyCat - Fyers already provides it although it misses a number of txns.
+             
+            
+              
+              
+              
+            
+            
+                
+                
+              
+           
+          
+            
+            
+              
+This is time and sales data and I think is not of much help if used alone, it will be useful if used along with footprint charts, advanced volume profile or market profile.
+             
+            
+              
+              
+              1 Like
+            
+            
+                
+                
+              
+           
+          
+            
+            
+              Lease line will not be able to handle TBT data from NSE to data center. you need server at co-location.
+             
+            
+              
+              
+              1 Like
+            
+            
+                
+                
+              
+           
+          
+            
+            
+              From colocation to data center we need leased line right?
+             
+            
+              
+              
+              
+            
+            
+                
+                
+              
+           
+          
+            
+            
+              Hi iTrader (@iTrader), Are you still using Metastocks Xenith terminal is it worth subscribing to it?
+             
+            
+              
+              
+              
+            
+            
+                
+                
+              
+           
+          
+            
+              
+                iTrader
+                
+              
+              
+                  
+                  
+              20
+              
+             
+            
+              @KaushikGowda no I am not using the terminal. It is too expensive for retail trader like me.
+             
+            
+              
+              
+              1 Like
+            
+            
+                
+                
+              
+           
+          
+            
+            
+              Hi @nithin , I know this is an old thread, but does Zerodha still help with providing space for single server so that I can collect NSE Tick by Tick Data [by tick by tick I mean all orders in the market and not L1,L2,L3 data].
+             
+            
+              
+              
+              
+            
+            
+                
+                
+              
+           
+          
+            
+              
+                siva
+                
+              
+              
+                  
+                  
+              22
+              
+             
+            
+              
+No, not possible with us, maybe you can check with someone who offer colocation services.

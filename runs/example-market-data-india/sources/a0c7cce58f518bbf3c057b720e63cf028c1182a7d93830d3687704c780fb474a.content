@@ -1,0 +1,40 @@
+OHLCV Data: Accessing Historical Cryptocurrency Data for Backtesting
+In trading, backtesting assesses the viability of a trading strategy by running that strategy against historical data. You simulate the strategy and plug in actual past data to generate results; these results enable you to assess and analyze the risk and profitability of the strategy before risking any of your capital.
+The underlying theory here is that a strategy that worked well in the past is likely to work well in the future, and conversely, any strategy that performed poorly in the past is likely to perform poorly in the future.
+Besides just the overall profitability (or loss) of the strategy, you can see other important results and metrics, like average and maximum drawdown, standard deviation, Sharpe Ratio, and so forth. You can also compare the strategy to the returns of various indices and benchmarks as well as get a sense of how it performed during various economic environments. Backtesting isn’t always perfectly predictive – as the ads say, “Past performance is no guarantee of future results,” but it’s much better than just guessing.
+As you might imagine, a crucial necessity for successful backtesting is comprehensive, granular, and accurate historical data. Amberdata’s crypto market data API includes real-time and historical OHLCV data for thousands of spot assets and pairs, as well as futures, options, and swaps data from the world's leading exchanges, all within a single API.
+Understanding Amberdata OHLCV Endpoints
+What exactly is OHLCV data? Simple. OHLCV stands for Open, High, Low, Close, and Volume, and represents the price and volume action of a particular crypto or derivative within a specific time frame. Since crypto trades around the clock and in all time zones, this time frame can be variable. (The standard time frames we offer are 24-hour, 1-hour, and 1-minute.)
+So, the acronym is simple, but obtaining the data is not quite as easy as it is to define because of the huge number of exchanges with a variety of data formats, the thinness of some cryptos, and the 24/7 aspect of crypto trading. Collecting, cleaning, standardizing, and verifying this data is a daunting task for an individual or trading firm. It’s much easier to leave all that work to Amberdata and let us provide you with the API endpoints that enable access to that data.
+The latest endpoints return the real-time open-high-low-close for a specific spot pair. The latest by Exchange endpoints will return the latest open-high-low-close for the specified exchange. Pairs with no activity in the past 24 hours are ignored. Historical endpoints return the historical OHLCV for the specified pair. Batch historical endpoints return large collections of historical OHLCV for the exchange and pairs.
+Spot Markets
+API Endpoints
+Futures Markets
+API Endpoints
+Options Markets
+API Endpoints
+Note: Block trades are included in the calculation of OHCLV for Deribit.
+Swaps Markets
+API Endpoints
+How to Access Historical OHLCV Data
+Amberdata offers several ways to access our OHLCV datasets including REST API, AWS S3, Snowflake, Google Cloud’s Analytics Hub, and Databricks. In addition to OHLCV, other available datasets include:
+- Order Book Snapshots
+- Order Book Events
+- Tickers
+- Trade Data
+OHLCV Data in Backtesting Trading Strategies
+Historical OHLCV data is, of course, much better data to use for backtesting rather than just open and close prices, because it captures intraday volatility which can be significant, especially if you use stop loss orders. Granular volume is good to know because it can give you insights on exit and entry points, patterns of high or low market liquidity, which can affect spreads and slippage.
+Creating OHLCV Charts
+Backtesting can provide you with a plethora of stats and metrics that can inform your decision making as to whether and how much capital to deploy to a strategy or trading bot. As valuable as this is, however, sometimes it helps to be able to see what the price and volume action looks like. Particularly if you’re a practitioner of technical analysis, seeing a chart can be invaluable.
+With Amberdata’s comprehensive OHLCV data, you can create customized dashboards and charts to analyze how trading strategies performed, draw trendlines, and apply technical indicators like MACDs, Bollinger Bands, RSI, and others that are more easily understood visually.
+Using OHLCV Data in Automated Trading Systems
+Additionally, especially in crypto, where so much trading activity is initiated via bots, many traders and institutional trading firms want custom-built, automated backtesting models and software. These use cases are data hogs, and demand readily-available, standardized data that’s easy to access via simple API data connections like those provided by Amberdata.
+A standard automated crypto trading activity is arbitrage. Because crypto trading takes place on so many exchanges, both DEXs and CEXs, and moves can be so fast, crypto arbitrage must be done via bot to be successful. Recently we published a report on how you could use OHLCV data for automated trading systems development and backtesting. This particular instance was the creation and backtesting of a DEX/CEX crypto arbitrage strategy. Take a look; it might give you some ideas.
+Backtesting can provide a look at the future
+No matter what type of trading you’re doing, backtesting should be an important part of your process. Its value is impossible to overstate. Whether you’re looking for statistics, metrics, charts, or risk management, backtesting will help.
+OHLCV Data for Institutional Traders
+Amberdata was built to serve institutional traders. We provide solutions and expertise for every digital asset class participant. Whether you’re a financial institution just entering the asset class, a seasoned crypto trader, or a Fintech building or enhancing products, Amberdata has digital asset data solutions to meet your needs.
+Along with providing comprehensive, granular, and normalized data, we help you stay informed of activity in the crypto markets with our research and commentary each month in our blogs, resource library, guides and primers, as well as insights into blockchain networks, crypto markets, and decentralized finance.
+To learn more about Amberdata, explore our OHLCV data endpoints or contact us to book a demo.
+Amberdata
+Amberdata is the leading provider of global financial infrastructure for digital assets. Our institutional-grade solutions deliver data, analytics and comprehensive tools and insights that empower financial institutions to research, trade, and manage risk and compliance in digital assets. Amberdata serves as a...

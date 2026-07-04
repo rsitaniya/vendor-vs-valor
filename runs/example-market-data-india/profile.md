@@ -1,26 +1,35 @@
-# Need profile — 20260615-021109-7a9aae
+# Need profile — 20260704-165040-683630
 
 ## Need
-- **Capability:** A market data infrastructure layer providing clean historical OHLCV data, accurate machine-readable corporate actions, index compositions, real-time/delayed feeds, and mutual fund NAVs.
-- **Business context:** A Series A fintech startup building an institutional-grade portfolio analytics and compliance platform for Indian wealth managers (boutiques, family offices, and RIAs).
-- **Problem:** Unadjusted or inaccurate corporate action historical data leads to incorrect IRR and P&L calculations, creating legal liability risks. Additionally, obtaining legally compliant, authorized exchange feeds to avoid unauthorized scraping is difficult and costly.
+- **Capability:** Market data infrastructure layer providing historical OHLCV data (NSE and BSE equities, daily and 1-minute bars for at least 20 years), machine-readable corporate actions, index and custom index composition history, 15-minute delayed or sub-second real-time tick feeds, AMFI mutual fund NAVs, and F&O market data.
+- **Business context:** Series A fintech startup building an institutional-grade portfolio analytics and compliance platform for Indian wealth managers (boutique advisory firms, family offices, and SEBI-registered RIAs managing ₹50 crore to ₹2,000 crore in client AUM).
+- **Problem:** Calculating accurate historical performance, trailing returns, and backtesting requires point-in-time adjusted historical prices accounting perfectly for corporate actions. Incorrect calculations lead to client-facing legal liabilities. Furthermore, commercial redistribution of exchange data requires strict, authorized exchange licensing, which limits self-built solutions due to legal and compliance barriers.
 
 ## Intent
 - **Core-value proximity:** enabling
-- **Rationale:** The market data feed serves as the critical underlying plumbing and raw material that enables the startup's core portfolio analytics and compliance calculations.
+- **Rationale:** The platform's primary moat is the analytics and compliance workflow layer built on top of the data, making the underlying market data feed an enabling infrastructural capability.
 
 ## Resources
-- **Eng headcount:** 5
-- **Relevant skills:** Python, distributed systems, SQL, Kafka, Airflow, TimescaleDB
-- **Budget:** Can spend ₹3–5 lakh per month (~$3,600–6,000/month) at launch, scaling to ₹8–10 lakh/month (~$9,600–12,000/month). Bloomberg is out of scope.
-- **Runway:** Series A funded with ~$3.2M raised and 22 months of runway.
+- **Eng headcount:** 4
+- **Relevant skills:** Python, distributed systems, SQL, data engineering, Kafka, Airflow, TimescaleDB
+- **Budget:** ₹3–5 lakh/month at launch, scaling to ₹8–10 lakh/month as AUM grows. Bloomberg Terminal is out of scope. No existing vendor contracts.
+- **Runway:** Series A funded, ~$3.2M raised, 22 months of runway.
+- **Expected scale:** Dozens of RIA/family-office clients at launch, scaling platform-wide AUM toward ₹10,000 crore over 18 months.
+- **Procurement process:** No formal procurement function. CTO signs off directly on vendor contracts, taking 1–2 weeks from shortlist to agreement.
 
 ## Constraints
-- **Compliance:** SEBI Research Analyst and Investment Advisor regulations, Exchange authorization for market data redistribution (NSE/BSE)
-- **Data sensitivity:** Price data is not sensitive, but client portfolio data mapped to prices is. Need to know if vendors train models on ingested data or have strict data processing agreements.
-- **Existing stack:** Python, FastAPI, AWS EKS (Kubernetes), PostgreSQL, TimescaleDB, AWS S3, Kafka (MSK), AWS (ap-south-1 Mumbai region), Airflow
-- **Timeline hard stop:** 4 weeks to have historical OHLCV and corporate actions working in staging before wealth manager onboarding begins in week 6.
+- **Compliance:** SEBI Research Analyst regulations, SEBI Investment Adviser regulations, AMFI norms for mutual fund NAV distribution
+- **Data sensitivity:** Raw price/index data is not sensitive, but client portfolio data mapped to those prices is. Vendors must be evaluated on how they process data and if they train models on it.
+- **Data residency:** Prefer data storage and processing in AWS ap-south-1 (Mumbai).
+- **Required certifications:** Authorized NSE commercial data vendor, Authorized BSE commercial data vendor
+- **Existing stack:** Python, FastAPI, AWS EKS, PostgreSQL, TimescaleDB, AWS S3, Kafka (MSK), Airflow, AWS ap-south-1 (Mumbai)
+- **Integration requirements:** REST/WebSocket ingestion feeding Kafka (MSK) topics, TimescaleDB for time-series queries, Airflow-orchestrated batch jobs for corporate-actions reconciliation
+- **Timeline hard stop:** 8 weeks for historical OHLCV + corporate actions working in staging. 3 months for stable production real-time/delayed feeds. 6 months for tick-level intraday data for alerts.
 
 ## Customization & steer
 - **Customization need:** medium
-- **Soft steer:** Data quality, accuracy, regulatory licensing, and avoiding proprietary vendor lock-in with portable APIs matter most, even if it requires a premium over cut-rate, unlicenced feeds.
+- **Soft steer:** Prioritize absolute data quality and corporate action accuracy over cost to avoid legal liability. Open to evaluating viable self-hosted or open-source setups if they meet exchange authorization licensing constraints.
+
+## Reversibility & portfolio
+- **Reversibility criteria:** A pattern of corporate-actions errors, SLA breaches on uptime/latency, loss of vendor's NSE/BSE authorization or SEBI compliance, or price hikes exceeding the ₹8-10 lakh/month ceiling. High sensitivity to lock-in; prefer standard REST/WebSocket API contracts over proprietary SDKs.
+- **Portfolio note:** The market-event stream generated by this ingestion pipeline is also intended to serve as the upstream input for a semantic-alerts feature within a parallel vector-database project, avoiding redundant ingestion paths.

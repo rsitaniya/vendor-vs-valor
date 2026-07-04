@@ -1,0 +1,64 @@
+Power your Trading Decisions with our Low
+ latency WebSocket APIs.
+Available APIs :
+Python
+Javascript
+NodeJS
+C#
+.Net
+TrueData offers a Market Data API that facilitates access to financial data. It supplies both real-time and historical data for stocks and additional financial instruments. TrueData stands out as the premier provider of Market Data API , delivering services for NSE EQ, NSE Indices, NSE F&O, BSE EQ, BSE Indices, BSE F&O and MCX. Our stock data API is a dependable option for individuals seeking thorough and precise financial information.
+Available APIs
+Exchange Segments supported
+Versatile, most Modern, simple yet powerful API. On demand data in JSON format is pushed from server. Suitable for Web, Mobile as well as Desktop Applications
+Authentic, accurate & affordable data with low latency
+No commitment required, flexible pricing
+Supported exchanges : NSE (Stocks & Indices), NFO (NSE Futures & Options), NSE CDS (Currency Derivatives), MCX
+OS / Languages : Almost any operating system & programming language can be used which has support for any of above technologies
+Available Data : Real-time, option-chain, option greeks
+Versatile, most Modern, simple yet powerful API. On demand data in JSON format is pushed from server. Suitable for Web, Mobile as well as Desktop Applications
+Authentic, accurate & affordable data with low latency
+No commitment required, flexible pricing
+Supported exchanges : NSE (Stocks & Indices), NFO (NSE Futures & Options), NSE CDS (Currency Derivatives), MCX
+OS / Languages : Almost any operating system & programming language can be used which has support for any of above technologies
+Available Data : Real-time, option-chain, option greeks
+Versatile, most Modern, simple yet powerful API. On demand data in JSON format is pushed from server. Suitable for Web, Mobile as well as Desktop Applications
+Authentic, accurate & affordable data with low latency
+No commitment required, flexible pricing
+Supported exchanges : NSE (Stocks & Indices), NFO (NSE Futures & Options), NSE CDS (Currency Derivatives), MCX
+OS / Languages : Almost any operating system & programming language can be used which has support for any of above technologies
+Available Data : Real-time, option-chain, option greeks
+Versatile, most Modern, simple yet powerful API. On demand data in JSON format is pushed from server. Suitable for Web, Mobile as well as Desktop Applications
+Authentic, accurate & affordable data with low latency
+No commitment required, flexible pricing
+Supported exchanges : NSE (Stocks & Indices), NFO (NSE Futures & Options), NSE CDS (Currency Derivatives), MCX
+OS / Languages : Almost any operating system & programming language can be used which has support for any of above technologies
+Available Data : Real-time, option-chain, option greeks
+FEATURES
+We offer realtime data of Indian Stock Markets through APIs. This is the same data & APIs which power our own data products.
+L1 data @1sec frequency with single best bid/ask details
+Get realtime data of entire option chain of the underlying in single call
+Get IV, Delta, Theta, Vega, Gamma, & 16+ matrices in single call
+Get live data of entire exchange segment in single call
+Realtime, snapshot, delayed, End-Of-Day
+WebSockets, RESTful, DotNet, COM
+NSE (Stocks, Indices, Futures & Options), NSE CDS (Currency), MCX
+Virtually any OS can be supported. Some of these include MS Windows, Linux & Unix
+Live & Historical data of any symbol traded on supported exchanges is available.
+Code Samples for various programming languages are available for quick start
+Long (FUTIDX_NIFTY_25AUG2022_XX_0), short (NIFTY25AUG22FUT) & continuous (NIFTY-I)
+Widely used Programming Languages are Python, Java, JavaScript, PHP, NodeJS, C-Sharp, VB.Net, C, C++ and many more
+Desktop, Web, Mobile
+Telegram
+To Get API Updates and implementation ideas
+New Updates
+Library Updates
+New Feratures etc
+                        Contact our solution experts for any help. They will help you
+                        answer any questions you may have.
+                    
+The Subscriber must ensure that the information provided terminates at his / her end.
+TrueData does not provide market data for any kind of Gaming / Virtual trading / Simulation usage, as per NSE/SEBI guidelines.
+If you have such requirements, please take approvals from NSE & SEBI before approaching us.
+This Data is for Personal Charting Use of a Single Subscriber only.
+In case of any violation of the above terms, misuse or objection of your usage by the exchanges, TrueData has the right to terminate your subscription without any prior notice or intimation.
+Amount paid will not be refunded once order is placed / data is delivered. Please see our Disclaimer as well as Refund Policy before placing the order.

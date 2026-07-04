@@ -1,20 +1,24 @@
 {
   "recommendation": {
     "path": "buy_then_extend",
-    "thesis": "Given the strict 4-week timeline and severe legal liability regarding adjusted corporate actions, licensing a commercial API for compliant market data ingestion is necessary. The startup can securely satisfy SEBI and NSE data regulations by buying the raw feed, and then extend this foundation by building its proprietary institutional-grade analytics using local query engines over portable data formats."
+    "thesis": "The `buy_then_extend` path perfectly aligns with the strategy of treating market data as an enabling capability rather than a core differentiator. By licensing raw data feeds from authorized commercial vendors via standard APIs and building the analytics and compliance workflows internally over TimescaleDB, the platform avoids massive infrastructure overhead while maintaining precise control over corporate action accuracy and SEBI compliance."
   },
   "decisive_factors": [
     {
-      "dimension": "Timeline and Staging Deadlines",
-      "why": "A 4-week hard stop renders building direct, compliant exchange feeds from scratch impossible; a commercial API is needed immediately to populate the data warehouse."
+      "dimension": "Infrastructure Cost & Complexity",
+      "why": "Building direct exchange connectivity costs over 4 lakhs/month for co-location and 38.5 lakhs in fixed fees, making buy_then_extend far more viable."
     },
     {
-      "dimension": "Regulatory Licensing and Data Accuracy",
-      "why": "SEBI and NSE strictly prohibit unauthorized market data redistribution. Paying for an authorized API prevents legal liability regarding inaccurate, scraped corporate actions."
+      "dimension": "Vendor Licensing Constraints",
+      "why": "Restrictive licenses from vendors like TrueData block commercial redistribution, necessitating careful vendor selection (e.g., Accord Fintech NXT) to power the internal extension."
     },
     {
-      "dimension": "Architectural Decoupling",
-      "why": "The buy-then-extend approach allows the startup to cleanly decouple the purchased API feed from their proprietary analytics logic by storing the ingested data in an open Parquet format."
+      "dimension": "Capability Intent Focus",
+      "why": "The platform's core moat is its analytics and compliance workflow; licensing the raw market data enables engineering to focus entirely on building that differentiating layer."
+    },
+    {
+      "dimension": "Architecture & Portfolio Synergies",
+      "why": "Extending a bought feed via internal TimescaleDB/Kafka ingestion allows the resulting market-event stream to natively feed the parallel vector-database project without creating redundant ingestion paths."
     }
   ],
   "dossiers": [
@@ -22,426 +26,301 @@
       "path": "build",
       "pros": [
         {
-          "text": "Building in-house analytics with DuckDB leverages a free, open-source local query engine that has zero external dependencies.",
+          "text": "Internal ingestion can secure point-in-time corporate actions data to accurately backtest algorithms without survivorship bias.",
           "cited_claim_ids": [
-            "5d773c",
-            "5e8677",
-            "ffd90a"
+            "928202"
           ]
         },
         {
-          "text": "Running the IB Gateway on a Hetzner VPS allows for extremely cost-efficient direct data ingestion at roughly $4 to $6 per month.",
+          "text": "The platform can directly retrieve 15-minute delayed snapshot files generated every minute by the National Stock Exchange.",
           "cited_claim_ids": [
-            "e58a3e",
-            "461520"
+            "ac2118",
+            "4da0b4"
           ]
         }
       ],
       "cons": [
         {
-          "text": "Indian market data is licensed rather than owned, and redistributing or sharing it publicly without explicit written authorization is prohibited.",
+          "text": "Sourcing real-time direct tick feeds from the National Stock Exchange demands dedicated customer-owned leased line circuits.",
           "cited_claim_ids": [
-            "49305c",
-            "24da7d"
+            "83ac9f"
           ]
         },
         {
-          "text": "Native data ingestion requires the operational overhead of managing a running IB Gateway instance.",
+          "text": "Direct tick-by-tick feeds require co-location racks exceeding 4 lakhs/month and a fixed fee of 38.5 lakhs to the National Stock Exchange.",
           "cited_claim_ids": [
-            "461520"
+            "3105d7",
+            "02c3e3"
+          ]
+        },
+        {
+          "text": "Streaming live tick-by-tick data over the internet is constrained by massive file sizes reaching tens of gigabytes.",
+          "cited_claim_ids": [
+            "65f322"
           ]
         }
       ],
       "key_risks": [
         {
-          "text": "Relying on homegrown pipelines without explicit vendor data agreements risks violating SEBI's regulations for investment advisors and restricted data sharing policies.",
+          "text": "Self-built pipelines risking delayed or incorrect data will manifest as severe user-facing issues and legal liabilities.",
           "cited_claim_ids": [
-            "ef96f5",
-            "9f8c49"
+            "e03a14"
+          ]
+        },
+        {
+          "text": "Violating strict SEBI mandates regarding real-time price data sharing could lead to major regulatory compliance failures.",
+          "cited_claim_ids": [
+            "4a4761",
+            "054fae"
           ]
         }
       ],
       "reversibility": {
-        "text": "Moderate to difficult; custom ingestion infrastructure built around IB Gateway represents a sunk engineering investment if regulatory compliance later forces a pivot to licensed feeds.",
+        "text": "Heavy upfront investments in leased lines and physical infrastructure for direct National Stock Exchange feeds are not easily reversible, making it impossible to pivot cleanly if the solution fails to perform.",
         "cited_claim_ids": [
-          "461520"
+          "83ac9f",
+          "3105d7"
         ]
       },
       "cited_claim_ids": [
-        "5d773c",
-        "5e8677",
-        "ffd90a",
-        "e58a3e",
-        "461520",
-        "49305c",
-        "24da7d",
-        "ef96f5",
-        "9f8c49"
+        "928202",
+        "ac2118",
+        "4da0b4",
+        "83ac9f",
+        "3105d7",
+        "02c3e3",
+        "65f322",
+        "e03a14",
+        "4a4761",
+        "054fae"
       ]
     },
     {
       "path": "buy",
       "pros": [
         {
-          "text": "Commercial APIs like EODHD provide ready-to-use endpoints for mutual fund fundamentals, adjusted close prices, and EOD OHLCV data across over 60 global exchanges.",
+          "text": "TrueData offers comprehensive RESTful and WebSocket market data APIs covering NSE, BSE, and derivatives.",
           "cited_claim_ids": [
-            "388b7c",
-            "c72106",
-            "e70d8d"
+            "e6e417",
+            "38512a"
           ]
         },
         {
-          "text": "Alpha Vantage is an officially licensed market data provider for US exchanges like NASDAQ.",
+          "text": "Accord Fintech NXT provides stock market and mutual fund feeds through API and FTP protocols.",
           "cited_claim_ids": [
-            "0b3263"
+            "6a4b6c"
+          ]
+        },
+        {
+          "text": "The mfapi.in platform delivers unrestricted Indian mutual fund data updated six times per day without requiring API keys.",
+          "cited_claim_ids": [
+            "a173a2",
+            "586f64"
           ]
         }
       ],
       "cons": [
         {
-          "text": "SEBI rules strictly prohibit market intermediaries from sharing real-time price data with third parties unless formal agreements are in place.",
+          "text": "TrueData strictly limits its market data feed to single-subscriber personal charting use and forbids simulation applications without exchange approval.",
           "cited_claim_ids": [
-            "904a1c",
-            "9aa35d"
+            "c4225f",
+            "a000ed"
           ]
         },
         {
-          "text": "Trading members are explicitly prohibited by the NSE data policy from redistributing market data without formal permission.",
+          "text": "Distributing tick data through commercial vendors implies high underlying National Stock Exchange fixed fees of 38.5 lakhs, which will likely be passed on to the platform.",
           "cited_claim_ids": [
-            "2f5382"
+            "02c3e3"
           ]
         }
       ],
       "key_risks": [
         {
-          "text": "Even with a paid feed, NSE data cannot be used to build custom or composite financial indices without obtaining a completely separate license, which could block the startup's core platform value.",
+          "text": "Vendors like TrueData enforce a strict non-refundable payment policy once data is delivered, increasing financial risk.",
           "cited_claim_ids": [
-            "7b83f1"
+            "47d388"
+          ]
+        },
+        {
+          "text": "Utilizing vendors that restrict commercial redistribution exposes the platform to severe compliance and legal risks.",
+          "cited_claim_ids": [
+            "c4225f"
           ]
         }
       ],
       "reversibility": {
-        "text": "High; adopting a commercial vendor like EODHD solely for data ingestion makes it relatively simple to swap providers if data quality or licensing terms become unfavorable.",
+        "text": "Preferring standard API contracts from vendors like Accord Fintech NXT and TrueData meets the reversibility criteria against proprietary lock-in, enabling easier switching if SLA breaches occur or vendor authorization is lost.",
         "cited_claim_ids": [
-          "c72106"
+          "e6e417",
+          "6a4b6c"
         ]
       },
       "cited_claim_ids": [
-        "388b7c",
-        "c72106",
-        "e70d8d",
-        "0b3263",
-        "904a1c",
-        "9aa35d",
-        "2f5382",
-        "7b83f1"
+        "e6e417",
+        "38512a",
+        "6a4b6c",
+        "a173a2",
+        "586f64",
+        "c4225f",
+        "a000ed",
+        "02c3e3",
+        "47d388"
       ]
     },
     {
       "path": "buy_then_extend",
       "pros": [
         {
-          "text": "The startup can license EODHD's APIs to ingest compliant adjusted close and mutual fund data, while maintaining analytical independence by using Parquet as the system of record.",
+          "text": "Core API feeds can be licensed from Accord Fintech NXT and mfapi.in, satisfying foundational mutual fund and equity data needs.",
           "cited_claim_ids": [
-            "388b7c",
-            "c72106",
-            "d282cb"
+            "6a4b6c",
+            "a173a2"
           ]
         },
         {
-          "text": "The differentiating portfolio analytics layer can be aggressively optimized by extending the ingested data using ClickHouse for production benchmarking or DuckDB for local querying.",
+          "text": "Extending these feeds internally via TimescaleDB supports point-in-time corporate actions for highly accurate institutional backtesting.",
           "cited_claim_ids": [
-            "a18c10",
-            "ffd90a"
+            "ef33d4",
+            "928202"
           ]
         }
       ],
       "cons": [
         {
-          "text": "Commercial APIs impose rate limits (EODHD limits paid users to 100,000 calls/day; Alpha Vantage caps free users at 500 calls/day), which may bottleneck historical data backfills for staging.",
+          "text": "Must aggressively filter out vendors like TrueData due to restrictive single-subscriber licenses that explicitly block institutional platform redistribution.",
           "cited_claim_ids": [
-            "52d0ba",
-            "0ea9ac"
+            "c4225f"
           ]
         },
         {
-          "text": "There is a notable conflict in vendor pricing tiers, ranging from EODHD at $19.99/month to Alpha Vantage scaling up to $249.99/month.",
+          "text": "National Stock Exchange binary snapshot data requires complex custom parsing over SFTP if used to augment vendor feeds directly.",
           "cited_claim_ids": [
-            "f834a5",
-            "797767"
+            "4da0b4",
+            "ccabdf"
           ]
         }
       ],
       "key_risks": [
         {
-          "text": "Building analytical models and custom indices on top of the purchased API feed still legally requires acquiring a separate index creation license from the NSE.",
+          "text": "Any delayed or incorrect upstream vendor data will cascade through the extended pipeline, causing expensive client-facing compliance issues.",
           "cited_claim_ids": [
-            "7b83f1"
+            "e03a14"
+          ]
+        },
+        {
+          "text": "SEBI rules on real-time data sharing must be strictly monitored when extending and redistributing the combined feed to clients.",
+          "cited_claim_ids": [
+            "4a4761"
           ]
         }
       ],
       "reversibility": {
-        "text": "Moderate; relying on APIs for raw materials while cleanly abstracting the storage layer into Parquet means the core portfolio logic is portable across future data providers.",
+        "text": "Highly reversible; integrating via standard API/FTP protocols from vendors like Accord Fintech NXT ensures the architecture avoids lock-in if price hikes exceed the ₹8-10 lakh/month ceiling.",
         "cited_claim_ids": [
-          "c72106",
-          "d282cb"
+          "6a4b6c"
         ]
       },
       "cited_claim_ids": [
-        "388b7c",
-        "c72106",
-        "d282cb",
-        "a18c10",
-        "ffd90a",
-        "52d0ba",
-        "0ea9ac",
-        "f834a5",
-        "797767",
-        "7b83f1"
+        "6a4b6c",
+        "a173a2",
+        "ef33d4",
+        "928202",
+        "c4225f",
+        "4da0b4",
+        "ccabdf",
+        "e03a14",
+        "4a4761"
       ]
     },
     {
       "path": "adopt_self_host",
       "pros": [
         {
-          "text": "The platform can leverage the free, open-source DuckDB engine for local analysis, or scale real-time analytics using a distributed open-source ClickHouse architecture.",
+          "text": "TimescaleDB integrates seamlessly into the existing PostgreSQL stack with full SQL support and automatic partitioning for time-series analytics.",
           "cited_claim_ids": [
-            "5d773c",
-            "c838ba",
-            "2b475a"
+            "ef33d4"
           ]
         },
         {
-          "text": "Git-like versioning and community-backed primitives can be integrated by adopting open-source tools such as Dolt, lakeFS, or DuckLake.",
+          "text": "Can ingest delayed snapshot files downloaded via SFTP directly from the National Stock Exchange to bypass vendor limits.",
           "cited_claim_ids": [
-            "ac073a",
-            "6ea050",
-            "a43f09"
+            "ccabdf",
+            "4da0b4"
           ]
         }
       ],
       "cons": [
         {
-          "text": "Self-hosting analytics pipelines requires significant setup time, such as configuring ClickHouse materialized views to optimize ingestion times.",
+          "text": "The alternative OSS project ClickHouse lacks full ACID compliance, posing a significant limitation for transaction-heavy analytical workloads.",
           "cited_claim_ids": [
-            "5879dd"
+            "fc6ff2"
           ]
         },
         {
-          "text": "While tools like DuckDB are free and open-source, the evidence does not highlight any managed commercial twins to alleviate the operational burden of self-hosting them at scale.",
+          "text": "Self-hosting the necessary infrastructure for direct tick feeds via the National Stock Exchange demands extensive co-location setups costing >4 lakhs/month.",
           "cited_claim_ids": [
-            "5d773c"
+            "3105d7"
           ]
         }
       ],
       "key_risks": [
         {
-          "text": "Self-hosting robust database software does not circumvent the fundamental prohibition against sharing real-time price data without SEBI compliant formal agreements.",
+          "text": "Operating complex OSS data pipelines (like managing ZooKeeper for ClickHouse) introduces a high risk of delayed data and user-facing analytical errors.",
           "cited_claim_ids": [
-            "904a1c",
-            "9aa35d"
+            "0cdf28",
+            "e03a14"
           ]
         }
       ],
       "reversibility": {
-        "text": "Hard; hardening a distributed database like ClickHouse natively requires a steep operations investment that cannot be easily unwound to meet a 4-week staging deadline.",
+        "text": "Deeply embedding OSS components like ClickHouse or TimescaleDB creates internal operational lock-in, making it difficult to reverse if the maintenance burden causes SLA breaches.",
         "cited_claim_ids": [
-          "c838ba"
+          "0cdf28",
+          "ef33d4"
         ]
       },
       "cited_claim_ids": [
-        "5d773c",
-        "c838ba",
-        "2b475a",
-        "ac073a",
-        "6ea050",
-        "a43f09",
-        "5879dd",
-        "904a1c",
-        "9aa35d"
+        "ef33d4",
+        "ccabdf",
+        "4da0b4",
+        "fc6ff2",
+        "3105d7",
+        "0cdf28",
+        "e03a14"
       ]
     }
   ],
   "runner_up": {
     "path": "buy",
     "wins_when": [
-      "if meeting the strict 4-week timeline by piping data directly into the existing TimescaleDB stack is prioritized over the architectural overhead of building custom data warehouse extensions"
+      "A commercial vendor emerges with a fully managed, compliant, and correctly adjusted historical database that natively supports institutional backtesting and redistribution, removing the need for any internal pipeline extensions."
     ],
-    "case": "A pure 'buy' approach avoids the engineering overhead of building a custom data warehouse extension, cleanly meeting the strict 4-week staging deadline. By licensing a commercial API like EODHD, the startup gains immediate access to global equities across more than 60 exchanges [e70d8d], mutual fund fundamentals [388b7c], and end-of-day OHLCV data with pre-adjusted close prices [c72106]—directly solving the corporate action liability risk. With up to 100,000 API calls per day on paid tiers [52d0ba], the team can simply ingest this managed feed into their existing PostgreSQL and TimescaleDB infrastructure rather than taking on the burden of engineering new local query capabilities.",
-    "cited_claim_ids": [
-      "e70d8d",
-      "388b7c",
-      "c72106",
-      "52d0ba"
-    ],
-    "from_challenger": true
+    "case": "",
+    "cited_claim_ids": [],
+    "from_challenger": false
   },
   "open_questions": [
-    "Does EODHD possess explicit NSE/BSE authorization allowing its customers to redistribute corporate actions and historical OHLCV data to wealth management end-clients?",
-    "Are there specific vendor data processing agreements available with EODHD to protect client portfolio data when mapping against historical prices?",
-    "What is the exact financial and timeline cost to acquire an NSE license for creating custom financial indices out of vendor-supplied data?"
+    "Are Accord Fintech NXT's historical OHLCV and corporate action datasets perfectly adjusted point-in-time for algorithmic backtesting?",
+    "What are the exact latency SLAs for Accord Fintech NXT's API/FTP feeds, and do they meet the sub-second tick requirement for alerts?",
+    "Does the mfapi.in platform have the necessary reliability and legal backing for institutional-grade platform use, or is a commercial mutual fund data vendor required?",
+    "How does the parallel vector-database project expect the upstream market-event stream to be specifically structured for its semantic alerts?"
   ],
   "claims_index": {
-    "49305c": {
-      "text": "Indian market data is licensed rather than owned, remaining the intellectual property of the stock exchanges.",
-      "status": "SUPPORTED",
-      "flags": [],
-      "dimension": "m9",
-      "track": "BUILD",
-      "source": {
-        "url": "https://www.truedata.in/market-data-apis",
-        "title": "Market Data API | Live, SnapChat, Options Chain, Option Greeks",
-        "display_quote": "All market data remains the intellectual property of the exchanges",
-        "source_date": "2025-01-01"
-      }
-    },
-    "e70d8d": {
-      "text": "EODHD provides market data covering global equities across more than 60 exchanges.",
-      "status": "SUPPORTED",
-      "flags": [],
-      "dimension": "m10",
-      "track": "BUY",
-      "source": {
-        "url": "https://ml4trading.io/docs/data/providers/eodhd/",
-        "title": "EODHD Provider¶",
-        "display_quote": "provides affordable access to global equities across 60+ exchanges",
-        "source_date": "2024-01-01"
-      }
-    },
-    "ac073a": {
-      "text": "The open-source database Dolt achieves a median PR merge time of roughly 30 minutes.",
-      "status": "PARTIAL",
-      "flags": [
-        "partial_evidence"
-      ],
-      "dimension": "m13",
-      "track": "BUILD",
-      "source": {
-        "url": "https://motherduck.com/blog/git-for-data-part-2/",
-        "title": "Git for Data Applied",
-        "display_quote": "Dolt stands out with the fastest PR merge times (~30 min median).",
-        "source_date": "2026-05-12"
-      }
-    },
-    "461520": {
-      "text": "Ingesting data within the market-data-warehouse requires a running instance of IB Gateway.",
+    "4da0b4": {
+      "text": "National Stock Exchange snapshot data files are provided in binary format over the internet.",
       "status": "SUPPORTED",
       "flags": [],
       "dimension": "m14",
-      "track": "BUILD",
-      "source": {
-        "url": "https://github.com/joemccann/market-data-warehouse",
-        "title": "GitHub - joemccann/market-data-warehouse: A local-first financial data warehouse for universe-scale market data.",
-        "display_quote": "You need a running IB Gateway for ingestion.",
-        "source_date": "2026-03-08"
-      }
-    },
-    "a18c10": {
-      "text": "ClickHouse is used within the market-data-warehouse project for production benchmarking.",
-      "status": "SUPPORTED",
-      "flags": [],
-      "dimension": "m14",
-      "track": "BUILD",
-      "source": {
-        "url": "https://github.com/joemccann/market-data-warehouse/blob/main/CLAUDE.md",
-        "title": "market-data-warehouse/CLAUDE.md at main · joemccann/market-data-warehouse",
-        "display_quote": "ClickHouse for production benchmarking",
-        "source_date": "2010-01-04"
-      }
-    },
-    "9aa35d": {
-      "text": "Market intermediaries sharing real-time price data with third parties must execute formal agreements outlining the data's intended use.",
-      "status": "SUPPORTED",
-      "flags": [],
-      "dimension": "m9",
       "track": "BUY",
       "source": {
-        "url": "https://www.truedata.in/blog/sebi-norms-on-sharing-real-time-price-data",
-        "title": "New SEBI Rules on Sharing Real-time Stock Market Data",
-        "display_quote": "they must do so by entering into formal agreements with those entities.",
-        "source_date": "2024-07-16"
+        "url": "https://www.nseindia.com/static/market-data/real-time-data-subscription",
+        "title": "Paid Real time data",
+        "display_quote": "Snapshot Data is provided in binary file format over the internet",
+        "source_date": "2026-06-16"
       }
     },
-    "388b7c": {
-      "text": "EODHD offers a fund fundamentals endpoint that retrieves details for mutual funds.",
-      "status": "SUPPORTED",
-      "flags": [],
-      "dimension": "m10",
-      "track": "BUY",
-      "source": {
-        "url": "https://definable.ai/apps/eodhd_apis/",
-        "title": "EODHD APIs for AI agents — 11 tools, one platform | Definable",
-        "display_quote": "Retrieves comprehensive fundamental data for mutual funds via EODHD API.",
-        "source_date": "2026-01-01"
-      }
-    },
-    "24da7d": {
-      "text": "Redistributing, reselling, or sharing market data publicly is prohibited without explicit written authorization.",
-      "status": "SUPPORTED",
-      "flags": [],
-      "dimension": "m9",
-      "track": "BUILD",
-      "source": {
-        "url": "https://www.truedata.in/market-data-apis",
-        "title": "Market Data API | Live, SnapChat, Options Chain, Option Greeks",
-        "display_quote": "Redistribution, resale, or public sharing of data is not allowed",
-        "source_date": "2025-01-01"
-      }
-    },
-    "ffd90a": {
-      "text": "The market-data-warehouse system uses DuckDB as its local query engine for research and backtesting.",
-      "status": "SUPPORTED",
-      "flags": [],
-      "dimension": "m14",
-      "track": "BUILD",
-      "source": {
-        "url": "https://github.com/joemccann/market-data-warehouse/blob/main/CLAUDE.md",
-        "title": "market-data-warehouse/CLAUDE.md at main · joemccann/market-data-warehouse",
-        "display_quote": "DuckDB is the local query engine for research and backtesting",
-        "source_date": "2010-01-04"
-      }
-    },
-    "0b3263": {
-      "text": "Alpha Vantage operates as an officially licensed US market data provider for NASDAQ.",
-      "status": "SUPPORTED",
-      "flags": [],
-      "dimension": "m13",
-      "track": "BUY",
-      "source": {
-        "url": "https://www.alphavantage.co/",
-        "title": "Free Stock APIs in JSON & Excel",
-        "display_quote": "NASDAQ celebrates Alpha Vantage as its officially licensed US market data provider",
-        "source_date": "2026-01-01"
-      }
-    },
-    "ef96f5": {
-      "text": "Investment advisors in India are governed under the SEBI (Investment Advisers) Regulations, 2013.",
-      "status": "SUPPORTED",
-      "flags": [],
-      "dimension": "m9",
-      "track": "BUILD",
-      "source": {
-        "url": "https://www.sebi.gov.in/sebiweb/home/HomeAction.do?doListing=yes&sid=1&ssid=3&smid=0",
-        "title": "SEBI | Regulations",
-        "display_quote": "Securities and Exchange Board of India (Investment Advisers) Regulations, 2013",
-        "source_date": "2024-11-28"
-      }
-    },
-    "2b475a": {
-      "text": "ClickHouse can scale across multiple nodes.",
-      "status": "SUPPORTED",
-      "flags": [],
-      "dimension": "m14",
-      "track": "BUILD",
-      "source": {
-        "url": "https://tasrieit.com/blog/clickhouse-vs-duckdb-2026",
-        "title": "ClickHouse vs DuckDB 2026: Analytical Database Comparison | Tasrie IT Services",
-        "display_quote": "ClickHouse scales across multiple nodes",
-        "source_date": "2026-01-27"
-      }
-    },
-    "9f8c49": {
-      "text": "Restricted data contains sensitive information and is not permitted to be shared under SEBI's guidelines.",
+    "4a4761": {
+      "text": "SEBI mandates that no real-time price data be shared with third parties except for orderly market functioning or regulatory requirements.",
       "status": "PARTIAL",
       "flags": [
         "partial_evidence"
@@ -449,53 +328,264 @@
       "dimension": "m9",
       "track": "BUILD",
       "source": {
-        "url": "https://www.metalegal.in/post/sebi-data-sharing-policy-2024",
-        "title": "SEBI Data Sharing Policy 2024",
-        "display_quote": "Restricted Data (Second Basket)- This includes non-public data that cannot be shared",
-        "source_date": "2024-12-26"
+        "url": "https://taxguru.in/sebi/new-sebi-norms-sharing-real-time-price-data-parties.html",
+        "title": "New SEBI Norms for sharing of real time price data to third parties",
+        "display_quote": "no real time price data is shared with any third party",
+        "source_date": "2024-05-24"
       }
     },
-    "6ea050": {
-      "text": "The open-source project lakeFS demonstrated broad community engagement with 178 total PR creators in February 2026.",
+    "e03a14": {
+      "text": "Delayed or incorrect data in data pipelines can manifest as expensive and time-consuming user-facing issues.",
       "status": "SUPPORTED",
-      "flags": [],
+      "flags": [
+        "stale_cost"
+      ],
+      "dimension": "m4",
+      "track": "BUILD",
+      "source": {
+        "url": "https://sre.google/workbook/data-processing/",
+        "title": "Data Processing Pipelines",
+        "display_quote": "Delayed or incorrect data in your pipeline can manifest in user-facing issues",
+        "source_date": "2018-01-01"
+      }
+    },
+    "586f64": {
+      "text": "The mfapi.in platform updates its historical mutual fund NAV data six times per day.",
+      "status": "PARTIAL",
+      "flags": [
+        "partial_evidence"
+      ],
+      "dimension": "m10",
+      "track": "BUY",
+      "source": {
+        "url": "https://www.mfapi.in/",
+        "title": "India's Free Mutual Fund API",
+        "display_quote": "Updated 6x daily (10:05 AM, 2:05 PM, 6:05 PM, 9:05 PM, 3:09 AM, 5:05 AM IST)",
+        "source_date": "2025-01-01"
+      }
+    },
+    "fc6ff2": {
+      "text": "ClickHouse is not fully ACID compliant, which is an important operational limitation to consider for transaction-heavy workloads.",
+      "status": "PARTIAL",
+      "flags": [
+        "partial_evidence"
+      ],
       "dimension": "m13",
       "track": "BUILD",
       "source": {
-        "url": "https://motherduck.com/blog/git-for-data-part-2/",
-        "title": "Git for Data Applied",
-        "display_quote": "lakeFS leads in total PR creators (178), reflecting a broad contributor base.",
-        "source_date": "2026-05-12"
+        "url": "https://signoz.io/comparisons/clickhouse-alternatives/",
+        "title": "ClickHouse Alternatives 2026: Real-Time OLAP DBs",
+        "display_quote": "ClickHouse does not offer full ACID compliance",
+        "source_date": "2025-01-09"
       }
     },
-    "0ea9ac": {
-      "text": "Alpha Vantage's free subscription tier limits users to 500 API calls per day.",
+    "38512a": {
+      "text": "TrueData delivers market data APIs supporting NSE EQ, BSE EQ, and derivative segments.",
       "status": "SUPPORTED",
       "flags": [],
+      "dimension": "m10",
+      "track": "BUY",
+      "source": {
+        "url": "https://www.truedata.in/products/marketdataapi",
+        "title": "Real-Time Market Data API for NSE, BSE & MCX | Low Latency APIs",
+        "display_quote": "delivering services for NSE EQ, NSE Indices, NSE F&O, BSE EQ, BSE Indices, BSE F&O",
+        "source_date": "2025-01-01"
+      }
+    },
+    "47d388": {
+      "text": "TrueData maintains a strict non-refundable payment policy once an order is placed or data is delivered.",
+      "status": "SUPPORTED",
+      "flags": [
+        "stale_cost"
+      ],
       "dimension": "m5",
       "track": "BUY",
       "source": {
-        "url": "https://fcsapi.com/blog/alpha-vantage-vs-fcs-api-best-free-forex-crypto-stock-market-data-api-2026",
-        "title": "Alpha Vantage vs FCS API — Best Free Forex Crypto Stock Market Data API 2026 - FCSAPI",
-        "display_quote": "Alpha Vantage caps you at 500 API calls per day on the free tier.",
-        "source_date": "2026-03-28"
+        "url": "https://www.truedata.in/products/marketdataapi",
+        "title": "Real-Time Market Data API for NSE, BSE & MCX | Low Latency APIs",
+        "display_quote": "Amount paid will not be refunded once order is placed / data is delivered.",
+        "source_date": "2025-01-01"
       }
     },
-    "c838ba": {
-      "text": "ClickHouse is designed as a distributed columnar database for real-time analytics.",
+    "83ac9f": {
+      "text": "The National Stock Exchange provides real-time data online through dedicated leased line circuits owned by the customer.",
       "status": "SUPPORTED",
       "flags": [],
       "dimension": "m14",
       "track": "BUILD",
       "source": {
-        "url": "https://tasrieit.com/blog/clickhouse-vs-duckdb-2026",
-        "title": "ClickHouse vs DuckDB 2026: Analytical Database Comparison | Tasrie IT Services",
-        "display_quote": "ClickHouse is a distributed columnar database",
-        "source_date": "2026-01-27"
+        "url": "https://www.nseindia.com/static/market-data/real-time-data-subscription",
+        "title": "Paid Real time data",
+        "display_quote": "It is provided on-line through a dedicated leased line circuit.",
+        "source_date": "2026-06-16"
       }
     },
-    "f834a5": {
-      "text": "EODHD offers its global EOD All World subscription tier for $19.99 per month.",
+    "e6e417": {
+      "text": "TrueData offers market data API ingestion support using both WebSockets and RESTful protocols.",
+      "status": "PARTIAL",
+      "flags": [
+        "partial_evidence"
+      ],
+      "dimension": "m14",
+      "track": "BUY",
+      "source": {
+        "url": "https://www.truedata.in/products/marketdataapi",
+        "title": "Real-Time Market Data API for NSE, BSE & MCX | Low Latency APIs",
+        "display_quote": "WebSockets, RESTful, DotNet, COM",
+        "source_date": "2025-01-01"
+      }
+    },
+    "0cdf28": {
+      "text": "Setting up a self-hosted production ClickHouse cluster requires managing configuration of replication, sharding, and ZooKeeper coordination.",
+      "status": "SUPPORTED",
+      "flags": [],
+      "dimension": "m4",
+      "track": "BUILD",
+      "source": {
+        "url": "https://www.tinybird.co/blog/clickhouse-alternatives",
+        "title": "Honest guide to the best ClickHouse® alternatives in 2026",
+        "display_quote": "Setting up a production-ready ClickHouse® cluster involves configuring replication, sharding, and ZooKeeper coordination",
+        "source_date": "2026-05-18"
+      }
+    },
+    "ac2118": {
+      "text": "NSE offers 15-minute delayed snapshot data files generated on a regular 1-minute interval basis.",
+      "status": "SUPPORTED",
+      "flags": [],
+      "dimension": "m14",
+      "track": "BUILD",
+      "source": {
+        "url": "https://www.nseindia.com/static/market-data/real-time-data-subscription",
+        "title": "Paid Real time data",
+        "display_quote": "generated with 15 minutes delay on regular 1 minute interval basis",
+        "source_date": "2026-06-16"
+      }
+    },
+    "c4225f": {
+      "text": "TrueData restricts the license of its market data feed strictly to single-subscriber personal charting use.",
+      "status": "SUPPORTED",
+      "flags": [],
+      "dimension": "m9",
+      "track": "BUY",
+      "source": {
+        "url": "https://www.truedata.in/products/marketdataapi",
+        "title": "Real-Time Market Data API for NSE, BSE & MCX | Low Latency APIs",
+        "display_quote": "This Data is for Personal Charting Use of a Single Subscriber only.",
+        "source_date": "2025-01-01"
+      }
+    },
+    "65f322": {
+      "text": "Streaming live tick-by-tick market data over the internet is constrained by large file sizes reaching tens of gigabytes.",
+      "status": "SUPPORTED",
+      "flags": [],
+      "dimension": "m14",
+      "track": "BUY",
+      "source": {
+        "url": "https://tradingqna.com/t/how-do-i-get-tick-by-tick-data-directly-via-nse/55045",
+        "title": "How do I get tick by tick data directly via NSE",
+        "display_quote": "It is tens of GB’s worth of data",
+        "source_date": "2019-02-20"
+      }
+    },
+    "ef33d4": {
+      "text": "TimescaleDB provides PostgreSQL users with automatic partitioning and full SQL support for time-series analytics.",
+      "status": "SUPPORTED",
+      "flags": [],
+      "dimension": "m13",
+      "track": "BUILD",
+      "source": {
+        "url": "https://www.tinybird.co/blog/clickhouse-alternatives",
+        "title": "Honest guide to the best ClickHouse® alternatives in 2026",
+        "display_quote": "Full SQL support, automatic partitioning",
+        "source_date": "2026-05-18"
+      }
+    },
+    "a173a2": {
+      "text": "The mfapi.in platform offers unrestricted access to Indian mutual fund data without requiring API keys or rate limiting.",
+      "status": "PARTIAL",
+      "flags": [
+        "partial_evidence"
+      ],
+      "dimension": "m10",
+      "track": "BUY",
+      "source": {
+        "url": "https://www.mfapi.in/",
+        "title": "India's Free Mutual Fund API",
+        "display_quote": "No authentication, no API keys, no rate limiting. Just pure data access.",
+        "source_date": "2025-01-01"
+      }
+    },
+    "ccabdf": {
+      "text": "Downloading snapshot files from the National Stock Exchange requires the use of SFTP protocol.",
+      "status": "SUPPORTED",
+      "flags": [],
+      "dimension": "m14",
+      "track": "BUY",
+      "source": {
+        "url": "https://www.nseindia.com/static/market-data/real-time-data-subscription",
+        "title": "Paid Real time data",
+        "display_quote": "requires the use of an SFTP protocol to download these files.",
+        "source_date": "2026-06-16"
+      }
+    },
+    "054fae": {
+      "text": "Agreements for sharing real-time price data with third parties must be reviewed by the MII or intermediary Board annually.",
+      "status": "PARTIAL",
+      "flags": [
+        "partial_evidence"
+      ],
+      "dimension": "m9",
+      "track": "BUILD",
+      "source": {
+        "url": "https://taxguru.in/sebi/new-sebi-norms-sharing-real-time-price-data-parties.html",
+        "title": "New SEBI Norms for sharing of real time price data to third parties",
+        "display_quote": "reviewed by the Board of the MIIs or market intermediaries at least once",
+        "source_date": "2024-05-24"
+      }
+    },
+    "928202": {
+      "text": "Point-in-time corporate actions data enables developers to backtest algorithms accurately without survivorship or lookahead bias.",
+      "status": "SUPPORTED",
+      "flags": [],
+      "dimension": "m1",
+      "track": "BUILD",
+      "source": {
+        "url": "https://databento.com/corporate-actions",
+        "title": "Corporate Actions Data & APIs | Databento",
+        "display_quote": "Backtest accurately without survivorship or lookahead bias.",
+        "source_date": "2022-06-05"
+      }
+    },
+    "6a4b6c": {
+      "text": "Accord Fintech NXT provides stock market and mutual fund information feeds through API and FTP protocols.",
+      "status": "PARTIAL",
+      "flags": [
+        "partial_evidence"
+      ],
+      "dimension": "m14",
+      "track": "BUY",
+      "source": {
+        "url": "https://www.accordfintechnxt.com/",
+        "title": "Accord Fintech Pvt. Ltd",
+        "display_quote": "We provide financial information feed through FTP and API.",
+        "source_date": null
+      }
+    },
+    "a000ed": {
+      "text": "TrueData does not permit using its market data for gaming or virtual trading/simulation applications without exchange approval.",
+      "status": "SUPPORTED",
+      "flags": [],
+      "dimension": "m9",
+      "track": "BUY",
+      "source": {
+        "url": "https://www.truedata.in/products/marketdataapi",
+        "title": "Real-Time Market Data API for NSE, BSE & MCX | Low Latency APIs",
+        "display_quote": "TrueData does not provide market data for any kind of Gaming / Virtual trading",
+        "source_date": "2025-01-01"
+      }
+    },
+    "02c3e3": {
+      "text": "To distribute tick-by-tick market data, vendors must pay a fixed fee of 38.5 lakhs to the National Stock Exchange.",
       "status": "PARTIAL",
       "flags": [
         "partial_evidence",
@@ -504,179 +594,30 @@
       "dimension": "m5",
       "track": "BUY",
       "source": {
-        "url": "https://ml4trading.io/docs/data/providers/eodhd/",
-        "title": "EODHD Provider¶",
-        "display_quote": "EOD All World | $19.99/mo",
-        "source_date": "2024-01-01"
+        "url": "https://tradingqna.com/t/how-do-i-get-tick-by-tick-data-directly-via-nse/55045",
+        "title": "How do I get tick by tick data directly via NSE",
+        "display_quote": "paid the fixed fees of 38.5lks and spent on infra.",
+        "source_date": "2019-02-20"
       }
     },
-    "e58a3e": {
-      "text": "Running the IB Gateway on a Hetzner CPX11 VPS costs approximately $4 to $6 per month.",
-      "status": "SUPPORTED",
-      "flags": [
-        "stale_cost",
-        "price_conflict"
-      ],
-      "dimension": "m3",
-      "track": "BUILD",
-      "source": {
-        "url": "https://github.com/joemccann/market-data-warehouse/blob/main/CLAUDE.md",
-        "title": "market-data-warehouse/CLAUDE.md at main · joemccann/market-data-warehouse",
-        "display_quote": "IB Gateway runs on a Hetzner CPX11 VPS (~$4-6/mo)",
-        "source_date": "2010-01-04"
-      }
-    },
-    "5879dd": {
-      "text": "The StockHouse streaming market analytics app optimizes query times by using ClickHouse materialized views to pre-aggregate data at ingestion.",
-      "status": "SUPPORTED",
-      "flags": [],
-      "dimension": "m14",
-      "track": "BUILD",
-      "source": {
-        "url": "https://clickhouse.com/blog/building-stockhouse",
-        "title": "Building StockHouse: Real-time market analytics with ClickHouse",
-        "display_quote": "StockHouse uses materialized views to pre-aggregate data as it's ingested.",
-        "source_date": "2025-11-13"
-      }
-    },
-    "5e8677": {
-      "text": "Unlike client-server architectures, DuckDB is an in-process engine with zero external dependencies.",
+    "3105d7": {
+      "text": "Deploying a single server rack in the exchange co-location for direct tick-by-tick data access can cost over 4 lakhs per month.",
       "status": "PARTIAL",
       "flags": [
-        "partial_evidence"
-      ],
-      "dimension": "m14",
-      "track": "BUILD",
-      "source": {
-        "url": "https://tasrieit.com/blog/clickhouse-vs-duckdb-2026",
-        "title": "ClickHouse vs DuckDB 2026: Analytical Database Comparison | Tasrie IT Services",
-        "display_quote": "Zero external dependencies",
-        "source_date": "2026-01-27"
-      }
-    },
-    "904a1c": {
-      "text": "SEBI rules prohibit market participants from sharing real-time price data with third parties unless specified conditions are met.",
-      "status": "SUPPORTED",
-      "flags": [],
-      "dimension": "m9",
-      "track": "BUY",
-      "source": {
-        "url": "https://www.truedata.in/blog/sebi-norms-on-sharing-real-time-price-data",
-        "title": "New SEBI Rules on Sharing Real-time Stock Market Data",
-        "display_quote": "prohibiting stock market participants from sharing real-time price data with third parties",
-        "source_date": "2024-07-16"
-      }
-    },
-    "52d0ba": {
-      "text": "The paid subscription plans for EODHD provide a rate limit of 100,000 calls per day.",
-      "status": "SUPPORTED",
-      "flags": [
+        "partial_evidence",
         "stale_cost"
       ],
       "dimension": "m5",
       "track": "BUY",
       "source": {
-        "url": "https://ml4trading.io/docs/data/providers/eodhd/",
-        "title": "EODHD Provider¶",
-        "display_quote": "100,000 calls/day",
-        "source_date": "2024-01-01"
-      }
-    },
-    "7b83f1": {
-      "text": "NSE market data cannot be used to build custom or composite financial indices without obtaining a separate license.",
-      "status": "SUPPORTED",
-      "flags": [],
-      "dimension": "m9",
-      "track": "BUY",
-      "source": {
-        "url": "https://www.nseindia.com/static/market-data/nse-data-policy",
-        "title": "NSE Data Sharing & Usage Policy",
-        "display_quote": "use Market Data, in whole or in part to create any financial index",
-        "source_date": "2025-12-11"
-      }
-    },
-    "5d773c": {
-      "text": "DuckDB is free and open source.",
-      "status": "SUPPORTED",
-      "flags": [],
-      "dimension": "m3",
-      "track": "BUILD",
-      "source": {
-        "url": "https://tasrieit.com/blog/clickhouse-vs-duckdb-2026",
-        "title": "ClickHouse vs DuckDB 2026: Analytical Database Comparison | Tasrie IT Services",
-        "display_quote": "Free and open source",
-        "source_date": "2026-01-27"
-      }
-    },
-    "d282cb": {
-      "text": "In the market-data-warehouse architecture, Parquet serves as the system of record rather than DuckDB.",
-      "status": "SUPPORTED",
-      "flags": [],
-      "dimension": "m8",
-      "track": "BUILD",
-      "source": {
-        "url": "https://github.com/joemccann/market-data-warehouse/blob/main/CLAUDE.md",
-        "title": "market-data-warehouse/CLAUDE.md at main · joemccann/market-data-warehouse",
-        "display_quote": "Parquet is the system of record, not DuckDB",
-        "source_date": "2010-01-04"
-      }
-    },
-    "a43f09": {
-      "text": "DuckLake achieved general availability in April 2026.",
-      "status": "SUPPORTED",
-      "flags": [],
-      "dimension": "m13",
-      "track": "BUILD",
-      "source": {
-        "url": "https://motherduck.com/blog/git-for-data-part-2/",
-        "title": "Git for Data Applied",
-        "display_quote": "DuckLake reached GA in April 2026",
-        "source_date": "2026-05-12"
-      }
-    },
-    "797767": {
-      "text": "Alpha Vantage's scaled paid pricing tiers range from $49.99 per month to $249.99 per month.",
-      "status": "SUPPORTED",
-      "flags": [
-        "price_conflict"
-      ],
-      "dimension": "m5",
-      "track": "BUY",
-      "source": {
-        "url": "https://www.abstractapi.com/guides/other/best-stock-apis",
-        "title": "Best Stock Market Data APIs of 2026 | Abstract API",
-        "display_quote": "Pricing ranges from $49.99/mo to $249.99/mo",
-        "source_date": "2026-03-30"
-      }
-    },
-    "c72106": {
-      "text": "EODHD provides end-of-day OHLCV data alongside adjusted close prices.",
-      "status": "SUPPORTED",
-      "flags": [],
-      "dimension": "m10",
-      "track": "BUY",
-      "source": {
-        "url": "https://definable.ai/apps/eodhd_apis/",
-        "title": "EODHD APIs for AI agents — 11 tools, one platform | Definable",
-        "display_quote": "Returns OHLCV (Open, High, Low, Close, Volume) data plus adjusted close prices",
-        "source_date": "2026-01-01"
-      }
-    },
-    "2f5382": {
-      "text": "Trading members and subscribers of the NSE are prohibited from redistributing market data unless permitted by a formal agreement.",
-      "status": "SUPPORTED",
-      "flags": [],
-      "dimension": "m9",
-      "track": "BUY",
-      "source": {
-        "url": "https://www.nseindia.com/static/market-data/nse-data-policy",
-        "title": "NSE Data Sharing & Usage Policy",
-        "display_quote": "Trading Members and Subscribers shall not be permitted to redistribute any Market Data",
-        "source_date": "2025-12-11"
+        "url": "https://tradingqna.com/t/how-do-i-get-tick-by-tick-data-directly-via-nse/55045",
+        "title": "How do I get tick by tick data directly via NSE",
+        "display_quote": "cost you upwards of 4lks a month.",
+        "source_date": "2019-02-20"
       }
     }
   },
-  "challenger_ran": true,
-  "challenger_status": "mounted",
-  "challenger_note": "the engine's own second-best and the challenger independently converged on this path"
+  "challenger_ran": false,
+  "challenger_status": "concurred",
+  "challenger_note": "it could not make a stronger case for any alternative path"
 }

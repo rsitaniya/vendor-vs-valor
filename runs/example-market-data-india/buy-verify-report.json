@@ -1,125 +1,84 @@
 {
   "labeled": [
     {
-      "id": "c72106",
+      "id": "38512a",
       "status": "SUPPORTED"
     },
     {
-      "id": "388b7c",
-      "status": "SUPPORTED"
-    },
-    {
-      "id": "52d0ba",
-      "status": "SUPPORTED"
-    },
-    {
-      "id": "e70d8d",
-      "status": "SUPPORTED"
-    },
-    {
-      "id": "0b3263",
-      "status": "SUPPORTED"
-    },
-    {
-      "id": "0ea9ac",
-      "status": "SUPPORTED"
-    },
-    {
-      "id": "15c7e1",
-      "status": "SUPPORTED"
-    },
-    {
-      "id": "e99c76",
-      "status": "SUPPORTED"
-    },
-    {
-      "id": "904a1c",
-      "status": "SUPPORTED"
-    },
-    {
-      "id": "9aa35d",
-      "status": "SUPPORTED"
-    },
-    {
-      "id": "c71863",
-      "status": "SUPPORTED"
-    },
-    {
-      "id": "2494ec",
-      "status": "SUPPORTED"
-    },
-    {
-      "id": "2f5382",
-      "status": "SUPPORTED"
-    },
-    {
-      "id": "7b83f1",
-      "status": "SUPPORTED"
-    },
-    {
-      "id": "281f5e",
+      "id": "e6e417",
       "status": "PARTIAL"
     },
     {
-      "id": "50cf38",
-      "status": "PARTIAL"
-    },
-    {
-      "id": "f834a5",
-      "status": "PARTIAL"
-    },
-    {
-      "id": "797767",
+      "id": "c4225f",
       "status": "SUPPORTED"
     },
     {
-      "id": "eb414e",
-      "status": "UNSUPPORTED"
-    }
-  ],
-  "dropped_unsupported": [
-    {
-      "id": "eb414e"
-    }
-  ],
-  "assert_rejected": [
-    {
-      "text": "The NSE does not provide any publicly accessible REST API for market data retrieval.",
-      "reason": "url not in cache (outside the closed pool): https://dalalai.com/blog/indian-stock-market-api-developers/"
+      "id": "a000ed",
+      "status": "SUPPORTED"
     },
     {
-      "text": "Developers must build a mapping layer to reconcile symbol format differences between the NSE and BSE.",
-      "reason": "url not in cache (outside the closed pool): https://dalalai.com/blog/indian-stock-market-api-developers/"
+      "id": "47d388",
+      "status": "SUPPORTED"
     },
     {
-      "text": "Standard read-only financial data APIs commonly verify requests using API key headers or query parameters.",
-      "reason": "url not in cache (outside the closed pool): https://dalalai.com/blog/indian-stock-market-api-developers/"
+      "id": "a173a2",
+      "status": "PARTIAL"
     },
     {
-      "text": "SEBI regulations enforce a 2-factor authentication requirement for automated trading using broker APIs.",
-      "reason": "url not in cache (outside the closed pool): https://dalalai.com/blog/indian-stock-market-api-developers/"
+      "id": "586f64",
+      "status": "PARTIAL"
+    },
+    {
+      "id": "38b743",
+      "status": "SUPPORTED"
+    },
+    {
+      "id": "4da0b4",
+      "status": "SUPPORTED"
+    },
+    {
+      "id": "ccabdf",
+      "status": "SUPPORTED"
+    },
+    {
+      "id": "02c3e3",
+      "status": "PARTIAL"
+    },
+    {
+      "id": "3105d7",
+      "status": "PARTIAL"
+    },
+    {
+      "id": "65f322",
+      "status": "SUPPORTED"
+    },
+    {
+      "id": "6a4b6c",
+      "status": "PARTIAL"
     }
   ],
+  "dropped_unsupported": [],
+  "assert_rejected": [],
   "priority_dimensions": [
     {
-      "id": "m5",
-      "why": "Startup budget is restricted to ₹3-5 lakh/month at launch; we must verify if commercial vendor costs and redistribution licenses fit within this cap."
-    },
-    {
       "id": "m9",
-      "why": "Compliance with SEBI and securing legal NSE/BSE exchange redistribution rights are critical to eliminate legal liability."
+      "why": "Strict compliance with SEBI and AMFI norms, along with authorized NSE/BSE commercial redistribution licensing, is a non-negotiable legal requirement to prevent client liability."
     },
     {
-      "id": "m6",
-      "why": "The hard 4-week timeline to staging requires immediate API onboarding and minimal setup delay."
-    },
-    {
-      "id": "m10",
-      "why": "Inaccurate Indian corporate actions disrupt portfolio IRR calculations; we must evaluate historical data adjustment accuracy and API customization."
+      "id": "m5",
+      "why": "Exchange commercial redistribution licensing fees are notoriously expensive and could easily overwhelm the startup's ₹3–5 lakh/month budget."
     },
     {
       "id": "m14",
-      "why": "Ingesting historical OHLCV and mutual fund NAV data into an existing AWS/TimescaleDB stack requires seamless python integration."
+      "why": "Ingesting 20+ years of historical OHLCV and real-time tick feeds into TimescaleDB and Kafka requires highly structured, clean, and reliable APIs."
+    },
+    {
+      "id": "m6",
+      "why": "The hard deadline of 8 weeks for staging and 3 months for production means typical vendor onboarding lag could jeopardize the entire product roadmap."
+    },
+    {
+      "id": "m8",
+      "why": "Many market data contracts restrict retaining historical data after termination, creating a severe vendor lock-in risk for proprietary analytics."
     }
   ],
   "coverage": [
@@ -148,7 +107,7 @@
       "id": "m5",
       "name": "Total cost — buy (short + long term)",
       "covered": true,
-      "claim_count": 5,
+      "claim_count": 3,
       "priority": true
     },
     {
@@ -170,21 +129,21 @@
       "name": "Reversibility / switching cost",
       "covered": false,
       "claim_count": 0,
-      "priority": false
+      "priority": true
     },
     {
       "id": "m9",
       "name": "Data ownership / sensitivity / compliance",
       "covered": true,
-      "claim_count": 9,
+      "claim_count": 2,
       "priority": true
     },
     {
       "id": "m10",
       "name": "Customization need vs. availability",
       "covered": true,
-      "claim_count": 3,
-      "priority": true
+      "claim_count": 4,
+      "priority": false
     },
     {
       "id": "m11",
@@ -196,29 +155,31 @@
     {
       "id": "m13",
       "name": "Vendor viability / lock-in risk",
-      "covered": true,
-      "claim_count": 1,
+      "covered": false,
+      "claim_count": 0,
       "priority": false
     },
     {
       "id": "m14",
       "name": "Integration complexity",
-      "covered": false,
-      "claim_count": 0,
+      "covered": true,
+      "claim_count": 5,
       "priority": true
     }
   ],
   "coverage_gaps": [
-    "thin content: https://eodhd.com/pricing",
-    "fetch failed: https://medium.com/coinmonks/top-algo-trading-apis-in-2025-e7f1173eb38b (HTTPStatusError)",
-    "fetch failed: https://www.g2.com/products/eodhd-financial-data-apis/pricing (HTTPStatusError)",
-    "thin content: https://runbear.io/solutions/integrations/slack/mcp/servers/alpha_vantage",
-    "thin content: https://finance.tagxdata.com/",
-    "thin content: https://www.sebi.gov.in/legal/circulars/may-2024/norms-for-sharing-of-real-time-price-data-to-third-parties_83572.html",
-    "fetch failed: https://pitchbook.com/profiles/company/493079-14 (HTTPStatusError)",
-    "fetch failed: https://medium.datadriveninvestor.com/the-single-most-important-change-in-data-privacy-regulation-in-20-years-gdpr-b9026b9acfa9 (HTTPStatusError)",
-    "fetch failed: https://slashdot.org/software/comparison/AssetsAnalyzer-vs-EODHD/ (HTTPStatusError)",
+    "fetch failed: https://www.nseindia.com/ (HTTPStatusError)",
+    "thin content: https://analyst.indianapi.in/",
+    "thin content: https://rapidapi.com/linuz/api/indian-stock-exchange-api2/tutorials/indian-stock-market-api-documentation",
+    "thin content: https://indianapi.in/indian-stock-market",
+    "fetch failed: https://globaldatafeeds.in/fundamental-data-apis/ (HTTPStatusError)",
+    "fetch failed: https://github.com/marcos99b/indian-stock-market-api (HTTPStatusError)",
+    "thin content: https://www.kaggle.com/datasets/novandraanugrah/bitcoin-historical-datasets-2018-2024",
+    "fetch failed: https://www.coinapi.io/learn/academy/tutorials/historical-ohlcv-from-rest-build-candlestick-charts (HTTPStatusError)",
+    "thin content: https://www.accordfintech.com/market-data-feed",
+    "fetch failed: https://www.crunchbase.com/organization/accord-fintech (HTTPStatusError)",
+    "fetch failed: https://www.quora.com/What-is-the-best-Stock-market-API-for-real-time-historical-data-in-2025 (HTTPStatusError)",
     "no evidence for priority dimension m6 (Time-to-value)",
-    "no evidence for priority dimension m14 (Integration complexity)"
+    "no evidence for priority dimension m8 (Reversibility / switching cost)"
   ]
 }

@@ -1,26 +1,22 @@
 {
   "track": "BUY",
-  "discovered_entities": [
-    "EODHD (End-of-Day Historical Data)",
-    "Alpha Vantage",
-    "TagX Stock Market API"
-  ],
+  "discovered_entities": [],
   "claims": [
     {
-      "id": "c72106",
-      "text": "EODHD provides end-of-day OHLCV data alongside adjusted close prices.",
+      "id": "38512a",
+      "text": "TrueData delivers market data APIs supporting NSE EQ, BSE EQ, and derivative segments.",
       "sources": [
         {
-          "url": "https://definable.ai/apps/eodhd_apis/",
-          "title": "EODHD APIs for AI agents — 11 tools, one platform | Definable",
-          "accessed_date": "2026-06-15",
-          "source_date": "2026-01-01",
+          "url": "https://www.truedata.in/products/marketdataapi",
+          "title": "Real-Time Market Data API for NSE, BSE & MCX | Low Latency APIs",
+          "accessed_date": "2026-07-04",
+          "source_date": "2025-01-01",
           "locator": {
             "type": "char_span",
-            "start": 795,
-            "end": 873
+            "start": 355,
+            "end": 437
           },
-          "display_quote": "Returns OHLCV (Open, High, Low, Close, Volume) data plus adjusted close prices"
+          "display_quote": "delivering services for NSE EQ, NSE Indices, NSE F&O, BSE EQ, BSE Indices, BSE F&O"
         }
       ],
       "dimension": "m10",
@@ -30,43 +26,91 @@
       "flags": []
     },
     {
-      "id": "388b7c",
-      "text": "EODHD offers a fund fundamentals endpoint that retrieves details for mutual funds.",
+      "id": "e6e417",
+      "text": "TrueData offers market data API ingestion support using both WebSockets and RESTful protocols.",
       "sources": [
         {
-          "url": "https://definable.ai/apps/eodhd_apis/",
-          "title": "EODHD APIs for AI agents — 11 tools, one platform | Definable",
-          "accessed_date": "2026-06-15",
-          "source_date": "2026-01-01",
+          "url": "https://www.truedata.in/products/marketdataapi",
+          "title": "Real-Time Market Data API for NSE, BSE & MCX | Low Latency APIs",
+          "accessed_date": "2026-07-04",
+          "source_date": "2025-01-01",
           "locator": {
             "type": "char_span",
-            "start": 1729,
-            "end": 1801
+            "start": 3226,
+            "end": 3258
           },
-          "display_quote": "Retrieves comprehensive fundamental data for mutual funds via EODHD API."
+          "display_quote": "WebSockets, RESTful, DotNet, COM"
         }
       ],
-      "dimension": "m10",
+      "dimension": "m14",
+      "track": "BUY",
+      "cost_tagged": false,
+      "status": "PARTIAL",
+      "flags": [
+        "partial_evidence"
+      ]
+    },
+    {
+      "id": "c4225f",
+      "text": "TrueData restricts the license of its market data feed strictly to single-subscriber personal charting use.",
+      "sources": [
+        {
+          "url": "https://www.truedata.in/products/marketdataapi",
+          "title": "Real-Time Market Data API for NSE, BSE & MCX | Low Latency APIs",
+          "accessed_date": "2026-07-04",
+          "source_date": "2025-01-01",
+          "locator": {
+            "type": "char_span",
+            "start": 4354,
+            "end": 4421
+          },
+          "display_quote": "This Data is for Personal Charting Use of a Single Subscriber only."
+        }
+      ],
+      "dimension": "m9",
       "track": "BUY",
       "cost_tagged": false,
       "status": "SUPPORTED",
       "flags": []
     },
     {
-      "id": "52d0ba",
-      "text": "The paid subscription plans for EODHD provide a rate limit of 100,000 calls per day.",
+      "id": "a000ed",
+      "text": "TrueData does not permit using its market data for gaming or virtual trading/simulation applications without exchange approval.",
       "sources": [
         {
-          "url": "https://ml4trading.io/docs/data/providers/eodhd/",
-          "title": "EODHD Provider¶",
-          "accessed_date": "2026-06-15",
-          "source_date": "2024-01-01",
+          "url": "https://www.truedata.in/products/marketdataapi",
+          "title": "Real-Time Market Data API for NSE, BSE & MCX | Low Latency APIs",
+          "accessed_date": "2026-07-04",
+          "source_date": "2025-01-01",
           "locator": {
             "type": "char_span",
-            "start": 1927,
-            "end": 1944
+            "start": 4135,
+            "end": 4213
           },
-          "display_quote": "100,000 calls/day"
+          "display_quote": "TrueData does not provide market data for any kind of Gaming / Virtual trading"
+        }
+      ],
+      "dimension": "m9",
+      "track": "BUY",
+      "cost_tagged": false,
+      "status": "SUPPORTED",
+      "flags": []
+    },
+    {
+      "id": "47d388",
+      "text": "TrueData maintains a strict non-refundable payment policy once an order is placed or data is delivered.",
+      "sources": [
+        {
+          "url": "https://www.truedata.in/products/marketdataapi",
+          "title": "Real-Time Market Data API for NSE, BSE & MCX | Low Latency APIs",
+          "accessed_date": "2026-07-04",
+          "source_date": "2025-01-01",
+          "locator": {
+            "type": "char_span",
+            "start": 4613,
+            "end": 4687
+          },
+          "display_quote": "Amount paid will not be refunded once order is placed / data is delivered."
         }
       ],
       "dimension": "m5",
@@ -78,20 +122,70 @@
       ]
     },
     {
-      "id": "e70d8d",
-      "text": "EODHD provides market data covering global equities across more than 60 exchanges.",
+      "id": "a173a2",
+      "text": "The mfapi.in platform offers unrestricted access to Indian mutual fund data without requiring API keys or rate limiting.",
       "sources": [
         {
-          "url": "https://ml4trading.io/docs/data/providers/eodhd/",
-          "title": "EODHD Provider¶",
-          "accessed_date": "2026-06-15",
-          "source_date": "2024-01-01",
+          "url": "https://www.mfapi.in/",
+          "title": "India's Free Mutual Fund API",
+          "accessed_date": "2026-07-04",
+          "source_date": "2025-01-01",
           "locator": {
             "type": "char_span",
-            "start": 150,
-            "end": 216
+            "start": 249,
+            "end": 321
           },
-          "display_quote": "provides affordable access to global equities across 60+ exchanges"
+          "display_quote": "No authentication, no API keys, no rate limiting. Just pure data access."
+        }
+      ],
+      "dimension": "m10",
+      "track": "BUY",
+      "cost_tagged": false,
+      "status": "PARTIAL",
+      "flags": [
+        "partial_evidence"
+      ]
+    },
+    {
+      "id": "586f64",
+      "text": "The mfapi.in platform updates its historical mutual fund NAV data six times per day.",
+      "sources": [
+        {
+          "url": "https://www.mfapi.in/",
+          "title": "India's Free Mutual Fund API",
+          "accessed_date": "2026-07-04",
+          "source_date": "2025-01-01",
+          "locator": {
+            "type": "char_span",
+            "start": 49,
+            "end": 125
+          },
+          "display_quote": "Updated 6x daily (10:05 AM, 2:05 PM, 6:05 PM, 9:05 PM, 3:09 AM, 5:05 AM IST)"
+        }
+      ],
+      "dimension": "m10",
+      "track": "BUY",
+      "cost_tagged": false,
+      "status": "PARTIAL",
+      "flags": [
+        "partial_evidence"
+      ]
+    },
+    {
+      "id": "38b743",
+      "text": "National Stock Exchange distributes real-time market data across multiple structures including level 1, level 2, and level 3.",
+      "sources": [
+        {
+          "url": "https://www.nseindia.com/static/market-data/real-time-data-subscription",
+          "title": "Paid Real time data",
+          "accessed_date": "2026-07-04",
+          "source_date": "2026-06-16",
+          "locator": {
+            "type": "char_span",
+            "start": 419,
+            "end": 496
+          },
+          "display_quote": "NSE's real time data is provided in various levels (level 1, level 2, level 3"
         }
       ],
       "dimension": "m10",
@@ -101,302 +195,66 @@
       "flags": []
     },
     {
-      "id": "0b3263",
-      "text": "Alpha Vantage operates as an officially licensed US market data provider for NASDAQ.",
+      "id": "4da0b4",
+      "text": "National Stock Exchange snapshot data files are provided in binary format over the internet.",
       "sources": [
         {
-          "url": "https://www.alphavantage.co/",
-          "title": "Free Stock APIs in JSON & Excel",
-          "accessed_date": "2026-06-15",
-          "source_date": "2026-01-01",
+          "url": "https://www.nseindia.com/static/market-data/real-time-data-subscription",
+          "title": "Paid Real time data",
+          "accessed_date": "2026-07-04",
+          "source_date": "2026-06-16",
           "locator": {
             "type": "char_span",
-            "start": 346,
-            "end": 428
+            "start": 2413,
+            "end": 2478
           },
-          "display_quote": "NASDAQ celebrates Alpha Vantage as its officially licensed US market data provider"
+          "display_quote": "Snapshot Data is provided in binary file format over the internet"
         }
       ],
-      "dimension": "m13",
+      "dimension": "m14",
       "track": "BUY",
       "cost_tagged": false,
       "status": "SUPPORTED",
       "flags": []
     },
     {
-      "id": "0ea9ac",
-      "text": "Alpha Vantage's free subscription tier limits users to 500 API calls per day.",
+      "id": "ccabdf",
+      "text": "Downloading snapshot files from the National Stock Exchange requires the use of SFTP protocol.",
       "sources": [
         {
-          "url": "https://fcsapi.com/blog/alpha-vantage-vs-fcs-api-best-free-forex-crypto-stock-market-data-api-2026",
-          "title": "Alpha Vantage vs FCS API — Best Free Forex Crypto Stock Market Data API 2026 - FCSAPI",
-          "accessed_date": "2026-06-15",
-          "source_date": "2026-03-28",
+          "url": "https://www.nseindia.com/static/market-data/real-time-data-subscription",
+          "title": "Paid Real time data",
+          "accessed_date": "2026-07-04",
+          "source_date": "2026-06-16",
           "locator": {
             "type": "char_span",
-            "start": 47,
-            "end": 112
+            "start": 2483,
+            "end": 2544
           },
-          "display_quote": "Alpha Vantage caps you at 500 API calls per day on the free tier."
+          "display_quote": "requires the use of an SFTP protocol to download these files."
         }
       ],
-      "dimension": "m5",
-      "track": "BUY",
-      "cost_tagged": true,
-      "status": "SUPPORTED",
-      "flags": []
-    },
-    {
-      "id": "15c7e1",
-      "text": "Accessing historical options data on Alpha Vantage requires subscribing to a premium membership plan.",
-      "sources": [
-        {
-          "url": "https://www.alphavantage.co/documentation/",
-          "title": "Alpha Vantage API Documentation",
-          "accessed_date": "2026-06-15",
-          "source_date": "2020-12-01",
-          "locator": {
-            "type": "char_span",
-            "start": 114731,
-            "end": 114813
-          },
-          "display_quote": "Subscribe to any of the premium membership plans to unlock historical options data"
-        }
-      ],
-      "dimension": "m5",
-      "track": "BUY",
-      "cost_tagged": true,
-      "status": "SUPPORTED",
-      "flags": [
-        "stale_cost"
-      ]
-    },
-    {
-      "id": "e99c76",
-      "text": "Real-time and delayed US market data distribution is subject to regulatory policies from stock exchanges, FINRA, and the SEC.",
-      "sources": [
-        {
-          "url": "https://www.alphavantage.co/documentation/",
-          "title": "Alpha Vantage API Documentation",
-          "accessed_date": "2026-06-15",
-          "source_date": "2020-12-01",
-          "locator": {
-            "type": "char_span",
-            "start": 4070,
-            "end": 4151
-          },
-          "display_quote": "Realtime and 15-minute delayed US market data is regulated by the stock exchanges"
-        }
-      ],
-      "dimension": "m9",
+      "dimension": "m14",
       "track": "BUY",
       "cost_tagged": false,
       "status": "SUPPORTED",
       "flags": []
     },
     {
-      "id": "904a1c",
-      "text": "SEBI rules prohibit market participants from sharing real-time price data with third parties unless specified conditions are met.",
+      "id": "02c3e3",
+      "text": "To distribute tick-by-tick market data, vendors must pay a fixed fee of 38.5 lakhs to the National Stock Exchange.",
       "sources": [
         {
-          "url": "https://www.truedata.in/blog/sebi-norms-on-sharing-real-time-price-data",
-          "title": "New SEBI Rules on Sharing Real-time Stock Market Data",
-          "accessed_date": "2026-06-15",
-          "source_date": "2024-07-16",
+          "url": "https://tradingqna.com/t/how-do-i-get-tick-by-tick-data-directly-via-nse/55045",
+          "title": "How do I get tick by tick data directly via NSE",
+          "accessed_date": "2026-07-04",
+          "source_date": "2019-02-20",
           "locator": {
             "type": "char_span",
-            "start": 417,
-            "end": 507
+            "start": 5873,
+            "end": 5923
           },
-          "display_quote": "prohibiting stock market participants from sharing real-time price data with third parties"
-        }
-      ],
-      "dimension": "m9",
-      "track": "BUY",
-      "cost_tagged": false,
-      "status": "SUPPORTED",
-      "flags": []
-    },
-    {
-      "id": "9aa35d",
-      "text": "Market intermediaries sharing real-time price data with third parties must execute formal agreements outlining the data's intended use.",
-      "sources": [
-        {
-          "url": "https://www.truedata.in/blog/sebi-norms-on-sharing-real-time-price-data",
-          "title": "New SEBI Rules on Sharing Real-time Stock Market Data",
-          "accessed_date": "2026-06-15",
-          "source_date": "2024-07-16",
-          "locator": {
-            "type": "char_span",
-            "start": 3011,
-            "end": 3082
-          },
-          "display_quote": "they must do so by entering into formal agreements with those entities."
-        }
-      ],
-      "dimension": "m9",
-      "track": "BUY",
-      "cost_tagged": false,
-      "status": "SUPPORTED",
-      "flags": []
-    },
-    {
-      "id": "c71863",
-      "text": "Real-time price data shared for educational purposes must be subject to at least a one-day lag.",
-      "sources": [
-        {
-          "url": "https://www.truedata.in/blog/sebi-norms-on-sharing-real-time-price-data",
-          "title": "New SEBI Rules on Sharing Real-time Stock Market Data",
-          "accessed_date": "2026-06-15",
-          "source_date": "2024-07-16",
-          "locator": {
-            "type": "char_span",
-            "start": 3493,
-            "end": 3516
-          },
-          "display_quote": "only with a one-day lag"
-        }
-      ],
-      "dimension": "m9",
-      "track": "BUY",
-      "cost_tagged": false,
-      "status": "SUPPORTED",
-      "flags": []
-    },
-    {
-      "id": "2494ec",
-      "text": "Under the NSE data policy, the sole ownership of all market data remains with NSE and NSE Data.",
-      "sources": [
-        {
-          "url": "https://www.nseindia.com/static/market-data/nse-data-policy",
-          "title": "NSE Data Sharing & Usage Policy",
-          "accessed_date": "2026-06-15",
-          "source_date": "2025-12-11",
-          "locator": {
-            "type": "char_span",
-            "start": 4868,
-            "end": 4937
-          },
-          "display_quote": "The ownership of all data shall at all times lie with NSE/ NSE Data.."
-        }
-      ],
-      "dimension": "m9",
-      "track": "BUY",
-      "cost_tagged": false,
-      "status": "SUPPORTED",
-      "flags": []
-    },
-    {
-      "id": "2f5382",
-      "text": "Trading members and subscribers of the NSE are prohibited from redistributing market data unless permitted by a formal agreement.",
-      "sources": [
-        {
-          "url": "https://www.nseindia.com/static/market-data/nse-data-policy",
-          "title": "NSE Data Sharing & Usage Policy",
-          "accessed_date": "2026-06-15",
-          "source_date": "2025-12-11",
-          "locator": {
-            "type": "char_span",
-            "start": 4940,
-            "end": 5026
-          },
-          "display_quote": "Trading Members and Subscribers shall not be permitted to redistribute any Market Data"
-        }
-      ],
-      "dimension": "m9",
-      "track": "BUY",
-      "cost_tagged": false,
-      "status": "SUPPORTED",
-      "flags": []
-    },
-    {
-      "id": "7b83f1",
-      "text": "NSE market data cannot be used to build custom or composite financial indices without obtaining a separate license.",
-      "sources": [
-        {
-          "url": "https://www.nseindia.com/static/market-data/nse-data-policy",
-          "title": "NSE Data Sharing & Usage Policy",
-          "accessed_date": "2026-06-15",
-          "source_date": "2025-12-11",
-          "locator": {
-            "type": "char_span",
-            "start": 4232,
-            "end": 4298
-          },
-          "display_quote": "use Market Data, in whole or in part to create any financial index"
-        }
-      ],
-      "dimension": "m9",
-      "track": "BUY",
-      "cost_tagged": false,
-      "status": "SUPPORTED",
-      "flags": []
-    },
-    {
-      "id": "281f5e",
-      "text": "SEBI's standardized data sharing policy divides market infrastructure data into public and restricted categories.",
-      "sources": [
-        {
-          "url": "https://www.metalegal.in/post/sebi-data-sharing-policy-2024",
-          "title": "SEBI Data Sharing Policy 2024",
-          "accessed_date": "2026-06-15",
-          "source_date": "2024-12-26",
-          "locator": {
-            "type": "char_span",
-            "start": 1875,
-            "end": 1923
-          },
-          "display_quote": "This policy divides the data into two categories"
-        }
-      ],
-      "dimension": "m9",
-      "track": "BUY",
-      "cost_tagged": false,
-      "status": "PARTIAL",
-      "flags": [
-        "partial_evidence"
-      ]
-    },
-    {
-      "id": "50cf38",
-      "text": "Non-public market data containing sensitive details is classified as Restricted Data by SEBI.",
-      "sources": [
-        {
-          "url": "https://www.metalegal.in/post/sebi-data-sharing-policy-2024",
-          "title": "SEBI Data Sharing Policy 2024",
-          "accessed_date": "2026-06-15",
-          "source_date": "2024-12-26",
-          "locator": {
-            "type": "char_span",
-            "start": 2595,
-            "end": 2679
-          },
-          "display_quote": "Restricted Data (Second Basket)- This includes non-public data that cannot be shared"
-        }
-      ],
-      "dimension": "m9",
-      "track": "BUY",
-      "cost_tagged": false,
-      "status": "PARTIAL",
-      "flags": [
-        "partial_evidence"
-      ]
-    },
-    {
-      "id": "f834a5",
-      "text": "EODHD offers its global EOD All World subscription tier for $19.99 per month.",
-      "sources": [
-        {
-          "url": "https://ml4trading.io/docs/data/providers/eodhd/",
-          "title": "EODHD Provider¶",
-          "accessed_date": "2026-06-15",
-          "source_date": "2024-01-01",
-          "locator": {
-            "type": "char_span",
-            "start": 413,
-            "end": 438
-          },
-          "display_quote": "EOD All World | $19.99/mo"
+          "display_quote": "paid the fixed fees of 38.5lks and spent on infra."
         }
       ],
       "dimension": "m5",
@@ -409,76 +267,103 @@
       ]
     },
     {
-      "id": "797767",
-      "text": "Alpha Vantage's scaled paid pricing tiers range from $49.99 per month to $249.99 per month.",
+      "id": "3105d7",
+      "text": "Deploying a single server rack in the exchange co-location for direct tick-by-tick data access can cost over 4 lakhs per month.",
       "sources": [
         {
-          "url": "https://www.abstractapi.com/guides/other/best-stock-apis",
-          "title": "Best Stock Market Data APIs of 2026 | Abstract API",
-          "accessed_date": "2026-06-15",
-          "source_date": "2026-03-30",
+          "url": "https://tradingqna.com/t/how-do-i-get-tick-by-tick-data-directly-via-nse/55045",
+          "title": "How do I get tick by tick data directly via NSE",
+          "accessed_date": "2026-07-04",
+          "source_date": "2019-02-20",
           "locator": {
             "type": "char_span",
-            "start": 5332,
-            "end": 5375
+            "start": 2231,
+            "end": 2264
           },
-          "display_quote": "Pricing ranges from $49.99/mo to $249.99/mo"
+          "display_quote": "cost you upwards of 4lks a month."
         }
       ],
       "dimension": "m5",
       "track": "BUY",
       "cost_tagged": true,
-      "status": "SUPPORTED",
-      "flags": []
-    }
-  ],
-  "dropped": [
+      "status": "PARTIAL",
+      "flags": [
+        "partial_evidence",
+        "stale_cost"
+      ]
+    },
     {
-      "id": "eb414e",
-      "text": "EODHD provides access to WebSockets endpoints to allow real-time data streaming and queries.",
+      "id": "65f322",
+      "text": "Streaming live tick-by-tick market data over the internet is constrained by large file sizes reaching tens of gigabytes.",
       "sources": [
         {
-          "url": "https://www.abstractapi.com/guides/other/best-stock-apis",
-          "title": "Best Stock Market Data APIs of 2026 | Abstract API",
-          "accessed_date": "2026-06-15",
-          "source_date": "2026-03-30",
+          "url": "https://tradingqna.com/t/how-do-i-get-tick-by-tick-data-directly-via-nse/55045",
+          "title": "How do I get tick by tick data directly via NSE",
+          "accessed_date": "2026-07-04",
+          "source_date": "2019-02-20",
           "locator": {
             "type": "char_span",
-            "start": 5992,
-            "end": 6058
+            "start": 1462,
+            "end": 1494
           },
-          "display_quote": "This stock market data API has recently added WebSockets endpoints"
+          "display_quote": "It is tens of GB’s worth of data"
         }
       ],
-      "dimension": "m10",
+      "dimension": "m14",
       "track": "BUY",
       "cost_tagged": false,
-      "status": "UNSUPPORTED",
+      "status": "SUPPORTED",
       "flags": []
+    },
+    {
+      "id": "6a4b6c",
+      "text": "Accord Fintech NXT provides stock market and mutual fund information feeds through API and FTP protocols.",
+      "sources": [
+        {
+          "url": "https://www.accordfintechnxt.com/",
+          "title": "Accord Fintech Pvt. Ltd",
+          "accessed_date": "2026-07-04",
+          "source_date": null,
+          "locator": {
+            "type": "char_span",
+            "start": 0,
+            "end": 58
+          },
+          "display_quote": "We provide financial information feed through FTP and API."
+        }
+      ],
+      "dimension": "m14",
+      "track": "BUY",
+      "cost_tagged": false,
+      "status": "PARTIAL",
+      "flags": [
+        "partial_evidence"
+      ]
     }
   ],
-  "kept_count": 18,
-  "dropped_count": 1,
+  "dropped": [],
+  "kept_count": 14,
+  "dropped_count": 0,
   "priority_dimensions": [
     {
-      "id": "m5",
-      "why": "Startup budget is restricted to ₹3-5 lakh/month at launch; we must verify if commercial vendor costs and redistribution licenses fit within this cap."
-    },
-    {
       "id": "m9",
-      "why": "Compliance with SEBI and securing legal NSE/BSE exchange redistribution rights are critical to eliminate legal liability."
+      "why": "Strict compliance with SEBI and AMFI norms, along with authorized NSE/BSE commercial redistribution licensing, is a non-negotiable legal requirement to prevent client liability."
     },
     {
-      "id": "m6",
-      "why": "The hard 4-week timeline to staging requires immediate API onboarding and minimal setup delay."
-    },
-    {
-      "id": "m10",
-      "why": "Inaccurate Indian corporate actions disrupt portfolio IRR calculations; we must evaluate historical data adjustment accuracy and API customization."
+      "id": "m5",
+      "why": "Exchange commercial redistribution licensing fees are notoriously expensive and could easily overwhelm the startup's ₹3–5 lakh/month budget."
     },
     {
       "id": "m14",
-      "why": "Ingesting historical OHLCV and mutual fund NAV data into an existing AWS/TimescaleDB stack requires seamless python integration."
+      "why": "Ingesting 20+ years of historical OHLCV and real-time tick feeds into TimescaleDB and Kafka requires highly structured, clean, and reliable APIs."
+    },
+    {
+      "id": "m6",
+      "why": "The hard deadline of 8 weeks for staging and 3 months for production means typical vendor onboarding lag could jeopardize the entire product roadmap."
+    },
+    {
+      "id": "m8",
+      "why": "Many market data contracts restrict retaining historical data after termination, creating a severe vendor lock-in risk for proprietary analytics."
     }
   ],
   "coverage": [
@@ -507,7 +392,7 @@
       "id": "m5",
       "name": "Total cost — buy (short + long term)",
       "covered": true,
-      "claim_count": 5,
+      "claim_count": 3,
       "priority": true
     },
     {
@@ -529,21 +414,21 @@
       "name": "Reversibility / switching cost",
       "covered": false,
       "claim_count": 0,
-      "priority": false
+      "priority": true
     },
     {
       "id": "m9",
       "name": "Data ownership / sensitivity / compliance",
       "covered": true,
-      "claim_count": 9,
+      "claim_count": 2,
       "priority": true
     },
     {
       "id": "m10",
       "name": "Customization need vs. availability",
       "covered": true,
-      "claim_count": 3,
-      "priority": true
+      "claim_count": 4,
+      "priority": false
     },
     {
       "id": "m11",
@@ -555,29 +440,31 @@
     {
       "id": "m13",
       "name": "Vendor viability / lock-in risk",
-      "covered": true,
-      "claim_count": 1,
+      "covered": false,
+      "claim_count": 0,
       "priority": false
     },
     {
       "id": "m14",
       "name": "Integration complexity",
-      "covered": false,
-      "claim_count": 0,
+      "covered": true,
+      "claim_count": 5,
       "priority": true
     }
   ],
   "coverage_gaps": [
-    "thin content: https://eodhd.com/pricing",
-    "fetch failed: https://medium.com/coinmonks/top-algo-trading-apis-in-2025-e7f1173eb38b (HTTPStatusError)",
-    "fetch failed: https://www.g2.com/products/eodhd-financial-data-apis/pricing (HTTPStatusError)",
-    "thin content: https://runbear.io/solutions/integrations/slack/mcp/servers/alpha_vantage",
-    "thin content: https://finance.tagxdata.com/",
-    "thin content: https://www.sebi.gov.in/legal/circulars/may-2024/norms-for-sharing-of-real-time-price-data-to-third-parties_83572.html",
-    "fetch failed: https://pitchbook.com/profiles/company/493079-14 (HTTPStatusError)",
-    "fetch failed: https://medium.datadriveninvestor.com/the-single-most-important-change-in-data-privacy-regulation-in-20-years-gdpr-b9026b9acfa9 (HTTPStatusError)",
-    "fetch failed: https://slashdot.org/software/comparison/AssetsAnalyzer-vs-EODHD/ (HTTPStatusError)",
+    "fetch failed: https://www.nseindia.com/ (HTTPStatusError)",
+    "thin content: https://analyst.indianapi.in/",
+    "thin content: https://rapidapi.com/linuz/api/indian-stock-exchange-api2/tutorials/indian-stock-market-api-documentation",
+    "thin content: https://indianapi.in/indian-stock-market",
+    "fetch failed: https://globaldatafeeds.in/fundamental-data-apis/ (HTTPStatusError)",
+    "fetch failed: https://github.com/marcos99b/indian-stock-market-api (HTTPStatusError)",
+    "thin content: https://www.kaggle.com/datasets/novandraanugrah/bitcoin-historical-datasets-2018-2024",
+    "fetch failed: https://www.coinapi.io/learn/academy/tutorials/historical-ohlcv-from-rest-build-candlestick-charts (HTTPStatusError)",
+    "thin content: https://www.accordfintech.com/market-data-feed",
+    "fetch failed: https://www.crunchbase.com/organization/accord-fintech (HTTPStatusError)",
+    "fetch failed: https://www.quora.com/What-is-the-best-Stock-market-API-for-real-time-historical-data-in-2025 (HTTPStatusError)",
     "no evidence for priority dimension m6 (Time-to-value)",
-    "no evidence for priority dimension m14 (Integration complexity)"
+    "no evidence for priority dimension m8 (Reversibility / switching cost)"
   ]
 }

@@ -1,27 +1,28 @@
 {
   "selected": [
     {
-      "name": "DuckDB",
-      "rationale": "An embedded analytical database used in the market data warehouse architecture for local, high-performance querying of Parquet-based financial data lakes. Highly suitable for local quant research and rapid backtesting of historical OHLCV data.",
-      "commercial_twin": "MotherDuck"
-    },
-    {
       "name": "ClickHouse",
-      "rationale": "An open-source, column-oriented OLAP database used for large-scale financial data aggregation and concurrent queries, serving as the high-concurrency production warehouse layer for massive tick-level data.",
+      "rationale": "An open-source, column-oriented OLAP database engine optimized for ultra-low latency analytical queries. It is ideal for storing and querying massive volumes of historical market data, such as sub-second real-time tick feeds and 20+ years of 1-minute OHLCV bars. Its vectorized query execution and custom compression codecs (like Gorilla and DoubleDelta) enable high-throughput batch ingestion and sub-second aggregations on billions of rows.",
       "commercial_twin": "ClickHouse Cloud"
     },
     {
-      "name": "market-data-warehouse",
-      "rationale": "A local-first, multi-asset financial data warehouse blueprint that utilizes Parquet, DuckDB, and ClickHouse to build structured data pipelines (Raw, Bronze, Silver, Gold), ideal for structuring a custom Indian market data lake.",
-      "commercial_twin": null
+      "name": "TimescaleDB",
+      "rationale": "An open-source time-series database extension for PostgreSQL that automatically partitions data into time-based chunks (hypertables). It is uniquely suited for combining 20+ years of 1-minute equity bars and F&O data with complex relational metadata (such as corporate actions, AMFI mutual fund NAVs, and index compositions) while maintaining full SQL and PostgreSQL ecosystem compatibility.",
+      "commercial_twin": "Timescale Cloud"
     }
   ],
   "excluded": [
-    "Interactive Brokers Gateway",
-    "IBC",
-    "Tailscale"
+    "PostgreSQL",
+    "InfluxDB",
+    "SigNoz",
+    "Jaeger",
+    "Grafana"
   ],
   "source_urls": [
-    "https://github.com/joemccann/market-data-warehouse"
+    "https://oneuptime.com/blog/post/2026-01-21-clickhouse-vs-timescaledb/view",
+    "https://sanj.dev/post/postgresql-timescaledb-clickhouse-comparison/",
+    "https://www.influxdata.com/comparison/clickhouse-vs-timescaledb/",
+    "https://tasrieit.com/blog/clickhouse-vs-timescaledb-2026",
+    "https://www.modern-datatools.com/compare/timescaledb-vs-clickhouse"
   ]
 }
