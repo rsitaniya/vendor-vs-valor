@@ -55,6 +55,12 @@ Stop for my review after: PLAN.md; CHECKPOINT 1 (grounded_claim tests green); CH
 3. Drop the HTML report (item 7) to a styled markdown strategy.
 Never leave the core pipeline (1–6 minus challenger) broken end-to-end. A working narrow pipeline beats a broken wide one.
 
+## Engineering standards & workflow (permanent)
+- **Karpathy guidelines always on**: think before coding (state assumptions, surface tradeoffs, ask when unclear), simplicity first (no speculative features/abstractions), surgical changes only (touch only what the task requires), goal-driven execution (define verifiable success criteria before looping).
+- **No AI slop.** All code and prose must read like it was written by a careful senior engineer: no filler, no padding, no unnecessary comments, no invented abstractions. Highest standard, not just "working."
+- **Commit messages: max 6-7 words.** Shorter is fine.
+- **One PR per task.** Never commit directly to `main`. Branch, push, open a PR, and merge the PR for each task on the working task list.
+
 ## What NOT to do
 - Don't build any Target-Architecture feature (portfolio memory service, intra-track research fan-out, structural-at-emission grounding, confidence scoring, provider routing, served dashboard). Stubs/interfaces only where the MVP spec says so.
 - Don't hard-code a model provider or a demo scenario.
