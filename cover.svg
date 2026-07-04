@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" font-family="ui-sans-serif, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1120"/>
+      <stop offset="1" stop-color="#111c34"/>
+    </linearGradient>
+    <linearGradient id="rule" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#f59e0b" stop-opacity="0"/>
+      <stop offset="0.5" stop-color="#f59e0b" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#f59e0b" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="630" fill="none" stroke="#1e2a44" stroke-width="2"/>
+
+  <!-- kicker -->
+  <text x="60" y="92" fill="#7c8aa5" font-size="20" font-weight="600" letter-spacing="4">A RESEARCH ENGINE FOR BUILD-VS-BUY DECISIONS</text>
+
+  <!-- title -->
+  <text x="58" y="210" font-size="98" font-weight="800" letter-spacing="-2">
+    <tspan fill="#e6edf8">Vendor </tspan><tspan fill="#5b6b88" font-weight="600" font-style="italic">vs </tspan><tspan fill="#f59e0b">Valor</tspan>
+  </text>
+
+  <line x1="60" y1="252" x2="560" y2="252" stroke="url(#rule)" stroke-width="3"/>
+
+  <!-- tagline -->
+  <text x="60" y="300" fill="#aebbd2" font-size="29" font-weight="500">It does the homework. It cites every source.</text>
+  <text x="60" y="340" fill="#aebbd2" font-size="29" font-weight="500">It argues with itself. <tspan fill="#e6edf8" font-weight="700">You make the call.</tspan></text>
+
+  <!-- four paths -->
+  <g font-size="23" font-weight="700" text-anchor="middle">
+    <g>
+      <rect x="60" y="408" width="252" height="92" rx="14" fill="#0e1830" stroke="#26324f" stroke-width="1.5"/>
+      <text x="186" y="448" fill="#e6edf8">Build</text>
+      <text x="186" y="476" fill="#6b7a96" font-size="15" font-weight="500">from scratch</text>
+    </g>
+    <g>
+      <rect x="332" y="408" width="252" height="92" rx="14" fill="#0e1830" stroke="#26324f" stroke-width="1.5"/>
+      <text x="458" y="448" fill="#e6edf8">Buy</text>
+      <text x="458" y="476" fill="#6b7a96" font-size="15" font-weight="500">license a vendor</text>
+    </g>
+    <g>
+      <rect x="604" y="408" width="252" height="92" rx="14" fill="#0e1830" stroke="#3a3015" stroke-width="1.5"/>
+      <text x="730" y="448" fill="#f59e0b">Buy-then-extend</text>
+      <text x="730" y="476" fill="#6b7a96" font-size="15" font-weight="500">license the core, build the edge</text>
+    </g>
+    <g>
+      <rect x="876" y="408" width="252" height="92" rx="14" fill="#0e1830" stroke="#26324f" stroke-width="1.5"/>
+      <text x="1002" y="448" fill="#e6edf8">Self-host</text>
+      <text x="1002" y="476" fill="#6b7a96" font-size="15" font-weight="500">adopt open source</text>
+    </g>
+  </g>
+
+  <!-- footer line -->
+  <text x="60" y="566" fill="#7c8aa5" font-size="19" font-weight="500">The AI can&#8217;t grade its own work &#8212; a separate pass fact-checks every claim against the source.</text>
+</svg>
