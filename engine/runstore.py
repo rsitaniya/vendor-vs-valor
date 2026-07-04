@@ -8,11 +8,27 @@ stores *graph* execution state separately — see graph.py.)
 
 from __future__ import annotations
 
+import contextlib
+import fcntl
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
 from pydantic import BaseModel, Field
+
+
+@contextlib.contextmanager
+def _locked(path: Path):
+    """Exclusive file lock, held across a manifest read-modify-write so
+    concurrent stages (BUILD/BUY run as parallel graph branches) can't lose
+    each other's set_stage() update."""
+    lock_path = path.with_suffix(path.suffix + ".lock")
+    with open(lock_path, "w") as fh:
+        fcntl.flock(fh, fcntl.LOCK_EX)
+        try:
+            yield
+        finally:
+            fcntl.flock(fh, fcntl.LOCK_UN)
 
 
 def _now_iso() -> str:
@@ -82,13 +98,14 @@ class RunStore:
         return self.load().stages.get(name)
 
     def set_stage(self, name: str, **fields) -> None:
-        manifest = self.load()
-        record = manifest.stages.get(name) or StageRecord()
-        for key, value in fields.items():
-            setattr(record, key, value)
-        record.updated_at = _now_iso()
-        manifest.stages[name] = record
-        self.save(manifest)
+        with _locked(self.manifest_path):
+            manifest = self.load()
+            record = manifest.stages.get(name) or StageRecord()
+            for key, value in fields.items():
+                setattr(record, key, value)
+            record.updated_at = _now_iso()
+            manifest.stages[name] = record
+            self.save(manifest)
 
     # --- artifact helpers ---
     def artifact_path(self, filename: str) -> Path:

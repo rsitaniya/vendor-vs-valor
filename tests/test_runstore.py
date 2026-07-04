@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import threading
+
 from engine.runstore import RunStore
 
 
@@ -40,3 +42,32 @@ def test_write_text_returns_artifact_path(tmp_path):
 
     assert path == store.artifact_path("artifact.md")
     assert path.read_text(encoding="utf-8") == "# hello"
+
+
+def test_set_stage_survives_concurrent_writers(tmp_path, monkeypatch):
+    # BUILD/BUY research run as parallel LangGraph branches (separate threads)
+    # and both call set_stage() on the same run.json. Widen the read-modify-
+    # write window artificially so a missing lock would reliably lose updates.
+    store = RunStore.new(tmp_path, run_id="run-1")
+    original_load = RunStore.load
+
+    def slow_load(self):
+        manifest = original_load(self)
+        import time
+        time.sleep(0.01)
+        return manifest
+
+    monkeypatch.setattr(RunStore, "load", slow_load)
+
+    stage_names = [f"stage-{i}" for i in range(8)]
+    threads = [
+        threading.Thread(target=store.set_stage, args=(name,), kwargs={"status": "done"})
+        for name in stage_names
+    ]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+
+    manifest = original_load(store)
+    assert set(manifest.stages) == set(stage_names)

@@ -4,6 +4,10 @@ end-to-end, pausing for real human review at each gate by default.
 Usage:
     uv run python run.py [path/to/need.md]                # interactive (default)
     uv run python run.py [path/to/need.md] --auto-approve  # unattended, old behavior
+    uv run python run.py --resume RUN_ID                   # reattach to runs/RUN_ID
+
+Every run is checkpointed to runs/<id>/checkpoint.db, so a run interrupted or
+killed at a gate can be resumed later with --resume instead of restarting.
 
 Gate 1 (profile): one clarification round for fields that still look unfilled
 and matter to research quality, then approve, edit profile.json in $EDITOR, or
@@ -24,7 +28,7 @@ from pathlib import Path
 from langgraph.types import Command
 
 from engine.runstore import RunStore
-from graph import RunDeps, build_graph
+from graph import RunDeps, build_graph, sqlite_checkpointer
 from llm import get_provider, pro_model
 from skills.schema_stage import ContractError
 from stages.intake import render_profile_md, validate_profile
@@ -165,8 +169,7 @@ def prompt_gate(gate: dict, store: RunStore) -> str:
         if choice in ("a", "approve"):
             return "approve"
         if choice in ("b", "abort"):
-            print("  aborted. This run cannot be resumed after this process exits "
-                  "(in-memory checkpointer).")
+            print(f"  aborted. Resume later with: run.py --resume {store.dir.name}")
             raise SystemExit(1)
         if can_edit and choice in ("e", "edit"):
             if number == 1:
@@ -178,23 +181,51 @@ def prompt_gate(gate: dict, store: RunStore) -> str:
         print("  unrecognized choice.")
 
 
+def _run_gates(app, config: dict, store: RunStore, auto_approve: bool) -> None:
+    """Block through interrupts (reading current state from the checkpointer,
+    so this works identically for a fresh run and a resumed one) until the
+    graph reaches END."""
+    snapshot = app.get_state(config)
+    while snapshot.interrupts:
+        gate = snapshot.interrupts[0].value
+        if auto_approve:
+            decision = "approve"
+            stage_next = _STAGE_AFTER_GATE.get(gate["gate"], "END")
+            print(f"  parked at gate {gate['gate']} ({gate['stage']}) "
+                  f"-> approve -> {stage_next}")
+        else:
+            decision = prompt_gate(gate, store)
+        app.invoke(Command(resume=decision), config)
+        snapshot = app.get_state(config)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("input", nargs="?", default="input-market-data-india.md")
     parser.add_argument("--auto-approve", action="store_true",
                         help="Skip human review; auto-approve every gate (old unattended behavior).")
+    parser.add_argument("--resume", metavar="RUN_ID",
+                        help="Resume an existing run from runs/RUN_ID instead of starting fresh.")
     args = parser.parse_args()
 
-    input_path = Path(args.input)
-    if not input_path.exists():
-        print(f"ERROR: input file not found: {input_path}", file=sys.stderr)
-        return 2
+    need = None
+    if args.resume:
+        store = RunStore(Path("runs") / args.resume)
+        if not store.manifest_path.exists():
+            print(f"ERROR: no run found at runs/{args.resume}", file=sys.stderr)
+            return 2
+        print(f"resuming run: {store.dir}")
+    else:
+        input_path = Path(args.input)
+        if not input_path.exists():
+            print(f"ERROR: input file not found: {input_path}", file=sys.stderr)
+            return 2
+        need = _load_need(input_path)
+        print(f"input:   {input_path} ({len(need)} chars)")
+        store = RunStore.new("runs", model_id=pro_model())
 
-    need = _load_need(input_path)
-    print(f"input:   {input_path} ({len(need)} chars)")
-
-    app = build_graph()
-    store = RunStore.new("runs", model_id=pro_model())
+    checkpointer = sqlite_checkpointer(store.dir / "checkpoint.db")
+    app = build_graph(checkpointer)
     deps = RunDeps(provider=get_provider())
     config = {"configurable": {"thread_id": store.dir.name, "deps": deps}}
     print(f"run dir: {store.dir}")
@@ -202,20 +233,12 @@ def main() -> int:
     print("auto-approving every gate (unattended)\n" if args.auto_approve
           else "interactive mode: reviewing at each gate\n")
 
-    result = app.invoke(
-        {"run_id": store.dir.name, "run_dir": str(store.dir), "need": need},
-        config,
-    )
-    while result.get("__interrupt__"):
-        gate = result["__interrupt__"][0].value
-        if args.auto_approve:
-            decision = "approve"
-            stage_next = _STAGE_AFTER_GATE.get(gate["gate"], "END")
-            print(f"  parked at gate {gate['gate']} ({gate['stage']}) "
-                  f"-> approve -> {stage_next}")
-        else:
-            decision = prompt_gate(gate, store)
-        result = app.invoke(Command(resume=decision), config)
+    if not args.resume:
+        app.invoke(
+            {"run_id": store.dir.name, "run_dir": str(store.dir), "need": need},
+            config,
+        )
+    _run_gates(app, config, store, args.auto_approve)
 
     strategy_md = store.artifact_path("strategy.md")
     if not strategy_md.exists():
