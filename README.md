@@ -47,7 +47,7 @@ input.md
                                                       report.html
 ```
 
-The three gates are LangGraph `interrupt()` points. The pipeline parks, writes its artifact, and waits for operator approval before continuing. `run.py` auto-approves all gates for unattended end-to-end runs. Each work node is idempotent via a content-hash guard: a re-entered node recomputes its input hash, finds its existing artifact, and no-ops.
+The three gates are LangGraph `interrupt()` points. The pipeline parks, writes its artifact, and waits for the operator by default: approve, or edit (gate 1: the profile in `$EDITOR`; gate 3: the soft steer, which re-runs synthesis — the input-hash guard skips research). Gate 2 is approve/abort only; there's no sanctioned edit path for research claims. Pass `--auto-approve` to `run.py` for the old unattended behavior. Each work node is idempotent via a content-hash guard: a re-entered node recomputes its input hash, finds its existing artifact, and no-ops.
 
 ---
 
@@ -167,7 +167,11 @@ uv run python run.py                  # reads ./input-market-data-india.md by de
 uv run python run.py path/to/need.md  # explicit path
 ```
 
-The engine auto-approves all three human gates and opens the HTML report on completion. Intermediate artifacts are written to `runs/<timestamp-id>/` as the pipeline progresses.
+By default the engine pauses at each gate for real review (approve/edit/abort — see "Pipeline" above) and opens the HTML report on completion. Add `--auto-approve` to skip review and run unattended. Intermediate artifacts are written to `runs/<timestamp-id>/` as the pipeline progresses.
+
+```bash
+uv run python run.py my-need.md --auto-approve   # unattended, old behavior
+```
 
 Two full committed example runs, including `strategy.md` and `report.html`:
 - [`runs/example-market-data-india/`](runs/example-market-data-india/) — `input-market-data-india.md`, the capital-markets scenario walked through in the [companion writeup](https://sitaniya-com.pages.dev/blog/vendor-vs-valor)

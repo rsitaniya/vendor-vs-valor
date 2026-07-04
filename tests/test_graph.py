@@ -61,6 +61,22 @@ def test_gate_decisions_are_recorded_in_state():
     assert values["gate3"] == "approve"
 
 
+def test_editing_at_gate3_loops_back_to_synthesis_then_reparks():
+    app = build_graph()
+    config = _config("t3")
+    app.invoke({"run_id": "r3", "run_dir": "/tmp/r3"}, config)
+    app.invoke(Command(resume="approve"), config)  # past gate 1
+    app.invoke(Command(resume="approve"), config)  # past gate 2, through synthesis, parks at gate 3
+
+    result = app.invoke(Command(resume="edit"), config)  # loops back through synthesis
+    assert result.get("__interrupt__"), "expected to re-park at gate 3 after re-synthesis"
+    assert app.get_state(config).values["gate3"] == "edit"
+
+    result = app.invoke(Command(resume="approve"), config)  # this time proceed to report
+    assert not result.get("__interrupt__"), "expected to finish"
+    assert app.get_state(config).next == ()
+
+
 def test_resume_does_not_replay_gate_decision_already_made():
     # Two independent threads keep independent checkpoints.
     app = build_graph()
