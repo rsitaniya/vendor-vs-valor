@@ -163,9 +163,14 @@ _EDGES = (
     ("research_join", "gate2"),
     ("gate2", "synthesis"),
     ("synthesis", "gate3"),
-    ("gate3", "report"),
     ("report", END),
 )
+
+
+def _gate3_route(state: GraphState) -> str:
+    """Editing the soft steer at gate 3 loops back to synthesis (the input-hash
+    guard picks up the change and re-runs it); approving moves on to report."""
+    return "synthesis" if state.get("gate3") == "edit" else "report"
 
 
 def build_graph(checkpointer=None):
@@ -175,6 +180,7 @@ def build_graph(checkpointer=None):
         graph.add_node(node_name, fn)
     for start, end in _EDGES:
         graph.add_edge(start, end)
+    graph.add_conditional_edges("gate3", _gate3_route, {"synthesis": "synthesis", "report": "report"})
     return graph.compile(checkpointer=checkpointer or InMemorySaver())
 
 

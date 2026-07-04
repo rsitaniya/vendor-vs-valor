@@ -1,15 +1,20 @@
-"""Full pipeline runner — reads need from input-market-data-india.md and drives the graph end-to-end.
+"""Full pipeline runner — reads need from a markdown file and drives the graph
+end-to-end, pausing for real human review at each gate by default.
 
 Usage:
-    uv run python run.py [path/to/input-market-data-india.md]   # defaults to ./input-market-data-india.md
+    uv run python run.py [path/to/need.md]                # interactive (default)
+    uv run python run.py [path/to/need.md] --auto-approve  # unattended, old behavior
 
-Mirrors cp5_demo.py but parameterised: reads the need from a markdown file
-(everything after the first # heading is the raw need text), auto-approves all
-three human gates, and opens the HTML report on completion.
+Gate 1 (profile): approve, edit profile.json in $EDITOR, or abort.
+Gate 2 (research): approve or abort — no sanctioned edit path (spec §5.2).
+Gate 3 (strategy): approve, edit the soft steer (re-runs synthesis), or abort.
 """
 
 from __future__ import annotations
 
+import argparse
+import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -19,6 +24,8 @@ from langgraph.types import Command
 from engine.runstore import RunStore
 from graph import RunDeps, build_graph
 from llm import get_provider, pro_model
+from skills.schema_stage import ContractError
+from stages.intake import render_profile_md, validate_profile
 
 _STAGE_AFTER_GATE = {1: "research", 2: "synthesis", 3: "report"}
 
@@ -33,8 +40,85 @@ def _load_need(path: Path) -> str:
     return "\n".join(lines).strip()
 
 
+def load_and_validate_profile(path: Path) -> dict | None:
+    """Read profile.json and validate it. Returns the data, or None on error."""
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        validate_profile(data)
+    except (json.JSONDecodeError, ContractError) as exc:
+        print(f"  profile.json is invalid: {exc}")
+        return None
+    return data
+
+
+def apply_soft_steer(store: RunStore, new_steer: str) -> None:
+    """Update profile.json's soft_steer and regenerate profile.md from it."""
+    path = store.artifact_path("profile.json")
+    data = json.loads(path.read_text(encoding="utf-8"))
+    data["soft_steer"] = new_steer
+    path.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
+    store.artifact_path("profile.md").write_text(render_profile_md(data), encoding="utf-8")
+
+
+def _open_editor(path: Path) -> None:
+    editor = os.environ.get("EDITOR", "vi")
+    subprocess.run([editor, str(path)], check=False)
+
+
+def _edit_profile(store: RunStore) -> bool:
+    """Open profile.json in $EDITOR, validate, regenerate profile.md."""
+    path = store.artifact_path("profile.json")
+    _open_editor(path)
+    data = load_and_validate_profile(path)
+    if data is None:
+        return False
+    store.artifact_path("profile.md").write_text(render_profile_md(data), encoding="utf-8")
+    return True
+
+
+def _edit_soft_steer(store: RunStore) -> None:
+    path = store.artifact_path("profile.json")
+    data = json.loads(path.read_text(encoding="utf-8"))
+    print(f"  current soft steer: {data.get('soft_steer', '')}")
+    new_steer = input("  new soft steer (blank to keep current): ").strip()
+    if new_steer:
+        apply_soft_steer(store, new_steer)
+
+
+def prompt_gate(gate: dict, store: RunStore) -> str:
+    """Block for real human review. Returns the resume decision ('approve' or
+    'edit'), or exits the process on abort."""
+    number, stage, artifact, message = gate["gate"], gate["stage"], gate["artifact"], gate["message"]
+    print(f"\n  gate {number} ({stage}): {message}")
+    print(f"  artifact: {store.dir / artifact}")
+    can_edit = number in (1, 3)
+    while True:
+        options = "[a]pprove" + (", [e]dit" if can_edit else "") + ", a[b]ort"
+        choice = input(f"  {options}: ").strip().lower()
+        if choice in ("a", "approve"):
+            return "approve"
+        if choice in ("b", "abort"):
+            print("  aborted. This run cannot be resumed after this process exits "
+                  "(in-memory checkpointer).")
+            raise SystemExit(1)
+        if can_edit and choice in ("e", "edit"):
+            if number == 1:
+                if _edit_profile(store):
+                    print("  profile.json updated and re-validated.")
+            else:  # gate 3
+                _edit_soft_steer(store)
+            return "edit"
+        print("  unrecognized choice.")
+
+
 def main() -> int:
-    input_path = Path(sys.argv[1]) if len(sys.argv) > 1 else Path("input-market-data-india.md")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("input", nargs="?", default="input-market-data-india.md")
+    parser.add_argument("--auto-approve", action="store_true",
+                        help="Skip human review; auto-approve every gate (old unattended behavior).")
+    args = parser.parse_args()
+
+    input_path = Path(args.input)
     if not input_path.exists():
         print(f"ERROR: input file not found: {input_path}", file=sys.stderr)
         return 2
@@ -47,8 +131,9 @@ def main() -> int:
     deps = RunDeps(provider=get_provider())
     config = {"configurable": {"thread_id": store.dir.name, "deps": deps}}
     print(f"run dir: {store.dir}")
-    print(f"model:   flash (research) / pro (synthesis)\n")
-    print("driving graph end-to-end (auto-approving gates)...\n")
+    print(f"model:   flash (research) / pro (synthesis)")
+    print("auto-approving every gate (unattended)\n" if args.auto_approve
+          else "interactive mode: reviewing at each gate\n")
 
     result = app.invoke(
         {"run_id": store.dir.name, "run_dir": str(store.dir), "need": need},
@@ -56,10 +141,14 @@ def main() -> int:
     )
     while result.get("__interrupt__"):
         gate = result["__interrupt__"][0].value
-        stage_next = _STAGE_AFTER_GATE.get(gate["gate"], "END")
-        print(f"  parked at gate {gate['gate']} ({gate['stage']}) "
-              f"-> approve -> {stage_next}")
-        result = app.invoke(Command(resume="approve"), config)
+        if args.auto_approve:
+            decision = "approve"
+            stage_next = _STAGE_AFTER_GATE.get(gate["gate"], "END")
+            print(f"  parked at gate {gate['gate']} ({gate['stage']}) "
+                  f"-> approve -> {stage_next}")
+        else:
+            decision = prompt_gate(gate, store)
+        result = app.invoke(Command(resume=decision), config)
 
     strategy_md = store.artifact_path("strategy.md")
     if not strategy_md.exists():
