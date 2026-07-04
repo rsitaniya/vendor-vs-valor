@@ -1,39 +1,5 @@
 {
-  "selected": [
-    {
-      "name": "EODHD (End-of-Day Historical Data)",
-      "rationale": "Provides global coverage for over 150,000 tickers, including more than 51,000 mutual funds. It offers daily, weekly, and monthly historical OHLCV data that can be retrieved raw or adjusted to splits and dividends. It also provides a special Bulk API for EOD, splits, and dividends, making it highly suitable for building portfolio analytics systems that require historical fund NAVs and corporate actions.",
-      "commercial_twin": null
-    },
-    {
-      "name": "Alpha Vantage",
-      "rationale": "Delivers institutional-grade data licensed directly from major exchanges. It offers over 20 years of historical data covering 200,000+ global tickers across equities, ETFs, indices, and forex. Its support for real-time and intraday feeds, combined with built-in technical indicators, supports the analytical needs of wealth management platforms.",
-      "commercial_twin": null
-    },
-    {
-      "name": "TagX Stock Market API",
-      "rationale": "Recognized for high historical data accuracy and fully adjusted corporate actions (splits, dividends, bonus issues, and mergers). It provides multi-exchange global coverage and clean historical OHLCV data, matching the precise requirements for compliance and portfolio analysis in an institutional environment.",
-      "commercial_twin": null
-    }
-  ],
-  "excluded": [
-    "CoinMarketCap API",
-    "Kaiko API",
-    "CoinAPI",
-    "Amberdata",
-    "CoinDesk Data",
-    "CoinPaprika API",
-    "CoinGecko API",
-    "Intrinio",
-    "Yahoo Finance API",
-    "IEX Cloud",
-    "Nasdaq Data Link"
-  ],
-  "source_urls": [
-    "https://tagxdata.com/which-stock-market-api-offers-the-most-accurate-historical-data",
-    "https://api.market/blog/MagicAPI/stock-market-api/best-api-for-stock-market-data-all-over-the-world-2026",
-    "https://eodhd.com/financial-apis/api-for-historical-data-and-volumes",
-    "https://coinmarketcap.com/academy/article/best-historical-crypto-data-apis-2026-for-exchange-data-ohlcv-and-market-pairs",
-    "https://coinmarketcap.com/academy/article/historical-crypto-data-that-holds-up-in-production-apis-for-ohlcv-market-pairs-and-venue-memory"
-  ]
+  "selected": [],
+  "excluded": [],
+  "source_urls": []
 }

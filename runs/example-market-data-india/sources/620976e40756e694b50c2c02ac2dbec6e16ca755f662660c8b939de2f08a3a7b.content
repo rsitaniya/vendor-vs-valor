@@ -1,6 +1,0 @@
-AlphaVantage is an online platform that provides financial market data and APIs, making it convenient for individual investors and developers to access stock quotes, technical indicators, and stock analysis.
-Alpha Vantage provides an API service offering access to a wide range of financial market data. It allows developers to retrieve real-time and historical stock prices, forex rates, cryptocurrency data, and technical indicators. An API key grants access to these data endpoints, enabling integration into applications, analysis tools, and research projects.
-Please apply for an API Key on the AlphaVantage homepage.
-The AlphaVantage tools could be found at the Plugin Marketplace, please install it first.
-Both Chatflow and Workflow applications support the AlphaVantage tool node.
-Add the AlphaVantage tool in the Agent application, then enter the stock code to call this tool.

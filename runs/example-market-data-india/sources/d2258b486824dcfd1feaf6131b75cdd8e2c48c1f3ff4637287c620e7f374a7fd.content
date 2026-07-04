@@ -1,0 +1,370 @@
+Most "best database software" articles are written by content marketers who've never deployed an app. They list 25 databases alphabetically, mention "scalability" sixteen times, and leave you no closer to a decision.
+This guide is different. We've built production SaaS applications on multiple database platforms. We migrated MakerKit from Firebase to Supabase when the requests became overwhelming. We've seen what works at scale and what breaks at 3 AM.
+The short answer for 2026: If you're building a web-based SaaS or startup, use Supabase. It gives you PostgreSQL with authentication, real-time subscriptions, storage, and edge functions in one platform. For most teams, it's the right choice.
+But "most teams" isn't everyone. This guide helps you decide when Supabase fits, when to pick Neon or PlanetScale instead, and when specialized databases like ClickHouse or Timescale make sense.
+Pricing and features verified January 2026. Database providers update their offerings frequently, so check official pricing pages for current details.
+Quick Recommendation: Best Database for Startups
+The best database for a startup building web-based SaaS in 2026 is Supabase. It combines PostgreSQL with built-in authentication, Row Level Security for multi-tenancy, real-time subscriptions, file storage, and edge functions. You get a complete backend without stitching together five services. The free tier is generous enough to validate your idea, and the pricing scales predictably. That's why MakerKit runs on Supabase and why we recommend it to developers building their first SaaS.
+- Use Supabase when you're buying into the whole stack (auth, storage, real-time, edge functions). Its value is the integration.
+- Use PlanetScale when reliability and scale are non-negotiable — battle-tested infrastructure powering Cursor, Intercom, and Block, now available for both MySQL and Postgres.
+- Use Neon when you want serverless Postgres with excellent branching, generous free tier, and can tolerate occasional reliability hiccups.
+- Use Turso when SQLite is the right fit: read-heavy apps, edge computing, mobile sync, or embedded scenarios.
+| Quick Decision | Best Database | 
+|---|---|
+| Want the full backend stack (auth, storage, real-time) | Supabase | 
+| Need rock-solid reliability and proven scale | PlanetScale | 
+| Serverless Postgres with excellent branching | Neon | 
+| Read-heavy, edge, mobile sync, or SQLite fits | Turso | 
+| Analytics/OLAP workloads | ClickHouse | 
+| Time-series data (IoT, metrics) | Timescale | 
+| Mobile-first with real-time sync (Google ecosystem) | Firebase | 
+Best Database Software by Category
+Here's the landscape before we get into specific providers. Database categories matter because they determine what problems you can solve efficiently.
+Relational Databases (SQL)
+- PostgreSQL: The default choice for web apps. Powers Supabase, Neon, PlanetScale, Xata, and Timescale. Handles 90% of startup use cases.
+- MySQL: Still widely used, especially in PHP ecosystems. Also available on PlanetScale.
+Serverless Postgres Platforms
+- Supabase: Full backend-as-a-service with Postgres core
+- Neon: True serverless with scale-to-zero
+- PlanetScale: Postgres and MySQL with Vitess-powered horizontal scaling
+- Xata: Postgres with built-in search
+- Prisma Postgres: Zero cold starts, edge caching (tightly coupled to Prisma ORM)
+Edge/SQLite Databases
+- Turso: libSQL (SQLite fork) distributed globally
+- Cloudflare D1: SQLite at the edge (Cloudflare ecosystem)
+Document Databases (NoSQL)
+- MongoDB Atlas: When your data is truly document-shaped
+- Firebase Firestore: Google's NoSQL with real-time sync
+Specialized Databases
+- ClickHouse: Analytics and OLAP at petabyte scale (now also offers managed Postgres with native CDC to ClickHouse)
+- Timescale: Time-series data on Postgres
+- Pinecone, Weaviate: Dedicated vector databases
+What about Redis? Redis is a caching layer, not a primary database. Use it alongside your main database for session storage, rate limiting, and caching hot data.
+Best Postgres Databases for Startups
+PostgreSQL won the database wars for web applications. The platform landscape splits into two shapes:
+- Serverless Postgres — separates storage and compute, scales (and sometimes pauses) automatically. Examples: Neon, Supabase (managed control plane, always-on compute), Prisma Postgres, Xata.
+- Managed Postgres — always-on instances with operational maturity, branching, and predictable performance. Examples: PlanetScale, AWS RDS, Google Cloud SQL.
+The question isn't whether to use Postgres, it's which shape fits your needs.
+Supabase: The Full-Stack Choice
+Supabase is a backend-as-a-service built on PostgreSQL. It's not just a database; it's auth, storage, real-time, and edge functions bundled together.
+What you get:
+- PostgreSQL with full SQL access
+- Authentication with 20+ providers
+- Row Level Security for multi-tenant apps
+- Real-time subscriptions via Postgres changes
+- S3-compatible file storage
+- Edge Functions (Deno-based)
+- Vector embeddings via pgvector
+Best for: Teams who buy into the whole stack. Supabase's value isn't just Postgres. It's auth, storage, real-time, and edge functions integrated together. If you only need a database, you're paying for features you won't use. But if you want the full platform (auth + storage + real-time + edge functions), Supabase saves you from stitching together multiple services.
+Production gotcha: Supabase isn't "serverless" in the scale-to-zero sense. Your Postgres instance runs continuously. This is actually good for production (no cold starts on database queries) but means you pay even when idle on paid plans.
+Scaling note: Supabase announced Multigres in 2025, bringing Vitess-style horizontal sharding to Postgres. For teams needing YouTube-scale distribution, Supabase is catching up to PlanetScale's scaling story.
+Analytics: Supabase recently introduced Analytics Buckets built on Apache Iceberg, letting you offload large datasets from Postgres into queryable analytical storage. Useful for time-travel queries and keeping your transactional database lean.
+Free tier: 500MB database, 1GB file storage, 2 projects. Generous enough to build and validate an MVP.
+Pricing feedback: The most common complaint we hear from MakerKit customers is the $10/month per-project cost on Pro plans after the two included projects. If you're running multiple environments or multiple apps, that adds up quickly. Neon's scale-to-zero is more cost-effective for dev/staging databases you don't use constantly.
+We've run MakerKit on Supabase for years. Our Supabase RLS best practices guide covers the patterns we've refined across 100+ production deployments.
+→ Estimate your Supabase cost: Use the Supabase pricing calculator to see a line-item monthly breakdown for your workload.
+Neon: Serverless with Excellent Dev Workflows
+Neon is true serverless Postgres with the best database branching in the business. It separates storage and compute, allowing your database to scale to zero when idle.
+What you get:
+- PostgreSQL with full compatibility
+- Scale-to-zero (pay nothing when idle)
+- Database branching (like git for your schema), genuinely excellent
+- Instant database cloning for testing
+- Autoscaling based on load
+- Neon Auth (built on Better Auth, 60k MAU free)
+Best for: Development environments, side projects, and teams who want great branching workflows with a generous free tier. If budget matters and you can tolerate occasional reliability hiccups, Neon delivers a lot of value.
+Databricks acquisition (May 2025): Databricks acquired Neon, signaling PostgreSQL's importance in modern data infrastructure. Neon remains independently operated, but the acquisition brings resources and AI/analytics integrations.
+Production gotcha: Cold starts and reliability. When your database scales to zero, the first connection takes 500ms to 2 seconds. More concerning: Neon experienced multiple outages in 2025, including a 5.5-hour incident in May affecting us-east-1. For production workloads where uptime is critical, consider PlanetScale or Supabase instead.
+Free tier: 0.5GB storage, scale-to-zero, branching included. One of the most generous free tiers available. Great for validating ideas without spending money.
+→ Estimate your Neon cost: Use the Neon pricing calculator to model CU-hour costs for your workload.
+Xata: The Search-First Choice
+If search is central to your application, Xata eliminates the Postgres + Elasticsearch dance. It pairs PostgreSQL with OpenSearch in a single managed service.
+You get Postgres plus:
+- Built-in full-text search (typo-tolerant, relevancy-based)
+- Database branching for dev/staging environments
+- File attachments stored directly on records
+- No cold starts (databases stay warm)
+Ideal for: Marketplaces, directories, and content platforms where search drives the experience. Skip the complexity of managing two services.
+Tradeoff: Smaller ecosystem than Supabase or Neon. You'll find fewer tutorials, Stack Overflow answers, and community plugins.
+Pricing: Open Source plan is free forever (self-hosted on Kubernetes). The managed Standard cloud plan starts at $0.012/hour + storage ($0.30/GB NVMe) with a 14-day $100 trial credit. Scale-to-zero means you only pay when active.
+→ Estimate your Xata cost: Use the Xata pricing calculator to model hourly compute and NVMe storage costs.
+→ See all database pricing side by side: Use our database pricing calculators to compare Supabase, Neon, PlanetScale, Xata, and Convex with your actual workload numbers.
+Supabase vs Neon: Head-to-Head
+| Feature | Supabase | Neon | 
+|---|---|---|
+| Core database | PostgreSQL | PostgreSQL | 
+| Scale-to-zero | No (always-on) | Yes | 
+| Cold starts | None | 500ms-2s | 
+| Reliability track record | Strong | Mixed (outages in 2025) | 
+| Built-in auth | Yes | Yes (Neon Auth, built on Better Auth) | 
+| Real-time | Yes | No | 
+| File storage | Yes | No | 
+| Edge functions | Yes | No | 
+| Database branching | Yes (newer) | Yes (mature, excellent) | 
+| SOC2 | Yes | Yes | 
+| HIPAA | Yes | No | 
+| Best for | Full-stack SaaS | Dev environments, budget-conscious | 
+Our take: Both now offer auth, but Supabase's ecosystem is more mature (storage, real-time, edge functions). Neon is excellent for development and side projects thanks to its branching and generous free tier — and it pairs amazingly well with our Drizzle and Prisma kits. For production workloads where uptime is critical, PlanetScale is the safer choice — see the next section for why.
+Best Database Software for Small Business
+Small businesses and indie developers need databases that work without a dedicated DBA. Managed services matter more than raw performance.
+PlanetScale: The Reliability Choice
+If you want a database that just works under load, PlanetScale is hard to beat. They spent years hardening their Vitess-based platform with companies like Cursor, Intercom, and Block, and in September 2025 they brought that same battle-tested infrastructure to the Postgres ecosystem with PlanetScale for Postgres. You get one of the most reliable managed databases available, on the engine you actually want.
+What you get:
+- MySQL or Postgres — both production-ready
+- Horizontal sharding via Vitess (MySQL) or Neki (Postgres)
+- Non-blocking online schema changes — alter huge tables without downtime
+- Database branching for safe schema iteration
+- Always-on instances — no scale-to-zero, no cold starts
+- Excellent query insights and schema recommendations
+- A track record of strong uptime that few competitors match
+Best for: Teams who want a focused, rock-solid database without the BaaS bundle. PlanetScale shines when uptime, performance, and operational maturity matter more than free tiers. Pair it with Better Auth (or Clerk) for authentication, and our Drizzle or Prisma kits handle the rest of the SaaS stack — they work amazingly with PlanetScale Postgres out of the box.
+Pricing: No free tier, but the $5/month Scaler plan includes 5GB storage for single-node databases. The Metal tier ($50+) adds NVMe-backed performance for production workloads. Development branches are $5/month each.
+Analytics: PlanetScale supports the pg_duckdb extension for offloading analytics queries to MotherDuck, keeping heavy analytical workloads from impacting your production database.
+When to choose PlanetScale: Production reliability matters more to you than a free tier. If your app needs to scale and stay up, PlanetScale's track record speaks for itself.
+→ Estimate your PlanetScale cost: Use the PlanetScale pricing calculator to compare EBS cluster tiers for your storage and RAM requirements.
+The long-term bet: Neki. PlanetScale built Vitess — the horizontal sharding layer that powers YouTube and a long list of internet-scale MySQL deployments — and they're now building the same architecture for Postgres under the name Neki. No other managed Postgres has a credible answer to "what happens when one database server isn't enough?" yet, and Neki is the project shipping it. If you're picking a database for a SaaS that might actually need to scale beyond a single instance, the team that wrote the sharding layer for MySQL is the team most likely to nail it for Postgres too. This is the structural reason to pick PlanetScale over Neon or AWS RDS even before you need the scale.
+Self-Hosted Postgres or Cloud Provider Postgres
+If your team has the operational chops, running Postgres directly on AWS RDS, Google Cloud SQL, or self-hosted VMs is also a valid option. You trade convenience for control. For most early-stage SaaS this is overkill, but our Drizzle and Prisma kits work amazingly with any of these — bring whichever Postgres you prefer and ship Makerkit's multi-tenant SaaS patterns on top.
+Turso: SQLite at the Edge
+Turso makes sense when SQLite is the right database for your application. It takes SQLite global using libSQL (an open-source SQLite fork written in Rust), distributing your database to edge locations worldwide.
+When SQLite is the right choice:
+- Read-heavy workloads (90%+ reads) where Postgres is overkill
+- Mobile apps that need offline-first with sync
+- Edge computing where you want data close to users globally
+- Embedded scenarios like local-first apps or AI agents
+- Simple applications where you don't need Postgres complexity
+- Per-user databases (each user gets their own SQLite file)
+What Turso adds to SQLite:
+- Global distribution across edge locations
+- Embedded replicas that sync to user devices
+- Vector search built-in for AI features
+- Sub-10ms reads from nearby edge nodes
+- Live materialized views for real-time data (experimental)
+The catch: SQLite's single-writer model limits write throughput. Turso added concurrent writes in 2025, but for write-heavy or complex relational workloads, PostgreSQL still wins.
+Free tier: 5GB storage, 100 databases, 500 million row reads/month. Room to experiment with edge architecture.
+Firebase/Firestore: The Legacy Option
+Firebase isn't dead, but it's no longer the default recommendation for web apps. It remains strong for mobile-first applications.
+Still valid for:
+- React Native/Flutter mobile apps
+- Real-time sync (Firebase's specialty)
+- Rapid prototyping with Firebase Studio
+- Teams already invested in Google Cloud
+Why we moved away: Google's unclear strategy, limited JavaScript ecosystem support, and the broader shift toward PostgreSQL. We cover this extensively in our Firebase vs Supabase comparison.
+Best Time Series Database
+Time-series data, measurements indexed by time, requires specialized handling. Generic databases struggle with high write volumes and time-based queries.
+TimescaleDB
+Timescale extends PostgreSQL with time-series optimizations. It's not a separate database; it's a Postgres extension.
+What you get:
+- Hypertables (auto-partitioned by time)
+- Continuous aggregates (pre-computed rollups)
+- Compression (10x storage reduction)
+- Full PostgreSQL compatibility
+Best for: IoT sensor data, application metrics, financial tick data, or any use case with high-frequency time-stamped events.
+Why Timescale over InfluxDB: You keep PostgreSQL's ecosystem. Your team doesn't need to learn a new query language. You can JOIN time-series data with your regular application tables.
+When you need it: If you're storing sensor readings, event logs, or metrics at scale (millions of rows per day), Timescale will outperform vanilla Postgres by 10-100x on time-based queries.
+Best Vector Database
+Vector databases store embeddings for semantic search, RAG applications, and AI features. You have two paths: dedicated vector databases or extensions on your existing Postgres.
+pgvector (Supabase/Neon)
+pgvector adds vector similarity search to PostgreSQL. Both Supabase and Neon support it.
+Best for: Teams already using Postgres who want to add AI features without another database. Store embeddings alongside your relational data, query them with SQL.
+-- Find similar documents using pgvectorSELECT id, title, 1 - (embedding <=> query_embedding) as similarityFROM documentsORDER BY embedding <=> query_embeddingLIMIT 10;Tradeoff: pgvector is good enough for most applications (millions of vectors). Dedicated vector databases scale further but add operational complexity.
+Dedicated Vector Databases (Pinecone, Weaviate)
+For applications where vector search is the primary workload, dedicated databases offer better performance at billion-vector scale.
+Pinecone: Managed, serverless, easiest to start. Higher cost at scale. Weaviate: Open-source, self-hostable, more control.
+When to use dedicated: Your vector count exceeds 10 million, or vector search latency is critical to user experience.
+Best Database for AI Apps and RAG
+If you're building an AI-first product — RAG, semantic search, agent memory — the database choice shapes both your architecture and your bill.
+For most AI features, pgvector inside Postgres is the right answer. It keeps embeddings beside the rows they describe, lets you JOIN against user permissions and tenant scopes, and stays inside your RLS policies. Supabase ships pgvector and an hnsw index out of the box; Neon supports it on every tier.
+Rough cost shape at startup scale (1M document chunks, ~3GB of embeddings):
+| Option | Monthly Cost (estimate) | Operational Overhead | 
+|---|---|---|
+| Supabase + pgvector | ~$25 (Pro plan) | None — same DB as the rest of your app | 
+| Neon + pgvector | ~$19+ | None — same DB | 
+| Pinecone serverless | ~$70+ | Separate service, separate auth | 
+| Weaviate Cloud | ~$25+ | Separate service, more knobs | 
+| Self-hosted pgvector | Compute only | You operate Postgres | 
+When to leave Postgres for a dedicated vector DB:
+- Vector count exceeds ~10M and hnswindex build times become painful
+- Hybrid search (BM25 + vectors) where Postgres' full-text isn't enough — Weaviate and Vespa shine here
+- You need vector search at the edge, with sub-50ms global latency
+For 90% of SaaS AI features, pgvector + Postgres covers it. We use this pattern in MakerKit's AI content agent tutorial — embeddings live next to the source documents and inherit the same tenant isolation policies.
+Best NoSQL Database
+NoSQL databases fit specific use cases. The answer to "should I use NoSQL?" is usually "probably not," but there are valid scenarios.
+MongoDB Atlas
+MongoDB stores JSON documents. It's flexible for unstructured data but loses PostgreSQL's referential integrity and complex query capabilities.
+Valid use cases:
+- Truly schema-less data (user-generated content varies wildly)
+- Prototyping when schema is unknown
+- Teams with MongoDB expertise
+Usually wrong for: Applications that will eventually need JOINs, foreign keys, or complex reporting. Many MongoDB projects eventually migrate to Postgres when the schema stabilizes.
+MongoDB vs PostgreSQL: If you're unsure, start with Postgres. You can store JSON in Postgres (JSONB columns) while keeping relational capabilities. See MongoDB vs PostgreSQL for detailed comparison.
+Postgres vs MySQL: Which Should You Pick in 2026?
+The "Postgres vs MySQL" question used to depend on team familiarity. In 2026, the answer has shifted: for new web SaaS, pick Postgres unless you have a specific reason not to.
+Why Postgres has won the SaaS layer:
+- JSONB + JSON path queries make schema-flexible columns first-class — you don't need MongoDB just to store user-generated structured data
+- Row Level Security is built in and battle-tested for multi-tenant apps
+- Extensions turn Postgres into specialized stores: pgvectorfor AI embeddings,Timescalefor time-series,PostGISfor geospatial,pg_partmanfor partitioning,pg_cronfor scheduled jobs
+- Better default isolation — Postgres uses MVCC with serializable snapshots; MySQL's repeatable-read can return stale rows under concurrent writes
+- Data integrity — Postgres enforces foreign keys, check constraints, and DDL transactions; MySQL has historically been looser
+Where MySQL still wins:
+- Legacy ecosystem — WordPress, Magento, older PHP and Rails apps assume MySQL
+- Proven horizontal scale — Vitess (the layer behind YouTube and PlanetScale) is more mature on MySQL than the equivalent Postgres sharding stacks
+- Read replica simplicity — MySQL's replication has been production-hardened for two decades
+- In-house expertise — if your team has shipped MySQL for years, the operational muscle memory matters
+Practical decision rule:
+| Situation | Pick | 
+|---|---|
+| New B2B SaaS, multi-tenant, modern stack | Postgres (Supabase, Neon, PlanetScale Postgres) | 
+| Existing PHP/Rails app on MySQL, no migration appetite | MySQL on PlanetScale | 
+| Need YouTube-scale sharding today | MySQL on Vitess (PlanetScale) | 
+| AI/RAG features in your roadmap | Postgres (pgvector) | 
+| WordPress, Magento, or e-commerce platform | MySQL | 
+We migrated MakerKit's recommended stack to Postgres years ago and have not looked back. Every feature we added since — RLS for tenant isolation, vector search for AI, time-series for analytics — landed inside the same database without operational sprawl.
+How to Choose the Right Database for Your Startup
+Use this decision framework:
+1. Do you need a complete backend or just a database?
+- Complete backend (auth + storage + functions) → Supabase
+- Just a database, reliability-first → PlanetScale
+- Just a database, budget-first → Neon
+- Edge/SQLite → Turso
+2. What's your existing stack?
+- MySQL codebase → PlanetScale (MySQL)
+- PostgreSQL or new project → Supabase, Neon, or PlanetScale Postgres (all three work amazingly with our Drizzle and Prisma kits)
+- Edge-first/mobile → Turso
+3. Do you need specialized capabilities?
+- Time-series data → Timescale
+- Heavy analytics → ClickHouse
+- Search-centric → Xata
+- Vector/AI → pgvector (Supabase) or Pinecone
+4. What's your budget?
+- Pre-revenue/validation → Supabase or Neon (free tiers)
+- Growth stage → Evaluate based on usage patterns
+- Enterprise → Self-hosted options available
+5. Do you have compliance requirements?
+- HIPAA → Supabase (certified)
+- SOC2 → Supabase, Neon (both certified)
+- Data residency → Self-hosted Supabase
+If you're still unsure: Start with Supabase. It handles the most common needs, has excellent documentation, and you can always migrate the database layer later (it's just Postgres).
+Best Free Database Software
+Free tiers matter for startups. You want to validate ideas without surprise bills during prototyping.
+| Provider | Free Storage | Cold Starts | Auth Included | Notes | 
+|---|---|---|---|---|
+| Supabase | 500MB | No | Yes | Best all-in-one free tier | 
+| Neon | 0.5GB | Yes (500ms-2s) | Yes (60k MAU) | Scale-to-zero, Neon Auth | 
+| Xata | Trial only | No | No | 14-day trial ($100 credit), then usage-based | 
+| Turso | 5GB | Minimal | No | 100 databases, 500M reads/month | 
+| PlanetScale | $5/mo (5GB) | None | No | No free tier, but $5 Scaler plan available | 
+| Prisma Postgres | 500MB | No | No | 100k ops/month, requires Prisma ORM | 
+| Firebase | Limited | No | Yes | Spark plan increasingly restricted | 
+Free tier limits verified January 2026. Providers update these frequently.
+Our recommendation: Supabase's free tier gives you everything needed to build and launch an MVP. The 500MB limit sounds small but handles thousands of users for most SaaS applications.
+Is Prisma a Database? (Common Confusion)
+Prisma is primarily known as an ORM (Object-Relational Mapper), but they now offer a database too.
+Prisma ORM generates TypeScript types from your database schema and provides a query builder. It connects to any Postgres database (Supabase, Neon, RDS, self-hosted, etc.) — and it works amazingly with our Prisma kit.
+Prisma Postgres (launched February 2025) is their serverless database offering built on unikernels and Cloudflare infrastructure. Key features:
+- Zero cold starts
+- Global edge caching for queries
+- Built-in connection pooling
+- Usage-based pricing (per operation, not compute hours)
+- Free tier: 100k monthly operations, 500MB storage, 5 databases
+Should you use Prisma Postgres? It's new and tightly coupled to Prisma ORM (direct TCP connections currently require Prisma ORM). If you're already using Prisma ORM and want a simple serverless database, it's worth evaluating. For most teams, Supabase or Neon offer more mature ecosystems.
+Prisma ORM vs Drizzle: We've compared the ORMs in our Drizzle vs Prisma guide. Short version: Drizzle is lighter and stays closer to SQL; Prisma has a larger ecosystem and better tooling for complex schemas.
+Best Database for SaaS Applications
+SaaS applications have specific requirements: multi-tenancy, access control, scalability, and compliance.
+Multi-Tenancy Matters
+Most SaaS apps serve multiple customers (tenants) from a single database. This requires strict access control so Customer A never sees Customer B's data.
+Two approaches:
+- Shared database, Row Level Security (RLS): All tenants in one database, policies enforce isolation
+- Database-per-tenant: Each customer gets a separate database
+For most startups, shared database with RLS is the right choice. It's simpler to operate, cheaper to run, and PostgreSQL's RLS is battle-tested.
+Why Supabase Excels for SaaS
+Supabase was designed for this use case:
+- RLS built-in: Define policies that enforce tenant isolation at the database level
+- Auth integration: User identity flows directly into RLS policies
+- Realtime per-tenant: Broadcast updates to specific tenants only
+-- Example: Users can only see their team's dataCREATE POLICY "team_isolation" ON documents  FOR ALL  USING (team_id IN (    SELECT team_id FROM team_members    WHERE user_id = auth.uid()  ));This pattern ensures that even if your application code has bugs, the database rejects unauthorized access.
+Learn the patterns in our Supabase RLS best practices guide.
+Production Considerations
+Connection Pooling: The Gotcha That Bites Every Startup
+The single most common production incident we see in early-stage SaaS isn't a slow query or a missing index — it's running out of database connections.
+Postgres opens one OS process per connection, which is expensive. A typical instance handles 50–500 connections before performance degrades. Serverless runtimes (Vercel functions, Cloudflare Workers, Lambda) can spin up thousands of concurrent invocations, each opening a fresh connection. Without pooling, you'll see FATAL: too many connections under load.
+What each platform gives you out of the box:
+| Provider | Pooler | Default Mode | Notes | 
+|---|---|---|---|
+| Supabase | Supavisor + PgBouncer | Transaction mode | Use the pooled connection string for serverless; direct connection for migrations | 
+| Neon | PgBouncer (managed) | Transaction mode | Pooled endpoint is automatic; ws-driver supports edge runtimes | 
+| Prisma Postgres | Built-in connection pooling | — | Pool size scales automatically | 
+| Self-hosted | None — bring your own | — | Run PgBouncer or pgcat in front of Postgres | 
+Rule of thumb for serverless apps:
+- Use the pooled connection string in your application runtime (Next.js Server Components, Server Actions, Edge runtimes)
+- Use the direct connection string only for schema migrations, long transactions, and one-off CLI tools
+- Avoid prepared statements over PgBouncer transaction mode — they break across pooled sessions; use simple queries or set prepare = falsein your ORM
+If you're on Makerkit, this is already wired up correctly: the Supabase client uses the pooled URL by default, and migrations run against the direct URL. If you roll your own setup, get pooling right before you launch — it's much cheaper than diagnosing connection storms in production.
+Cold Start Comparison
+Cold starts affect user experience when your database scales to zero.
+| Provider | Cold Start | Mitigation | 
+|---|---|---|
+| Supabase | None | Always-on Postgres | 
+| Neon | 500ms-2s | Keep minimum compute active | 
+| Xata | None | Always-on | 
+| PlanetScale | None | Always-on managed instances | 
+| Prisma Postgres | None | Built on unikernels with edge caching | 
+| Turso | <100ms | Globally distributed | 
+For user-facing production workloads: Always-on databases (Supabase, Xata) or pre-warmed compute (Neon with minimum scale) prevent latency spikes.
+Cold start times vary by region and load. Numbers based on community benchmarks and provider documentation as of January 2026.
+Pricing at Scale
+Database costs scale with storage, compute, and bandwidth. Rough comparisons at startup scale (10GB database, moderate traffic):
+| Provider | ~Monthly Cost | Notes | 
+|---|---|---|
+| Supabase Pro | $25 | Includes auth, storage, functions | 
+| Neon Scale | $19+ | Compute-based pricing | 
+| PlanetScale | $5+ | $5 Scaler tier, Metal tier ($50+) for production | 
+| Turso | $5+ | Developer tier starts at $4.99 | 
+| Self-hosted Postgres | Compute only | Pair with our Drizzle or Prisma kit | 
+Hidden costs: Bandwidth egress, backup retention, and support tiers. Read pricing pages carefully.
+→ Model your exact workload: Our database pricing calculators let you enter your storage, RAM, and egress numbers and compare Supabase, Neon, PlanetScale, Xata, and Convex side by side. Note: these calculators use EBS (network-attached) pricing for PlanetScale — if you're considering the Metal (NVMe) tier, those prices are higher.
+Compliance
+| Provider | SOC2 | HIPAA | GDPR | Self-Host Option | 
+|---|---|---|---|---|
+| Supabase | Yes | Yes | Yes | Yes | 
+| Neon | Yes | No | Yes | No (run Postgres) | 
+| PlanetScale | Yes | Yes | Yes | No (run MySQL/Postgres) | 
+| Turso | Yes | No | Yes | Yes (libSQL) | 
+For healthcare applications requiring HIPAA, Supabase is currently the only serverless option with compliance certification.
+Quick Recommendation
+Best database software for startups is Supabase when:
+- You're buying into the whole stack (auth, storage, real-time, edge functions)
+- You want one platform instead of stitching five services together
+- Multi-tenancy with RLS matters
+- You value the integrated developer experience over raw database flexibility
+Skip Supabase if:
+- You only need a database, not the full stack (PlanetScale for production reliability, Neon for great branching and a generous free tier)
+- You need MySQL compatibility (PlanetScale)
+- SQLite fits your use case better (read-heavy, edge, mobile sync), so use Turso
+- You're building mobile-first in the Google ecosystem (consider Firebase)
+Our pick: Supabase, if you buy into the whole stack. We've run MakerKit on it for years because the combination of Postgres, built-in auth, RLS, and real-time covers what most SaaS applications need. If reliability and operational maturity matter more than the BaaS bundle, PlanetScale is the strongest pure-database choice on the market. And if you'd rather bring your own Postgres (PlanetScale, Neon, RDS, self-hosted), our Drizzle and Prisma kits work amazingly with any of them and pair Better Auth with the same multi-tenant patterns.
+Frequently Asked Questions
+Does Makerkit support multiple databases?
+What is the best database software for beginners?
+Is PostgreSQL better than MySQL for startups?
+What is a serverless database?
+How do I migrate from Firebase to Supabase?
+Should I use a dedicated vector database or pgvector?
+Is Neon owned by Databricks now?
+What database does MakerKit use?
+Next Steps
+If you're building a SaaS application, start with Supabase and learn the patterns that make it production-ready:
+- Security first: Read our Supabase RLS best practices for multi-tenant patterns
+- Secrets management: Learn to use Supabase Vault for API keys and credentials
+- ORM selection: Compare your options with Drizzle vs Prisma
+- Full guide: See our complete guide to building a SaaS quickly for the full picture
+Which MakerKit Kit Should You Use?
+MakerKit offers production-ready Next.js starter kits for different database choices:
+| Your Database Choice | Recommended Kit | 
+|---|---|
+| Supabase | Next.js Supabase Kit - Full BaaS with auth, RLS, real-time | 
+| PlanetScale, Neon, RDS, self-hosted Postgres, Turso, etc. | Next.js Drizzle Kit or Next.js Prisma Kit - Bring your own Postgres with Better Auth | 
+- Supabase Kit includes Supabase Auth, Row Level Security patterns, real-time subscriptions, and storage integration out of the box.
+- Drizzle/Prisma Kit uses Drizzle ORM or Prisma ORM with Better Auth (framework-agnostic authentication). They work amazingly with any Postgres-compatible database — PlanetScale, Neon, RDS, self-hosted, Turso — and can be adapted to anything else supported by Drizzle or Prisma.
+Both kits include multi-tenancy, billing (Stripe or Polar), team management, and admin panels. The difference is the auth and database layer.
+Last updated: May 2026 — added Postgres vs MySQL section, connection pooling guide, and "Best Database for AI Apps" comparison.

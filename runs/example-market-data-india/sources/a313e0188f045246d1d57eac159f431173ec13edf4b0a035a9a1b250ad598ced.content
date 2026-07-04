@@ -1,0 +1,31 @@
+Paid End of the day/ Historical Data
+The End of Day data files are generated in binary format at the end of each trading day. These files contain the End of Day bhavcopy information along with security and trade details pertaining to the Capital Market, Wholesale Debt Market and Futures and Options Segments of National Stock Exchange of India Limited. The tariff applicable for subscription of End of Day data is as under:
+Downloads:
+Download Technical Specification CM End of Day (.pdf) (669 KB)
+Download Technical Specification FAO End of Day (.pdf) (628 KB)
+Download Technical Specification CD End of Day (.pdf) (605 KB)
+Download Technical Specification WDM End of Day (.pdf) (583 KB)
+Downloads:
+Download Historical Trade Data Undertaking (.doc) (60 KB)
+Download Technical Specification CM Trade Data (.pdf) (134 KB)
+Download Sample Files for CM Trade Data (.zip) (21.7 MB)
+Download Technical Specification F&O Trade Data (.pdf) (156 KB)
+Download Sample Files for F&O Trade Data (.zip) (47.9 MB)
+Download Technical Specification WDM Trade Data (.pdf) (195 KB)
+Download Sample Files for WDM Trade Data (.zip) (215 KB)
+Note : The sample files are in .GZ format. To open the files following steps need to be followed:
+- Download and save the zip file on your system
+- Extract the files using 7-zip
+- Open the new spreadsheet and drag or drop the file there in, else
+- Open the file using spreadsheet directly
+- Alternatively, the file can be opened in 'note pad'
+For further information and subscription of the data, kindly email your requirement to marketdata@nse.co.in or call on +91-22-2659 8385
+The End of the day (EOD) Order & Trade data will be provided through SFTP and Historical Order and Trade data will provided via online platform and is available for the Capital Market (CM), Futures & Option (F&O), Currency Derivatives (CD) and Commodity Derivatives (COM) segments.
+Capital Market segment will cover Order and Trade level information along with Index value.
+Downloads:
+Download Historical Order & Trade Data Undertaking (.doc) (31 KB)
+Download Technical Specification of Historical Order & Trade Data (.pdf) (1.73 MB)
+Download Sample Files for CM Order & Trade Data (.zip) (8.8 MB)
+Download Sample Files for F&O Order & Trade Data (.zip) (8.8 MB)
+Download Sample Files for CD Order & Trade Data (.zip) (2.9 MB)
+For further information and subscription of the data, kindly email your requirement to marketdata@nse.co.in or call on +91-22-2659 8385

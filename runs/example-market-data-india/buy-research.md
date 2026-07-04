@@ -1,74 +1,68 @@
 # BUY research
 
-18 verified claims.
+14 verified claims.
 
 ## m10
-- EODHD provides end-of-day OHLCV data alongside adjusted close prices. (SUPPORTED)
-  > "Returns OHLCV (Open, High, Low, Close, Volume) data plus adjusted close prices" — [EODHD APIs for AI agents — 11 tools, one platform | Definable](https://definable.ai/apps/eodhd_apis/)
-- EODHD offers a fund fundamentals endpoint that retrieves details for mutual funds. (SUPPORTED)
-  > "Retrieves comprehensive fundamental data for mutual funds via EODHD API." — [EODHD APIs for AI agents — 11 tools, one platform | Definable](https://definable.ai/apps/eodhd_apis/)
-- EODHD provides market data covering global equities across more than 60 exchanges. (SUPPORTED)
-  > "provides affordable access to global equities across 60+ exchanges" — [EODHD Provider¶](https://ml4trading.io/docs/data/providers/eodhd/)
+- TrueData delivers market data APIs supporting NSE EQ, BSE EQ, and derivative segments. (SUPPORTED)
+  > "delivering services for NSE EQ, NSE Indices, NSE F&O, BSE EQ, BSE Indices, BSE F&O" — [Real-Time Market Data API for NSE, BSE & MCX | Low Latency APIs](https://www.truedata.in/products/marketdataapi)
+- The mfapi.in platform offers unrestricted access to Indian mutual fund data without requiring API keys or rate limiting. (PARTIAL) _[partial_evidence]_
+  > "No authentication, no API keys, no rate limiting. Just pure data access." — [India's Free Mutual Fund API](https://www.mfapi.in/)
+- The mfapi.in platform updates its historical mutual fund NAV data six times per day. (PARTIAL) _[partial_evidence]_
+  > "Updated 6x daily (10:05 AM, 2:05 PM, 6:05 PM, 9:05 PM, 3:09 AM, 5:05 AM IST)" — [India's Free Mutual Fund API](https://www.mfapi.in/)
+- National Stock Exchange distributes real-time market data across multiple structures including level 1, level 2, and level 3. (SUPPORTED)
+  > "NSE's real time data is provided in various levels (level 1, level 2, level 3" — [Paid Real time data](https://www.nseindia.com/static/market-data/real-time-data-subscription)
 
-## m13
-- Alpha Vantage operates as an officially licensed US market data provider for NASDAQ. (SUPPORTED)
-  > "NASDAQ celebrates Alpha Vantage as its officially licensed US market data provider" — [Free Stock APIs in JSON & Excel](https://www.alphavantage.co/)
+## m14
+- TrueData offers market data API ingestion support using both WebSockets and RESTful protocols. (PARTIAL) _[partial_evidence]_
+  > "WebSockets, RESTful, DotNet, COM" — [Real-Time Market Data API for NSE, BSE & MCX | Low Latency APIs](https://www.truedata.in/products/marketdataapi)
+- National Stock Exchange snapshot data files are provided in binary format over the internet. (SUPPORTED)
+  > "Snapshot Data is provided in binary file format over the internet" — [Paid Real time data](https://www.nseindia.com/static/market-data/real-time-data-subscription)
+- Downloading snapshot files from the National Stock Exchange requires the use of SFTP protocol. (SUPPORTED)
+  > "requires the use of an SFTP protocol to download these files." — [Paid Real time data](https://www.nseindia.com/static/market-data/real-time-data-subscription)
+- Streaming live tick-by-tick market data over the internet is constrained by large file sizes reaching tens of gigabytes. (SUPPORTED)
+  > "It is tens of GB’s worth of data" — [How do I get tick by tick data directly via NSE](https://tradingqna.com/t/how-do-i-get-tick-by-tick-data-directly-via-nse/55045)
+- Accord Fintech NXT provides stock market and mutual fund information feeds through API and FTP protocols. (PARTIAL) _[partial_evidence]_
+  > "We provide financial information feed through FTP and API." — [Accord Fintech Pvt. Ltd](https://www.accordfintechnxt.com/)
 
 ## m5
-- The paid subscription plans for EODHD provide a rate limit of 100,000 calls per day. (SUPPORTED) _[stale_cost]_
-  > "100,000 calls/day" — [EODHD Provider¶](https://ml4trading.io/docs/data/providers/eodhd/)
-- Alpha Vantage's free subscription tier limits users to 500 API calls per day. (SUPPORTED)
-  > "Alpha Vantage caps you at 500 API calls per day on the free tier." — [Alpha Vantage vs FCS API — Best Free Forex Crypto Stock Market Data API 2026 - FCSAPI](https://fcsapi.com/blog/alpha-vantage-vs-fcs-api-best-free-forex-crypto-stock-market-data-api-2026)
-- Accessing historical options data on Alpha Vantage requires subscribing to a premium membership plan. (SUPPORTED) _[stale_cost]_
-  > "Subscribe to any of the premium membership plans to unlock historical options data" — [Alpha Vantage API Documentation](https://www.alphavantage.co/documentation/)
-- EODHD offers its global EOD All World subscription tier for $19.99 per month. (PARTIAL) _[partial_evidence, stale_cost]_
-  > "EOD All World | $19.99/mo" — [EODHD Provider¶](https://ml4trading.io/docs/data/providers/eodhd/)
-- Alpha Vantage's scaled paid pricing tiers range from $49.99 per month to $249.99 per month. (SUPPORTED)
-  > "Pricing ranges from $49.99/mo to $249.99/mo" — [Best Stock Market Data APIs of 2026 | Abstract API](https://www.abstractapi.com/guides/other/best-stock-apis)
+- TrueData maintains a strict non-refundable payment policy once an order is placed or data is delivered. (SUPPORTED) _[stale_cost]_
+  > "Amount paid will not be refunded once order is placed / data is delivered." — [Real-Time Market Data API for NSE, BSE & MCX | Low Latency APIs](https://www.truedata.in/products/marketdataapi)
+- To distribute tick-by-tick market data, vendors must pay a fixed fee of 38.5 lakhs to the National Stock Exchange. (PARTIAL) _[partial_evidence, stale_cost]_
+  > "paid the fixed fees of 38.5lks and spent on infra." — [How do I get tick by tick data directly via NSE](https://tradingqna.com/t/how-do-i-get-tick-by-tick-data-directly-via-nse/55045)
+- Deploying a single server rack in the exchange co-location for direct tick-by-tick data access can cost over 4 lakhs per month. (PARTIAL) _[partial_evidence, stale_cost]_
+  > "cost you upwards of 4lks a month." — [How do I get tick by tick data directly via NSE](https://tradingqna.com/t/how-do-i-get-tick-by-tick-data-directly-via-nse/55045)
 
 ## m9
-- Real-time and delayed US market data distribution is subject to regulatory policies from stock exchanges, FINRA, and the SEC. (SUPPORTED)
-  > "Realtime and 15-minute delayed US market data is regulated by the stock exchanges" — [Alpha Vantage API Documentation](https://www.alphavantage.co/documentation/)
-- SEBI rules prohibit market participants from sharing real-time price data with third parties unless specified conditions are met. (SUPPORTED)
-  > "prohibiting stock market participants from sharing real-time price data with third parties" — [New SEBI Rules on Sharing Real-time Stock Market Data](https://www.truedata.in/blog/sebi-norms-on-sharing-real-time-price-data)
-- Market intermediaries sharing real-time price data with third parties must execute formal agreements outlining the data's intended use. (SUPPORTED)
-  > "they must do so by entering into formal agreements with those entities." — [New SEBI Rules on Sharing Real-time Stock Market Data](https://www.truedata.in/blog/sebi-norms-on-sharing-real-time-price-data)
-- Real-time price data shared for educational purposes must be subject to at least a one-day lag. (SUPPORTED)
-  > "only with a one-day lag" — [New SEBI Rules on Sharing Real-time Stock Market Data](https://www.truedata.in/blog/sebi-norms-on-sharing-real-time-price-data)
-- Under the NSE data policy, the sole ownership of all market data remains with NSE and NSE Data. (SUPPORTED)
-  > "The ownership of all data shall at all times lie with NSE/ NSE Data.." — [NSE Data Sharing & Usage Policy](https://www.nseindia.com/static/market-data/nse-data-policy)
-- Trading members and subscribers of the NSE are prohibited from redistributing market data unless permitted by a formal agreement. (SUPPORTED)
-  > "Trading Members and Subscribers shall not be permitted to redistribute any Market Data" — [NSE Data Sharing & Usage Policy](https://www.nseindia.com/static/market-data/nse-data-policy)
-- NSE market data cannot be used to build custom or composite financial indices without obtaining a separate license. (SUPPORTED)
-  > "use Market Data, in whole or in part to create any financial index" — [NSE Data Sharing & Usage Policy](https://www.nseindia.com/static/market-data/nse-data-policy)
-- SEBI's standardized data sharing policy divides market infrastructure data into public and restricted categories. (PARTIAL) _[partial_evidence]_
-  > "This policy divides the data into two categories" — [SEBI Data Sharing Policy 2024](https://www.metalegal.in/post/sebi-data-sharing-policy-2024)
-- Non-public market data containing sensitive details is classified as Restricted Data by SEBI. (PARTIAL) _[partial_evidence]_
-  > "Restricted Data (Second Basket)- This includes non-public data that cannot be shared" — [SEBI Data Sharing Policy 2024](https://www.metalegal.in/post/sebi-data-sharing-policy-2024)
+- TrueData restricts the license of its market data feed strictly to single-subscriber personal charting use. (SUPPORTED)
+  > "This Data is for Personal Charting Use of a Single Subscriber only." — [Real-Time Market Data API for NSE, BSE & MCX | Low Latency APIs](https://www.truedata.in/products/marketdataapi)
+- TrueData does not permit using its market data for gaming or virtual trading/simulation applications without exchange approval. (SUPPORTED)
+  > "TrueData does not provide market data for any kind of Gaming / Virtual trading" — [Real-Time Market Data API for NSE, BSE & MCX | Low Latency APIs](https://www.truedata.in/products/marketdataapi)
 
 ## Dimension coverage
 - ✗ m1 Strategic differentiation / moat — 0 claim(s)
 - ✗ m2 Proprietary-data generation — 0 claim(s)
 - ✗ m4 Total cost — maintenance (the bloat curve) — 0 claim(s)
-- ✓ m5 Total cost — buy (short + long term) ★ — 5 claim(s)
+- ✓ m5 Total cost — buy (short + long term) ★ — 3 claim(s)
 - ✗ m6 Time-to-value ★ — 0 claim(s)
 - ✗ m7 Resource & talent availability — 0 claim(s)
-- ✗ m8 Reversibility / switching cost — 0 claim(s)
-- ✓ m9 Data ownership / sensitivity / compliance ★ — 9 claim(s)
-- ✓ m10 Customization need vs. availability ★ — 3 claim(s)
+- ✗ m8 Reversibility / switching cost ★ — 0 claim(s)
+- ✓ m9 Data ownership / sensitivity / compliance ★ — 2 claim(s)
+- ✓ m10 Customization need vs. availability — 4 claim(s)
 - ✗ m11 Focus / core-value alignment — 0 claim(s)
-- ✓ m13 Vendor viability / lock-in risk — 1 claim(s)
-- ✗ m14 Integration complexity ★ — 0 claim(s)
+- ✗ m13 Vendor viability / lock-in risk — 0 claim(s)
+- ✓ m14 Integration complexity ★ — 5 claim(s)
 
 ## Coverage gaps
-- thin content: https://eodhd.com/pricing
-- fetch failed: https://medium.com/coinmonks/top-algo-trading-apis-in-2025-e7f1173eb38b (HTTPStatusError)
-- fetch failed: https://www.g2.com/products/eodhd-financial-data-apis/pricing (HTTPStatusError)
-- thin content: https://runbear.io/solutions/integrations/slack/mcp/servers/alpha_vantage
-- thin content: https://finance.tagxdata.com/
-- thin content: https://www.sebi.gov.in/legal/circulars/may-2024/norms-for-sharing-of-real-time-price-data-to-third-parties_83572.html
-- fetch failed: https://pitchbook.com/profiles/company/493079-14 (HTTPStatusError)
-- fetch failed: https://medium.datadriveninvestor.com/the-single-most-important-change-in-data-privacy-regulation-in-20-years-gdpr-b9026b9acfa9 (HTTPStatusError)
-- fetch failed: https://slashdot.org/software/comparison/AssetsAnalyzer-vs-EODHD/ (HTTPStatusError)
+- fetch failed: https://www.nseindia.com/ (HTTPStatusError)
+- thin content: https://analyst.indianapi.in/
+- thin content: https://rapidapi.com/linuz/api/indian-stock-exchange-api2/tutorials/indian-stock-market-api-documentation
+- thin content: https://indianapi.in/indian-stock-market
+- fetch failed: https://globaldatafeeds.in/fundamental-data-apis/ (HTTPStatusError)
+- fetch failed: https://github.com/marcos99b/indian-stock-market-api (HTTPStatusError)
+- thin content: https://www.kaggle.com/datasets/novandraanugrah/bitcoin-historical-datasets-2018-2024
+- fetch failed: https://www.coinapi.io/learn/academy/tutorials/historical-ohlcv-from-rest-build-candlestick-charts (HTTPStatusError)
+- thin content: https://www.accordfintech.com/market-data-feed
+- fetch failed: https://www.crunchbase.com/organization/accord-fintech (HTTPStatusError)
+- fetch failed: https://www.quora.com/What-is-the-best-Stock-market-API-for-real-time-historical-data-in-2025 (HTTPStatusError)
 - no evidence for priority dimension m6 (Time-to-value)
-- no evidence for priority dimension m14 (Integration complexity)
+- no evidence for priority dimension m8 (Reversibility / switching cost)

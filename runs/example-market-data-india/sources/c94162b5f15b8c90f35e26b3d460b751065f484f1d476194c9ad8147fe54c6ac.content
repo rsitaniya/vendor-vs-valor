@@ -1,0 +1,14 @@
+Complete historical data for Indian mutual funds
+Updated 6x daily (10:05 AM, 2:05 PM, 6:05 PM, 9:05 PM, 3:09 AM, 5:05 AM IST) • No authentication required • JSON format
+Optimized API endpoints with caching for instant responses and minimal latency.
+No authentication, no API keys, no rate limiting. Just pure data access.
+Historical NAV data, scheme information, and daily updates for all Indian mutual funds.
+Data is automatically updated every day with the latest NAV information.
+Simple REST API with JSON responses. Works with any programming language.
+99.9% uptime with monitoring and alerts. Check our status page anytime.
+Mutual Fund Schemes
+Historical Data
+Updates
+No Costs
+Explore our complete API with interactive Swagger UI. Test endpoints, view response schemas, and get code examples.
+Open API Documentation

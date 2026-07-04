@@ -1,0 +1,29 @@
+Paid Real Time Data
+The data and analytics services of National Stock Exchange (NSE) are provided through NSE Data & Analytics Limited (formerly known as DotEx International Limited). It provides NSE's market quotes and data for Capital Market Segment (CM), Futures and Options Segment (F&O), Currency Derivative Market Segment (CDS), Wholesale Debt Market Segment (WDM), Corporate Data and Corporate Bond Market data.
+NSE's real time data is provided in various levels (level 1, level 2, level 3 and tick by tick) across segments such as Capital Market, Futures & Options, Currency Derivative and Wholesale Debt Market. Level 1 provides best bid and ask price; Level 2 provides market depth data upto 5 best bid and ask prices and Level 3 provides market depth data unto 20 best bid and ask prices. Tick by tick data offers full order book. The real time data feed is provided in multicast format. It is provided on-line through a dedicated leased line circuit. This line shall be owned by the customer and the line should be from NSE Point of presence (POP) to the premises of the customer. Alternatively, the customer can take the data from one of our authorized data vendors.
+Downloads:
+Download Real Time Technical Specification CM & CD Multicast Tick by Tick Feed (.pdf) (428 KB)
+Download Real Time Technical Specification CM Level 1, 2 & 3 Feed (.pdf) (4.6 MB)
+Download Real Time Technical Specification Index Feed (.pdf) (689 KB)
+Download Real Time Technical Specification F&O Level 1 & 2 Feed (.pdf) (4.63 MB)
+Download Real Time Technical Specification CD Level 1 & 2 Feed (.pdf) (4.2 MB)
+Download Real Time Technical Specification Commodity Level 1 & 2 Feed (.pdf) (738 KB)
+Download Real Time Technical Specification WDM Level 1 Feed (.pdf) (472 KB)
+List of Authorized Realtime Data Vendors (.pdf) (58 KB)
+Through Real Time Stock-wise Product, market information is disseminated for the subscribed Stocks. Stock wise feed would be provided in CSV format at specified time interval.
+Downloads:
+Download Real Time Stock-wise Product Technical specification (.pdf) (553 KB)
+Snapshot Data feed contains data pertaining to trade quotations and other related information pertaining to the trading on Capital Market, Futures & Options, Currency Derivative and Wholesale Debt Market of National Stock Exchange of India Limited. This data is generated in binary format at a regular interval of 5, 2 or 1 minute. Snapshot Data is provided in binary file format over the internet and requires the use of an SFTP protocol to download these files. The tariff applicable for Snapshot/Delayed data is as under:
+(*)The above mentioned snapshot/delayed commercials are per medium of data display i.e. website/App being two different mediums.
+Downloads:
+Download Technical Specification CM Snapshot Data (.pdf) (975 KB)
+Download Technical Specification F&O Snapshot Data (.pdf) (721 KB)
+Download Technical Specification CD Snapshot Data (.pdf) (515 KB)
+Download Technical Specification COM Snapshot Data (.pdf) (814 KB)
+Download Technical Specification WDM Snapshot Data (.pdf) (664 KB)
+15-Min delayed snapshot data product provides files generated with 15 minutes delay on regular 1 minute interval basis on the NSEIL's Internet Based Information System server that is available through internet. The vendors are required to connect to this server through internet and use FTP protocol to download the files.
+Downloads:
+Download Technical Specification CM 15 Minute Delayed Snapshot Data (.pdf) (964 KB)
+Download Technical Specification F&O 15 Minute Delayed Snapshot Data (.pdf) (720 KB)
+Download Technical Specification WDM 15 Minute Delayed Snapshot Data (.pdf) (609 KB)
+Download 1 min snapshot (15 Minute Delayed) Data Tariff (.pdf) (56 KB)
