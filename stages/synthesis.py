@@ -146,7 +146,9 @@ def _profile_block(profile: dict) -> str:
             f"problem: {need['problem']}\nintent: {profile.get('intent', {})}\n"
             f"constraints: {profile.get('constraints', {})}\n"
             f"customization_need: {profile.get('customization_need')}\n"
-            f"soft_steer: {profile.get('soft_steer', '')}")
+            f"soft_steer: {profile.get('soft_steer', '')}\n"
+            f"reversibility_criteria: {profile.get('reversibility_criteria', '')}\n"
+            f"portfolio_note: {profile.get('portfolio_note', '')}")
 
 
 # --- validation + assembly ---

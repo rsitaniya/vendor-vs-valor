@@ -16,11 +16,16 @@ SAMPLE = Profile(
           "problem": "manual data entry is slow"},
     intent={"core_value_proximity": "enabling", "rationale": "plumbing, not the moat"},
     resources={"eng_headcount": 3, "relevant_skills": ["python"], "budget_note": "modest",
-               "runway_note": "not specified"},
+               "runway_note": "not specified", "expected_scale": "not specified",
+               "procurement_process": "not specified"},
     constraints={"compliance": [], "data_sensitivity": "internal only",
-                 "existing_stack": ["postgres"], "timeline_hard_stop": "not specified"},
+                 "data_residency": "not specified", "required_certifications": [],
+                 "existing_stack": ["postgres"], "integration_requirements": [],
+                 "timeline_hard_stop": "not specified"},
     customization_need="medium",
     soft_steer="reliability matters more than upfront cost",
+    reversibility_criteria="not specified",
+    portfolio_note="not specified",
 )
 
 
@@ -66,6 +71,17 @@ def test_validate_profile_rejects_bad_enum_and_empty_steer():
     bad2 = SAMPLE.model_dump()
     bad2["soft_steer"] = ""
     with pytest.raises(ContractError, match="soft_steer"):
+        validate_profile(bad2)
+
+
+def test_validate_profile_rejects_empty_reversibility_and_portfolio_note():
+    bad = SAMPLE.model_dump()
+    bad["reversibility_criteria"] = ""
+    with pytest.raises(ContractError, match="reversibility_criteria"):
+        validate_profile(bad)
+    bad2 = SAMPLE.model_dump()
+    bad2["portfolio_note"] = "  "
+    with pytest.raises(ContractError, match="portfolio_note"):
         validate_profile(bad2)
 
 
