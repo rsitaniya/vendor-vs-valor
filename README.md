@@ -158,7 +158,7 @@ can use, "not specified" for anything you don't know:
 cp input-template.md my-need.md
 ```
 
-(See `input-market-data-india.md` / `input-auth-startup.md` for filled-in examples.)
+(See `input-market-data-india.md` for a filled-in example.)
 
 Run the pipeline:
 
