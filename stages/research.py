@@ -681,8 +681,13 @@ def run_research(
         gaps.append(f"no fetchable sources for track {track}")
 
     # 3) author claims grounded in cached content
-    drafts = (_author(prompt, profile, track, track_dims, cache, cached, provider, model, entity_context)
-              if cached else [])
+    drafts: list[ClaimDraft] = []
+    if cached:
+        try:
+            drafts = _author(prompt, profile, track, track_dims, cache, cached, provider,
+                              model, entity_context)
+        except Exception as exc:  # noqa: BLE001 — an authoring failure is a gap, not a crash
+            gaps.append(f"claim authoring failed: {type(exc).__name__}: {exc}")
 
     # 4) assert (cache-constrained; locator computed; rejects ungrounded)
     claims: list[Claim] = []
