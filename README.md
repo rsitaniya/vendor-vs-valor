@@ -216,7 +216,7 @@ Every tunable value lives outside stage code, in one of three places: model IDs 
 
 ## Why grounded_claim, not a research agent
 
-Most deep-research agents ask one model to find sources, write claims, and cite them, then trust that model's own citations. Published audits of these agents find the same failure repeatedly: even strong models fully support their own citations only around half the time, and citation faithfulness measurably degrades over longer research sessions as the model loses track of what it actually read.
+Most deep-research agents ask one model to find sources, write claims, and cite them, then trust that model's own citations. A 2026 audit of deep-research agents ([*Cited but Not Verified: Parsing and Evaluating Source Attribution in LLM Deep Research Agents*, arXiv:2605.06635](https://arxiv.org/html/2605.06635v1)) found frontier models keep citation link validity above 94% and topical relevance above 80%, while the citation's actual factual accuracy lands at only 39–77%. One tested model's accuracy fell from 78.6% to 16.7% as a single research session went from 2 to 150 tool calls: citations kept looking valid while no longer supporting the claim.
 
 `grounded_claim` avoids this by construction, not by prompting harder:
 - `assert_claim()` cannot create a citation to a URL outside the run's cache, or a quote it can't locate verbatim in the cached bytes. An ungrounded citation is a rejected claim, not a lucky one.
