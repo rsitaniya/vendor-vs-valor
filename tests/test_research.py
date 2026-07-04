@@ -12,6 +12,7 @@ from stages.research import (
     PlannedQuery,
     QueryPlan,
     ResearchClaims,
+    _discover_entities_via_search,
     merge_verify_reports,
     run_research,
 )
@@ -127,6 +128,43 @@ def test_no_fetchable_sources_is_a_gap_not_a_crash(run_dir):
     res = run_research("BUILD", run_dir, provider=prov, searcher=fake_searcher([]))
     assert res.kept == []
     assert any("no fetchable sources" in g for g in res.coverage_gaps)
+
+
+class _AlwaysFailingCache:
+    """Stands in for SourceCache when every fetch must fail, without touching
+    the network."""
+
+    def fetch(self, url):
+        raise RuntimeError("network unavailable")
+
+    def get_content(self, url):
+        raise AssertionError("should not be reached — nothing was fetched")
+
+
+def test_entity_discovery_fetch_failure_surfaces_as_a_gap(tmp_path):
+    profile = {"need": {"capability": "widget engine", "business_context": "x", "problem": "y"}}
+    store = RunStore(tmp_path)
+    discovery, gaps = _discover_entities_via_search(
+        profile, "BUILD", fake_searcher([URL_A, URL_B]), _AlwaysFailingCache(),
+        FakeProvider([]), "m1", store=store,
+    )
+    assert discovery.selected == []
+    assert any("no fetchable sources" in g for g in gaps)
+
+
+def test_entity_discovery_curation_failure_surfaces_as_a_gap(tmp_path):
+    profile = {"need": {"capability": "widget engine", "business_context": "x", "problem": "y"}}
+    store = RunStore(tmp_path)
+    cache = SourceCache(tmp_path)
+    cache.add(URL_A, CONTENT_A, source_date="2025-10-01")
+    # FakeProvider raises for any schema it isn't scripted for — both the
+    # discovery-query call (harmless: falls back to deterministic queries)
+    # and the curation call, which is the failure this test targets.
+    discovery, gaps = _discover_entities_via_search(
+        profile, "BUILD", fake_searcher([URL_A]), cache, FakeProvider([]), "m1", store=store,
+    )
+    assert discovery.selected == []
+    assert any("entity discovery curation failed" in g for g in gaps)
 
 
 class RaisingAuthorProvider(FakeProvider):

@@ -8,6 +8,7 @@ from graph import build_graph
 from engine.runstore import RunStore
 from run import (
     _MAX_CLARIFICATIONS,
+    _open_in_browser,
     _run_gates,
     apply_clarifications,
     apply_soft_steer,
@@ -157,3 +158,38 @@ def test_run_gates_resumes_from_a_fresh_app_instance_via_sqlite(tmp_path):
     _run_gates(app_after_restart, config, store, auto_approve=True)
 
     assert app_after_restart.get_state(config).next == ()
+
+
+def test_open_in_browser_uses_open_on_macos(tmp_path, monkeypatch):
+    monkeypatch.setattr("run.sys.platform", "darwin")
+    calls = []
+    monkeypatch.setattr("run.subprocess.run", lambda args, **kw: calls.append(args))
+    _open_in_browser(tmp_path / "report.html")
+    assert calls == [["open", str(tmp_path / "report.html")]]
+
+
+def test_open_in_browser_uses_xdg_open_on_linux(tmp_path, monkeypatch):
+    monkeypatch.setattr("run.sys.platform", "linux")
+    calls = []
+    monkeypatch.setattr("run.subprocess.run", lambda args, **kw: calls.append(args))
+    _open_in_browser(tmp_path / "report.html")
+    assert calls == [["xdg-open", str(tmp_path / "report.html")]]
+
+
+def test_open_in_browser_notes_unknown_platform_without_crashing(tmp_path, monkeypatch, capsys):
+    monkeypatch.setattr("run.sys.platform", "win32")
+    monkeypatch.setattr("run.subprocess.run", lambda *a, **kw: (_ for _ in ()).throw(
+        AssertionError("should not attempt to launch a subprocess")))
+    _open_in_browser(tmp_path / "report.html")
+    assert "manually" in capsys.readouterr().out
+
+
+def test_open_in_browser_survives_a_missing_opener_binary(tmp_path, monkeypatch, capsys):
+    monkeypatch.setattr("run.sys.platform", "linux")
+
+    def raise_not_found(*_a, **_kw):
+        raise FileNotFoundError("xdg-open not found")
+
+    monkeypatch.setattr("run.subprocess.run", raise_not_found)
+    _open_in_browser(tmp_path / "report.html")  # would raise if uncaught
+    assert "manually" in capsys.readouterr().out
