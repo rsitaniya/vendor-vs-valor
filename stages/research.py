@@ -334,14 +334,19 @@ def _discover_entities_via_search(
     *,
     store: RunStore,
     commercial_twins_hint: list[str] | None = None,
-) -> EntityDiscovery:
+) -> tuple[EntityDiscovery, list[str]]:
     """Phase 0: web-search-backed entity discovery.
 
     Generates discovery queries via LLM, fetches listicles/comparison pages,
     then asks the LLM to curate a reasoned list of vendors (BUY) or OSS
     projects (BUILD). Never relies on LLM world-knowledge for entity names —
     everything is derived from fetched content.
+
+    Returns ``(discovery, gaps)`` — fetch/curation failures degrade (a fallback
+    query set, an empty selection) rather than crash, but must still surface as
+    coverage gaps so gate 2's review can see a discovery-quality failure.
     """
+    gaps: list[str] = []
     # 1) Generate discovery queries from profile
     try:
         disc = provider.complete(
@@ -378,13 +383,21 @@ def _discover_entities_via_search(
 
     # 3) Fetch (Jina fallback already in cache.fetch)
     fetched_urls: list[str] = []
+    fetch_failures = 0
     for url in seen:
         try:
             content = cache.fetch(url)
             if len(content.strip()) >= _MIN_CONTENT_CHARS:
                 fetched_urls.append(url)
+            else:
+                fetch_failures += 1
         except Exception:  # noqa: BLE001
-            pass
+            fetch_failures += 1
+    if not fetched_urls:
+        gaps.append(
+            f"entity discovery: no fetchable sources ({fetch_failures}/{len(seen)} failed)"
+            if seen else "entity discovery: no search results for discovery queries"
+        )
 
     # 4) LLM curation over all fetched content
     if fetched_urls:
@@ -398,7 +411,8 @@ def _discover_entities_via_search(
                 response_schema=EntityDiscovery,
                 model=model,
             )
-        except Exception:  # noqa: BLE001
+        except Exception as exc:  # noqa: BLE001
+            gaps.append(f"entity discovery curation failed: {type(exc).__name__}: {exc}")
             discovery = EntityDiscovery(selected=[], excluded=[], source_urls=fetched_urls)
     else:
         discovery = EntityDiscovery(selected=[], excluded=[], source_urls=[])
@@ -411,7 +425,7 @@ def _discover_entities_via_search(
         json.dumps(discovery.model_dump(), indent=2, ensure_ascii=False),
         encoding="utf-8",
     )
-    return discovery
+    return discovery, gaps
 
 
 def _entity_context_block(discovery: EntityDiscovery, track: Track) -> str:
@@ -640,10 +654,12 @@ def run_research(
             except Exception:  # noqa: BLE001
                 pass
 
-    discovery = _discover_entities_via_search(
+    gaps: list[str] = []
+    discovery, discovery_gaps = _discover_entities_via_search(
         profile, track, searcher, SourceCache(run_dir), provider, model,
         store=store, commercial_twins_hint=commercial_twins_hint,
     )
+    gaps.extend(discovery_gaps)
     entity_context = _entity_context_block(discovery, track)
 
     # 0b) PLAN — LLM expands profile + dimensions into diversified, profile-aware
@@ -660,7 +676,6 @@ def run_research(
 
     # 1) discover + 2) fetch/cache
     cache = SourceCache(run_dir)
-    gaps: list[str] = []
     if not (plan and plan.queries):
         gaps.append(gaps_planner)
     cached: list[str] = []

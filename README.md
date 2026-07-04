@@ -188,12 +188,13 @@ A full committed example run, including `strategy.md` and `report.html`:
 |---|---|---|
 | `run.json` | all | Manifest: per-stage status + recorded input hashes |
 | `profile.json` / `profile.md` | intake | Structured need-profile |
-| `build-research.json` / `build-research.md` | research | BUILD track: claims + verify report |
-| `buy-research.json` / `buy-research.md` | research | BUY track: claims + verify report |
-| `verify-report.md` | research | Consolidated claim verification summary |
+| `build-research.json` / `build-research.md` | research | BUILD track: filtered, cited claims |
+| `buy-research.json` / `buy-research.md` | research | BUY track: filtered, cited claims |
+| `build-verify-report.json` / `buy-verify-report.json` | research | Per-track verification labels, drops, coverage gaps |
+| `verify-report.json` | research | Consolidated claim verification summary |
 | `strategy.json` / `strategy.md` | synthesis | Four-path strategy + challenger output |
 | `report.html` | report | Self-contained HTML report |
-| `source_cache/` | research | Cached full page content (one file per URL) |
+| `sources/` | research | Cached full page content (one file per URL) |
 
 ---
 
@@ -201,7 +202,7 @@ A full committed example run, including `strategy.md` and `report.html`:
 
 **`grounded_claim` trust layer.** The authoring LLM emits a `ClaimDraft` (text + URL + verbatim quote). `assert_claim()` fetches and caches the URL, finds the quote, and creates a `Claim` with status `UNVERIFIED`. Only `verify()` — which re-reads cached bytes and calls an independent judge — can set `SUPPORTED`, `PARTIAL`, or `UNSUPPORTED`. The author can never set a claim's status.
 
-**Source cache as closed evidence pool.** Sources are fetched once per run via `trafilatura` and stored in `runs/<id>/source_cache/`. Verification reads only cached content, never the live web. This makes every run reproducible and auditable.
+**Source cache as closed evidence pool.** Sources are fetched once per run via `trafilatura` and stored in `runs/<id>/sources/`. Verification reads only cached content, never the live web. This makes every run reproducible and auditable.
 
 **Idempotency hash guard.** Every work node computes a hash of its inputs before executing. If the hash matches a recorded artifact from a prior run of that node, the node returns immediately without calling the LLM. This also handles LangGraph's re-entry-from-top behavior on resume: the re-entered node no-ops without double-calling the model.
 
@@ -224,7 +225,7 @@ Most deep-research agents ask one model to find sources, write claims, and cite 
 `grounded_claim` avoids this by construction, not by prompting harder:
 - `assert_claim()` cannot create a citation to a URL outside the run's cache, or a quote it can't locate verbatim in the cached bytes. An ungrounded citation is a rejected claim, not a lucky one.
 - The author can never set a claim's verified status. Only `verify()` can, by re-reading the cached bytes at the claim's locator and judging a narrow question in isolation, with no view of the author's own reasoning.
-- Every run persists its full evidence pool (`runs/<id>/source_cache/`) alongside the claims, verify report, and strategy. A decision made today can be re-opened and checked against the exact bytes it was built on, months later.
+- Every run persists its full evidence pool (`runs/<id>/sources/`) alongside the claims, verify report, and strategy. A decision made today can be re-opened and checked against the exact bytes it was built on, months later.
 
 ---
 

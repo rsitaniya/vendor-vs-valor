@@ -134,6 +134,19 @@ def _open_editor(path: Path) -> None:
     subprocess.run([editor, str(path)], check=False)
 
 
+def _open_in_browser(path: Path) -> None:
+    """Best-effort open the report in the default viewer; a missing/unknown
+    opener is a note, never a crash — the run already succeeded."""
+    opener = {"darwin": "open", "linux": "xdg-open"}.get(sys.platform)
+    if opener is None:
+        print(f"  (open {path} manually — no opener configured for platform {sys.platform!r})")
+        return
+    try:
+        subprocess.run([opener, str(path)], check=False)
+    except FileNotFoundError:
+        print(f"  (could not launch '{opener}' — open {path} manually)")
+
+
 def _edit_profile(store: RunStore) -> bool:
     """Open profile.json in $EDITOR, validate, regenerate profile.md."""
     path = store.artifact_path("profile.json")
@@ -256,7 +269,7 @@ def main() -> int:
     print(f"  strategy: {strategy_md}")
     if report_html.exists():
         print(f"  report:   {report_html}")
-        subprocess.run(["open", str(report_html)], check=False)
+        _open_in_browser(report_html)
     else:
         print("  note: report.html not produced (report stage may have been skipped)")
 
