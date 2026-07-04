@@ -24,14 +24,26 @@ over. You produce the profile; a human reviews and edits it before research runs
   competitive core / moat), `adjacent`, or `enabling` (infrastructure/plumbing)?
   Give a one-line `rationale`.
 - **resources**: `eng_headcount` (int; 0 if unknown), `relevant_skills` (list),
-  `budget_note` (free text, no required numbers), `runway_note` (free text).
+  `budget_note` (free text, no required numbers), `runway_note` (free text),
+  `expected_scale` (free text — users/requests/data volume, "not specified" if
+  unknown), `procurement_process` (free text — who approves, how long it takes,
+  "not specified" if unknown).
 - **constraints**: `compliance` (list of named regimes only if stated),
-  `data_sensitivity` (free text), `existing_stack` (list), `timeline_hard_stop`
+  `data_sensitivity` (free text), `data_residency` (free text, "not specified"
+  if unknown), `required_certifications` (list, e.g. "SOC2", "ISO27001" — only
+  if stated), `existing_stack` (list), `integration_requirements` (list of
+  systems/APIs this must integrate with — only if stated), `timeline_hard_stop`
   (free text).
 - **customization_need**: `low` | `medium` | `high` — how much must the
   capability bend to the operator's specific workflow.
 - **soft_steer**: in the operator's spirit, what matters most here (e.g. "speed
   and data control matter more than upfront cost"). A natural sentence, **no
   numbers, no weights**. If nothing is stated, infer a neutral steer and say so.
+- **reversibility_criteria**: what would make the operator switch away from
+  whatever gets chosen (e.g. "if the vendor raises prices past what a small
+  team can absorb"). If nothing is stated, infer a neutral criterion and say so.
+- **portfolio_note**: any other team, product, or system that might reuse this
+  investment, or that already solved something similar, in the operator's own
+  words. If nothing is stated, say "not specified" — never invent a sibling.
 
 Set `run_id` to the run id given in the input.

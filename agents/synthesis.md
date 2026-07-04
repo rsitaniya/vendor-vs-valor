@@ -32,7 +32,13 @@ confidence.**
 ## Rules
 - **Quality over cost**: cost never silently overrides a higher-quality/lower-risk
   path; if cost drives the call, name it a decisive factor.
-- **Reversibility is always assessed** for every path.
+- **Reversibility is always assessed** for every path. Ground each path's
+  `reversibility` note against the profile's `reversibility_criteria` — state
+  whether that path would trip the operator's own switching trigger, citing
+  evidence for the claim.
+- **Portfolio note**: if the profile's `portfolio_note` names a sibling
+  team/product/system, factor it into `decisive_factors` or `open_questions`
+  where relevant. If it says "not specified", ignore it.
 - **Surface conflicts, don't hide them**: if sources disagree (e.g. pricing),
   present both rather than silently picking one.
 - **Reason from the profile and evidence.** You have the capability and business

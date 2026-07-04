@@ -242,10 +242,15 @@ def _profile_block(profile: dict) -> str:
         f"{intent.get('core_value_proximity', '')} — {intent.get('rationale', '')}",
         f"resources: eng_headcount={res.get('eng_headcount', '?')}, "
         f"skills={res.get('relevant_skills', [])}, budget={res.get('budget_note', '')}, "
-        f"runway={res.get('runway_note', '')}",
+        f"runway={res.get('runway_note', '')}, "
+        f"expected_scale={res.get('expected_scale', '')}, "
+        f"procurement_process={res.get('procurement_process', '')}",
         f"constraints: compliance={con.get('compliance', [])}, "
         f"data_sensitivity={con.get('data_sensitivity', '')}, "
+        f"data_residency={con.get('data_residency', '')}, "
+        f"required_certifications={con.get('required_certifications', [])}, "
         f"existing_stack={con.get('existing_stack', [])}, "
+        f"integration_requirements={con.get('integration_requirements', [])}, "
         f"timeline_hard_stop={con.get('timeline_hard_stop', '')}",
         f"customization_need: {profile.get('customization_need', '')}",
     ])

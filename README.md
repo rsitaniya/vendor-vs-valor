@@ -151,20 +151,14 @@ for m in genai.Client().models.list():
 
 ## Usage
 
-Write your capability need as a markdown file (see `input-market-data-india.md` for a full example):
+Copy `input-template.md` and fill it in — one pass, every question the engine
+can use, "not specified" for anything you don't know:
 
-```markdown
-# Capability need — <short title>
-
-## The company and what we're building
-...
-
-## The specific capability we need to buy or build
-...
-
-## Team / Stack / Budget / Constraints / Timeline
-...
+```bash
+cp input-template.md my-need.md
 ```
+
+(See `input-market-data-india.md` / `input-auth-startup.md` for filled-in examples.)
 
 Run the pipeline:
 
