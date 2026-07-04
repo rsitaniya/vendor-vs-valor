@@ -38,12 +38,17 @@ class Resources(BaseModel):
     relevant_skills: list[str]
     budget_note: str
     runway_note: str
+    expected_scale: str
+    procurement_process: str
 
 
 class Constraints(BaseModel):
     compliance: list[str]
     data_sensitivity: str
+    data_residency: str
+    required_certifications: list[str]
     existing_stack: list[str]
+    integration_requirements: list[str]
     timeline_hard_stop: str
 
 
@@ -55,6 +60,8 @@ class Profile(BaseModel):
     constraints: Constraints
     customization_need: Literal["low", "medium", "high"]
     soft_steer: str
+    reversibility_criteria: str
+    portfolio_note: str
 
 
 def validate_profile(data: dict) -> None:
@@ -69,6 +76,10 @@ def validate_profile(data: dict) -> None:
         raise ContractError("profile.customization_need is invalid")
     if not str(data.get("soft_steer", "")).strip():
         raise ContractError("profile.soft_steer is empty")
+    if not str(data.get("reversibility_criteria", "")).strip():
+        raise ContractError("profile.reversibility_criteria is empty")
+    if not str(data.get("portfolio_note", "")).strip():
+        raise ContractError("profile.portfolio_note is empty")
 
 
 def render_profile_md(data: dict) -> str:
@@ -91,16 +102,25 @@ def render_profile_md(data: dict) -> str:
         f"- **Relevant skills:** {', '.join(res['relevant_skills']) or '(none)'}",
         f"- **Budget:** {res['budget_note']}",
         f"- **Runway:** {res['runway_note']}",
+        f"- **Expected scale:** {res['expected_scale']}",
+        f"- **Procurement process:** {res['procurement_process']}",
         "",
         "## Constraints",
         f"- **Compliance:** {', '.join(con['compliance']) or '(none stated)'}",
         f"- **Data sensitivity:** {con['data_sensitivity']}",
+        f"- **Data residency:** {con['data_residency']}",
+        f"- **Required certifications:** {', '.join(con['required_certifications']) or '(none stated)'}",
         f"- **Existing stack:** {', '.join(con['existing_stack']) or '(none stated)'}",
+        f"- **Integration requirements:** {', '.join(con['integration_requirements']) or '(none stated)'}",
         f"- **Timeline hard stop:** {con['timeline_hard_stop']}",
         "",
         "## Customization & steer",
         f"- **Customization need:** {data['customization_need']}",
         f"- **Soft steer:** {data['soft_steer']}",
+        "",
+        "## Reversibility & portfolio",
+        f"- **Reversibility criteria:** {data['reversibility_criteria']}",
+        f"- **Portfolio note:** {data['portfolio_note']}",
         "",
     ])
 
