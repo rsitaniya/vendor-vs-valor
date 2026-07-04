@@ -1,0 +1,69 @@
+TimescaleDB is the stronger choice for teams already invested in PostgreSQL who need time-series analytics with full SQL compatibility, while ClickHouse dominates when raw OLAP query speed across massive datasets and multi-cloud deployment flexibility are the primary requirements.
+| Feature | TimescaleDB | ClickHouse | 
+|---|---|---|
+| Best For | Time-series workloads on PostgreSQL with full SQL compatibility and ecosystem integration | Real-time OLAP analytics across billions of rows with millisecond query response times | 
+| Architecture | PostgreSQL extension adding automatic partitioning, columnar compression, and continuous aggregates | Standalone column-oriented OLAP database with distributed architecture and MPP engine | 
+| Query Language | Standard PostgreSQL SQL with 200+ specialized time-series hyperfunctions built in | Rich SQL dialect optimized for analytical queries with custom extensions for aggregation | 
+| Pricing Model | Self-hosted free (Time-series, PostgreSQL extension, Full features), Cloud pricing starts at $0.15/GB/month, $30/mo, $36/mo, with a free trial offering $20 in credits | Free and open-source database management system | 
+| Scalability | Petabyte-scale on single service with tiered storage and automatic data management | Horizontal scaling across multiple nodes handling trillions of rows and petabytes of data | 
+| Ease of Adoption | Familiar PostgreSQL interface, existing tools and extensions work without modification | Requires dedicated deployment and learning curve but strong SQL foundation for analysts | 
+| Metric | TimescaleDB | ClickHouse | 
+|---|---|---|
+| GitHub stars | 23.0k | 48.4k | 
+| GitHub commits, 90d | 418 | 21.2k | 
+| PyPI weekly downloads | 4.6k | 6.5M | 
+| Docker Hub pulls | 32.0M | 252.6M | 
+| Search interest | 2 | 10 | 
+| Product Hunt votes | 9 | 12 | 
+| Product Hunt comments | — | 0 | 
+| Product Hunt reviews | — | 27 | 
+| Product Hunt rating | — | 5.0/5 | 
+As of 2026-06-29 — updated weekly.
+TimescaleDB
+| Feature | TimescaleDB | ClickHouse | 
+|---|---|---|
+| Data Storage & Compression | ||
+| Storage Model | Hybrid row-columnar storage (Hypercore) for mixed transactional and analytical workloads | Pure column-oriented storage optimized for read-heavy OLAP analytical queries | 
+| Data Compression | Native compression up to 95% reduction on historical time-series data | Advanced LZ4 and ZSTD compression algorithms for storage cost reduction | 
+| Tiered Storage | Automatic tiering from SSD to low-cost object storage while keeping data queryable | Supports tiered storage with cold data offloading to S3-compatible object stores | 
+| Query & Analytics | ||
+| Real-Time Analytics | Continuous aggregates for incrementally refreshed rollups powering real-time dashboards | Millisecond query response on billions of rows using vectorized execution engine | 
+| SQL Compatibility | Full PostgreSQL SQL compatibility with 200+ native time-series hyperfunctions | Rich SQL dialect with analytical extensions, not fully ANSI SQL compliant | 
+| Materialized Views | Continuous aggregates that incrementally refresh without full recomputation | Pre-computation of complex queries with automatic refresh on data insertion | 
+| Architecture & Scaling | ||
+| Distributed Processing | Single-node PostgreSQL extension with independent storage and compute scaling | Native distributed architecture with horizontal scaling across node clusters | 
+| Fault Tolerance | PostgreSQL replication, HA replicated services, up to 14-day point-in-time recovery | Built-in data replication with automatic recovery from node failures | 
+| Data Partitioning | Automatic time-based and key-based hypertable partitioning with partition skipping | Flexible partitioning strategies with custom partition keys for query optimization | 
+| Integration & Ecosystem | ||
+| Data Ingestion | Native Kafka, S3, and PostgreSQL connectors for streaming data into hypertables | 100+ integrations including Kafka, Grafana, and major BI visualization tools | 
+| Lakehouse Integration | Tiger Lake syncs hypertables to Apache Iceberg tables on S3 automatically | Cloud-native with lakehouse capabilities and S3-compatible object storage support | 
+| Search Capabilities | Native hybrid search combining BM25 keyword and HNSW vector search in PostgreSQL | Vector search support for ML and GenAI workloads with fast aggregation queries | 
+| Enterprise & Operations | ||
+| Security & Compliance | SOC 2 Type II, GDPR support, encryption at rest and in transit, private networking | Enterprise security with role-based access control and compliance certifications | 
+| Managed Cloud Service | Tiger Cloud on AWS with 99.9% uptime SLA, automated backups, and 24/7 support | ClickHouse Cloud on AWS, GCP, and Azure with serverless scaling and managed operations | 
+| Community & Support | 22,400+ GitHub stars, open-source PostgreSQL extension with active developer community | 46,900+ GitHub stars, Apache 2.0 licensed, 2,800+ contributors and vibrant community | 
+Storage Model
+Data Compression
+Tiered Storage
+Real-Time Analytics
+SQL Compatibility
+Materialized Views
+Distributed Processing
+Fault Tolerance
+Data Partitioning
+Data Ingestion
+Lakehouse Integration
+Search Capabilities
+Security & Compliance
+Managed Cloud Service
+Community & Support
+TimescaleDB is the stronger choice for teams already invested in PostgreSQL who need time-series analytics with full SQL compatibility, while ClickHouse dominates when raw OLAP query speed across massive datasets and multi-cloud deployment flexibility are the primary requirements.
+Choose TimescaleDB if:
+Choose TimescaleDB if your team relies on PostgreSQL and needs a drop-in extension for time-series workloads. Its full SQL compatibility means existing tools, ORMs, and extensions work without modification. The hybrid row-columnar storage handles both transactional writes and analytical reads, making it ideal for IoT monitoring, financial services, and energy telemetry where you need to ingest millions of measurements daily while running real-time dashboards.
+Choose ClickHouse if:
+Choose ClickHouse if you need the fastest possible OLAP query performance across billions of rows with millisecond response times. Its distributed architecture scales horizontally across multiple nodes, making it well-suited for real-time analytics dashboards, observability pipelines, and data warehousing at scale. With 100+ integrations and deployment options across AWS, GCP, and Azure, ClickHouse fits teams building high-throughput analytical products.
+This verdict is based on general use cases. Your specific requirements, existing tech stack, and team expertise should guide your final decision.
+TimescaleDB excels at time-series specific workloads thanks to its 200+ native hyperfunctions, automatic time-based partitioning, and continuous aggregates that incrementally refresh rollups. For pure time-series ingestion and querying on PostgreSQL, TimescaleDB delivers strong performance with the advantage of full SQL compatibility. ClickHouse, however, processes general OLAP analytical queries faster across massive datasets using its vectorized execution engine and columnar architecture, handling billions of rows with millisecond response times.
+Yes, many organizations use both tools in complementary roles. TimescaleDB serves as the operational time-series database handling real-time ingestion from IoT sensors, metrics, and events with full PostgreSQL transactional guarantees. ClickHouse then acts as the analytical speed layer for large-scale reporting and dashboarding across historical data. Data flows from TimescaleDB to ClickHouse using Kafka connectors or ETL pipelines, giving teams the best of both worlds: strong write consistency and fast analytical reads.
+Both offer free self-hosted options. TimescaleDB is free as a PostgreSQL extension, and its native compression reduces storage costs by up to 95% on historical data. ClickHouse is open source under Apache 2.0 with usage-based cloud pricing. For teams already running PostgreSQL infrastructure, TimescaleDB adds time-series capabilities without new operational overhead. ClickHouse may require dedicated infrastructure but its compression and resource efficiency keep costs competitive at petabyte scale. Both cloud services offer free trial periods to evaluate before committing.
+TimescaleDB is a PostgreSQL extension that adds time-series capabilities to an existing PostgreSQL instance. It uses hybrid row-columnar storage (Hypercore) and automatic hypertable partitioning while maintaining full PostgreSQL compatibility including joins, foreign keys, and ACID transactions. ClickHouse is a standalone column-oriented OLAP database built from scratch for analytical query performance. It uses a distributed MPP architecture that scales horizontally across node clusters, prioritizing read-heavy analytical throughput over transactional write guarantees.

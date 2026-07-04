@@ -158,7 +158,7 @@ can use, "not specified" for anything you don't know:
 cp input-template.md my-need.md
 ```
 
-(See `input-market-data-india.md` / `input-auth-startup.md` for filled-in examples.)
+(See `input-market-data-india.md` for a filled-in example.)
 
 Run the pipeline:
 
@@ -173,9 +173,8 @@ By default the engine pauses at each gate for real review (approve/edit/abort �
 uv run python run.py my-need.md --auto-approve   # unattended, old behavior
 ```
 
-Two full committed example runs, including `strategy.md` and `report.html`:
+A full committed example run, including `strategy.md` and `report.html`:
 - [`runs/example-market-data-india/`](runs/example-market-data-india/) — `input-market-data-india.md`, the capital-markets scenario walked through in the [companion writeup](https://sitaniya-com.pages.dev/blog/vendor-vs-valor)
-- [`runs/example-auth-startup/`](runs/example-auth-startup/) — `input-auth-startup.md`, the auth/access-management scenario
 
 ### Run artifacts
 
