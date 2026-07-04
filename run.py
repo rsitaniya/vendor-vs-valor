@@ -5,7 +5,9 @@ Usage:
     uv run python run.py [path/to/need.md]                # interactive (default)
     uv run python run.py [path/to/need.md] --auto-approve  # unattended, old behavior
 
-Gate 1 (profile): approve, edit profile.json in $EDITOR, or abort.
+Gate 1 (profile): one clarification round for fields that still look unfilled
+and matter to research quality, then approve, edit profile.json in $EDITOR, or
+abort.
 Gate 2 (research): approve or abort — no sanctioned edit path (spec §5.2).
 Gate 3 (strategy): approve, edit the soft steer (re-runs synthesis), or abort.
 """
@@ -28,6 +30,19 @@ from skills.schema_stage import ContractError
 from stages.intake import render_profile_md, validate_profile
 
 _STAGE_AFTER_GATE = {1: "research", 2: "synthesis", 3: "report"}
+
+# Fields that materially affect research quality but often land on a placeholder
+# after intake's single-pass extraction. One round, capped, not an open interview.
+_CLARIFY_FIELDS = [
+    ("constraints", "compliance", "Compliance regimes that apply (comma-separated, or 'none')"),
+    ("constraints", "data_sensitivity", "Data sensitivity"),
+    ("constraints", "data_residency", "Data residency requirements"),
+    ("resources", "budget_note", "Budget"),
+    ("resources", "expected_scale", "Expected scale (users/requests/data volume)"),
+    ("constraints", "timeline_hard_stop", "Timeline hard stop"),
+]
+_MAX_CLARIFICATIONS = 3
+_PLACEHOLDER_STRINGS = {"", "not specified", "none", "none stated", "n/a", "unknown"}
 
 
 def _load_need(path: Path) -> str:
@@ -60,6 +75,56 @@ def apply_soft_steer(store: RunStore, new_steer: str) -> None:
     store.artifact_path("profile.md").write_text(render_profile_md(data), encoding="utf-8")
 
 
+def _is_gap(value: object) -> bool:
+    if isinstance(value, list):
+        return len(value) == 0
+    return str(value).strip().lower() in _PLACEHOLDER_STRINGS
+
+
+def find_profile_gaps(data: dict) -> list[tuple[str, str, str]]:
+    """Up to _MAX_CLARIFICATIONS (section, field, prompt) fields still on a
+    placeholder value after intake's first pass."""
+    gaps = []
+    for section, field, prompt in _CLARIFY_FIELDS:
+        if _is_gap(data.get(section, {}).get(field)):
+            gaps.append((section, field, prompt))
+        if len(gaps) >= _MAX_CLARIFICATIONS:
+            break
+    return gaps
+
+
+def apply_clarifications(store: RunStore, answers: dict[tuple[str, str], str]) -> None:
+    """Patch profile.json with clarification answers and regenerate profile.md."""
+    path = store.artifact_path("profile.json")
+    data = json.loads(path.read_text(encoding="utf-8"))
+    for (section, field), answer in answers.items():
+        target = data.setdefault(section, {})
+        if isinstance(target.get(field), list):
+            target[field] = [item.strip() for item in answer.split(",") if item.strip()]
+        else:
+            target[field] = answer
+    path.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
+    store.artifact_path("profile.md").write_text(render_profile_md(data), encoding="utf-8")
+
+
+def clarify_profile(store: RunStore) -> None:
+    """One clarification round: ask about fields find_profile_gaps flags, skip
+    if the profile is already complete."""
+    data = json.loads(store.artifact_path("profile.json").read_text(encoding="utf-8"))
+    gaps = find_profile_gaps(data)
+    if not gaps:
+        return
+    print("\n  a few fields still look unfilled — one quick round before research runs:")
+    answers: dict[tuple[str, str], str] = {}
+    for section, field, prompt in gaps:
+        answer = input(f"  {prompt} (blank to leave as-is): ").strip()
+        if answer:
+            answers[(section, field)] = answer
+    if answers:
+        apply_clarifications(store, answers)
+        print("  profile updated.")
+
+
 def _open_editor(path: Path) -> None:
     editor = os.environ.get("EDITOR", "vi")
     subprocess.run([editor, str(path)], check=False)
@@ -89,6 +154,8 @@ def prompt_gate(gate: dict, store: RunStore) -> str:
     """Block for real human review. Returns the resume decision ('approve' or
     'edit'), or exits the process on abort."""
     number, stage, artifact, message = gate["gate"], gate["stage"], gate["artifact"], gate["message"]
+    if number == 1:
+        clarify_profile(store)
     print(f"\n  gate {number} ({stage}): {message}")
     print(f"  artifact: {store.dir / artifact}")
     can_edit = number in (1, 3)
