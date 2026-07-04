@@ -47,7 +47,7 @@ input.md
                                                       report.html
 ```
 
-The three gates are LangGraph `interrupt()` points. The pipeline parks, writes its artifact, and waits for the operator by default: approve, or edit (gate 1: the profile in `$EDITOR`; gate 3: the soft steer, which re-runs synthesis — the input-hash guard skips research). Gate 2 is approve/abort only; there's no sanctioned edit path for research claims. Pass `--auto-approve` to `run.py` for the old unattended behavior. Each work node is idempotent via a content-hash guard: a re-entered node recomputes its input hash, finds its existing artifact, and no-ops.
+The three gates are LangGraph `interrupt()` points. The pipeline parks, writes its artifact, and waits for the operator by default: approve, or edit (gate 1: one clarification round for fields still on a placeholder that matter to research quality, then the profile in `$EDITOR`; gate 3: the soft steer, which re-runs synthesis — the input-hash guard skips research). Gate 2 is approve/abort only; there's no sanctioned edit path for research claims. Pass `--auto-approve` to `run.py` for the old unattended behavior. Each work node is idempotent via a content-hash guard: a re-entered node recomputes its input hash, finds its existing artifact, and no-ops.
 
 ---
 
