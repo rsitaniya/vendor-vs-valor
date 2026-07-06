@@ -2,6 +2,7 @@
 name = "vendor-vs-valor"
 version = "0.1.0"
 description = "Vendor vs Valor advisory research engine (MVP). LangGraph orchestration, Gemini behind a provider interface, grounded citations."
+license = "AGPL-3.0-or-later"
 requires-python = ">=3.11"
 dependencies = [
     # Orchestration: graph, interrupt() gates, checkpointer-backed resume

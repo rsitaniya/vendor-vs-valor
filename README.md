@@ -250,7 +250,7 @@ The test suite covers `grounded_claim`, `schema_stage`, the graph topology (park
 ---
 
 ## License
-MIT, see [LICENSE](LICENSE).
+GNU AGPL-3.0, see [LICENSE](LICENSE). Copyright (c) 2026 Rohan Sitaniya.
 
 ## Author
 Built by [Rohan Sitaniya](https://github.com/rsitaniya).
