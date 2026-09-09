@@ -4,8 +4,8 @@ An advisory intelligence engine for capability-sourcing decisions. Given a natur
 
 Output is advisory only. Every claim is independently cited and verified against cached source content. No scores, no weighted rubrics.
 
-Companion writeup: [sitaniya-com.pages.dev/blog/vendor-vs-valor](https://sitaniya-com.pages.dev/blog/vendor-vs-valor)
-Sample report (Indian capital markets use case): [vendor-vs-valor-sample-report.html](https://sitaniya-com.pages.dev/vendor-vs-valor-sample-report.html)
+Companion writeup: [sitaniya.com/blog/vendor-vs-valor](https://sitaniya.com/blog/vendor-vs-valor)
+Sample report (Indian capital markets use case): [vendor-vs-valor-sample-report.html](https://sitaniya.com/vendor-vs-valor-sample-report.html)
 
 > **Status:** MVP, built solo, in the open. It's had more thought put into its citation discipline than its uptime. Treat it like a research assistant you're still training, not a system you'd bet a quarter on.
 
@@ -180,7 +180,7 @@ uv run python run.py --resume 20260704-165040-683630
 ```
 
 A full committed example run, including `strategy.md` and `report.html`:
-- [`runs/example-market-data-india/`](runs/example-market-data-india/) — `input-market-data-india.md`, the capital-markets scenario walked through in the [companion writeup](https://sitaniya-com.pages.dev/blog/vendor-vs-valor)
+- [`runs/example-market-data-india/`](runs/example-market-data-india/) — `input-market-data-india.md`, the capital-markets scenario walked through in the [companion writeup](https://sitaniya.com/blog/vendor-vs-valor)
 
 ### Run artifacts
 
