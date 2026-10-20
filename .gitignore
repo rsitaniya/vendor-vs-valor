@@ -1,7 +1,7 @@
 # Superseded design docs — keep local, never commit
 old/
 interview.md
-emergence_portfolio.md
+*_portfolio.md
 
 # Secrets
 .env
@@ -25,4 +25,4 @@ __pycache__/
 
 # OS / editor
 .DS_Store
-emergence_portfolio.json
+*_portfolio.json

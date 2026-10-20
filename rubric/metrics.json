@@ -124,7 +124,7 @@
     {
       "id": "m12",
       "name": "Portfolio reuse & amortization",
-      "question": "Can this be built once and shared across N companies? (The Emergence multiplier.)",
+      "question": "Can this be built once and shared across N companies? (The portfolio multiplier.)",
       "cost_tagged": false,
       "tracks": [],
       "mvp_status": "dormant",

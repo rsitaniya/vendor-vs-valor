@@ -4,7 +4,7 @@
 > An advisory intelligence layer that turns capability sourcing from a hallway conversation into a grounded, citation-backed recommendation. It first understands intent, then researches internal and vendor-led paths autonomously, then reasons over four strategic options, and argues against its own answer before it ships.
 
 **Author:** Rohan
-**Context:** Designed for Emergence Software (permanent-capital B2B software holding company; "buy-to-build" model; multiple portfolio companies across data and infrastructure verticals).
+**Context:** Designed around a permanent-capital B2B software holding company ("buy-to-build" model; multiple portfolio companies across data and infrastructure verticals).
 **Status:** Design — targets a 1–2 day implementation of the MVP slice (see *MVP HLD & Build Specification*).
 **Companion documents:** *MVP HLD & Build Specification* (the buildable slice, at HLD + targeted-LLD altitude) and *Target Architecture* (the production-scale design, at architecture altitude).
 **Substrate & model:** **LangGraph** orchestration (graph nodes, `interrupt()` human gates, checkpointer-backed resume) with **Gemini** as the default model (Flash workhorse, Pro for synthesis), behind a provider interface so the model is swappable. Both are reversible choices; the reasoning lives in §10.
@@ -16,7 +16,7 @@
 
 ## 0. TL;DR for the reader who has 60 seconds
 
-Emergence's entire edge is **leverage**: build one good thing, multiply it across N companies. Every portfolio company independently faces a stream of "build it or license it" calls: a vector DB, an eval harness, a billing system, a fraud model, a document parser. Today those calls are made locally, inconsistently, and without rigorous research. That is wasted capital and duplicated effort across the portfolio.
+A holding company's entire edge is **leverage**: build one good thing, multiply it across N companies. Every portfolio company independently faces a stream of "build it or license it" calls: a vector DB, an eval harness, a billing system, a fraud model, a document parser. Today those calls are made locally, inconsistently, and without rigorous research. That is wasted capital and duplicated effort across the portfolio.
 
 This engine is the **research infrastructure** for those calls. A platform-team operator describes a need; the engine runs intake to build a structured **need-profile**, runs **two research tracks** (build economics and buy-market scan), reasons over **four strategic paths**, and produces an **advisory recommendation**: a runner-up, the conditions under which the runner-up wins, the decisive factors, and the evidence behind every claim. Then, before it ships, a **challenger pass** tries to make the strongest cited case for a *different* path; whatever it surfaces becomes the runner-up. Every claim is cited and independently verified.
 
@@ -28,9 +28,9 @@ It is deliberately **advisory, not autonomous-deciding**: research is autonomous
 
 ## 1. Why this exists — the business case
 
-### 1.1 The problem, stated in Emergence's terms
+### 1.1 The problem, stated in the holding company's terms
 
-Emergence acquires profitable, founder-led, **chronically underinvested** B2B software companies and then invests to scale them. "Underinvested" means each company arrives with a backlog of deferred technical decisions. As the platform team modernizes them (adding AI capabilities, replacing aging infrastructure, building data products), the same question recurs dozens of times across the portfolio:
+The holding company acquires profitable, founder-led, **chronically underinvested** B2B software companies and then invests to scale them. "Underinvested" means each company arrives with a backlog of deferred technical decisions. As the platform team modernizes them (adding AI capabilities, replacing aging infrastructure, building data products), the same question recurs dozens of times across the portfolio:
 
 > *Do we build this capability in-house, license a SaaS, license a platform and extend it, or adopt open-source and self-host it?*
 
@@ -42,7 +42,7 @@ Made locally and casually, these decisions:
 
 ### 1.2 Why an engine, not a consultant or a checklist
 
-| Option | Why it falls short for Emergence |
+| Option | Why it falls short for the holding company |
 |---|---|
 | Hire consultants per decision | Doesn't compound; no institutional memory; slow; expensive per-call. |
 | Static framework (McKinsey/BETSOL-style checklist) | Humans still do 100% of the research; inconsistent depth; no citations; no portfolio lens. |
@@ -52,7 +52,7 @@ Made locally and casually, these decisions:
 ## 2. Scope, users, and non-goals
 
 ### 2.1 Primary user
-**Emergence platform / portfolio engineering team.** Operators who make or review capability decisions across multiple companies. Secondary consumer: a portfolio-company CTO/engineering team who submits a need and reads the resulting strategy.
+**The holding company's platform / portfolio engineering team.** Operators who make or review capability decisions across multiple companies. Secondary consumer: a portfolio-company CTO/engineering team who submits a need and reads the resulting strategy.
 
 ### 2.2 What it does
 - Elicits a structured need-profile through conversation, including a **soft qualitative steer** on what the operator cares about most.
@@ -66,7 +66,7 @@ Made locally and casually, these decisions:
 - **Does not execute** (no procurement, no provisioning, no contracts).
 - **Does not replace** legal/security review. It flags compliance dimensions; it does not clear them.
 - **Does not score or rank numerically.** It reasons qualitatively and surfaces decisive factors; it does not manufacture false precision through weighted totals.
-- **Does not evaluate "acquire / M&A" as a path.** Acquisition is Emergence's own function and requires diligence the engine cannot responsibly produce from web research. If a sibling already has the capability, that surfaces as reuse (Target), not as an M&A recommendation.
+- **Does not evaluate "acquire / M&A" as a path.** Acquisition is the holding company's own function and requires diligence the engine cannot responsibly produce from web research. If a sibling already has the capability, that surfaces as reuse (Target), not as an M&A recommendation.
 - **Is not a vendor-ranking SEO tool.** It's grounded research, not a Gartner clone.
 
 ### 2.4 Case-agnostic by design
@@ -81,14 +81,14 @@ This is the part no off-the-shelf tool has. Everything else is plumbing.
 
 ### 3.1 Vendor vs Valor evaluates **four paths**
 
-| Path | Definition | Emergence resonance |
+| Path | Definition | Holding-company resonance |
 |---|---|---|
 | **Build** | Develop in-house from scratch / open-source primitives. | Right when it's core IP or generates proprietary data. |
 | **Buy** | License a commercial SaaS / managed product. | Right for commodity, non-differentiating capability. |
 | **Buy-then-extend** | License a core platform with a strong API, build the differentiating layer on top. | The dominant modern playbook; usually the real answer. |
 | **Adopt-and-self-host** | Take open-source, run and harden it internally. | Cost/control middle path; trades license fees for ops burden. **Often the right answer under data-residency or sensitivity constraints.** Self-hosting beats both a raw build and a vendor dependency when data cannot leave the perimeter. |
 
-**Why four, not five.** v1.0 included **acquire** (M&A). It is dropped everywhere, including the Target. Acquire is the only "path" that isn't a recombination of build/buy evidence: assessing it needs valuation and diligence data that web research cannot responsibly produce, and acquisition is Emergence's *own* core function, not something its decision-engine should opine on. Keeping it would force either invented evidence or a hollow row. The boundary is intentional: the engine should know the edge of its own competence rather than produce a half-built fifth path.
+**Why four, not five.** v1.0 included **acquire** (M&A). It is dropped everywhere, including the Target. Acquire is the only "path" that isn't a recombination of build/buy evidence: assessing it needs valuation and diligence data that web research cannot responsibly produce, and acquisition is the holding company's *own* core function, not something its decision-engine should opine on. Keeping it would force either invented evidence or a hollow row. The boundary is intentional: the engine should know the edge of its own competence rather than produce a half-built fifth path.
 
 **Why four, not two.** A two-path engine looks naive to an M&A-native, modern-stack audience. Buy-then-extend is the playbook most decisions actually land on; adopt-and-self-host is the path that wins in regulated/sensitive contexts. Showing all four signals you understand the real decision surface.
 
@@ -127,7 +127,7 @@ The 14 decision dimensions from v1.0 **are not gone**: they survive as the **res
 | 9 | Data ownership / sensitivity / compliance | Where does data live? Regulatory exposure? Vendor data-handling risk? |
 | 10 | Customization need vs. availability | How much must it bend to our workflow, and can each path deliver that? |
 | 11 | Focus / core-value alignment | Does doing this ourselves distract from the company's core value? |
-| 12 | ★ Portfolio reuse & amortization | Can this be built once and shared across N companies? (The Emergence multiplier; Target.) |
+| 12 | ★ Portfolio reuse & amortization | Can this be built once and shared across N companies? (The portfolio multiplier; Target.) |
 | 13 | Vendor viability / lock-in risk | Is the vendor durable? Acquisition/EOL risk? |
 | 14 | Integration complexity | Cost to wire into existing (often legacy, underinvested) stacks. |
 

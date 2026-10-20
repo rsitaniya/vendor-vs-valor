@@ -149,7 +149,7 @@ Graph: DecisionRun  (LangGraph; durable checkpointer backend)
 
 This service is *why* the engine is worth more to a holding company than to any single startup. It is the narrative centerpiece even though it is out of the MVP.
 
-**Note on "acquire."** Even here, the engine does **not** evaluate acquisition as a scored path: that boundary holds at every scale. What Portfolio Memory adds is the *reuse* check ("a sibling already has this"), which is a build/buy-avoidance signal, not an M&A recommendation. Acquisition stays with the humans who run Emergence's actual acquisition function.
+**Note on "acquire."** Even here, the engine does **not** evaluate acquisition as a scored path: that boundary holds at every scale. What Portfolio Memory adds is the *reuse* check ("a sibling already has this"), which is a build/buy-avoidance signal, not an M&A recommendation. Acquisition stays with the humans who run the holding company's actual acquisition function.
 
 ---
 
